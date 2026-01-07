@@ -5,6 +5,7 @@
 #ifndef KALANET_CLIENT_MAIN_WINDOW_H
 #define KALANET_CLIENT_MAIN_WINDOW_H
 
+#include <QTcpSocket>
 #include <QWidget>
 
 
@@ -27,9 +28,10 @@ public:
 
 private:
     Ui::client_main_window* ui;
+    QTcpSocket* socket_ = nullptr;
 
-public slots:
-    void myButtonClicked();
+private slots:
+    void on_pushButton_clicked();
 };
 
 
