@@ -1,5 +1,5 @@
-#include "../headers/mymainwindow.h"
-#include "ui_mymainwindow.h"
+#include "../headers/server_main_window.h"
+#include "ui_server_main_window.h"
 #include <QHostAddress>
 #include <QMessageBox>
 #include <QDebug>

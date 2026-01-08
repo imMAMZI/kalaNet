@@ -26,4 +26,3 @@ target_link_libraries(serverProject
         Qt6::Network
 )
 
-

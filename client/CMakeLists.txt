@@ -25,4 +25,3 @@ target_link_libraries(clientProject
         Qt6::Widgets
         Qt6::Network
 )
-
