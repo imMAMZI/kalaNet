@@ -14,7 +14,7 @@ find_package(Qt6 COMPONENTS
         REQUIRED)
 
 
-add_executable(clientProject src/main_client.cpp
+add_executable(clientProject src/client_main.cpp
         src/client_main_window.cpp
         headers/client_main_window.h
         src/client_main_window.ui)

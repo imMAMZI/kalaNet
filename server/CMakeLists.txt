@@ -14,9 +14,9 @@ find_package(Qt6 COMPONENTS
         REQUIRED)
 
 add_executable(serverProject src/server_main.cpp
-        src/mymainwindow.cpp
-        headers/mymainwindow.h
-        src/mymainwindow.ui
+        src/server_main_window.cpp
+        headers/server_main_window.h
+        src/server_main_window.ui
         )
 
 target_link_libraries(serverProject
