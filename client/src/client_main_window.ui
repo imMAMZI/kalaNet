@@ -13,17 +13,43 @@
   <property name="windowTitle">
    <string>client_main_window</string>
   </property>
-  <widget class="QPushButton" name="pushButton">
+  <widget class="QPushButton" name="connectButton">
    <property name="geometry">
     <rect>
-     <x>140</x>
-     <y>130</y>
+     <x>40</x>
+     <y>40</y>
      <width>101</width>
      <height>31</height>
     </rect>
    </property>
    <property name="text">
     <string>connect</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="sayHiButton">
+   <property name="geometry">
+    <rect>
+     <x>120</x>
+     <y>130</y>
+     <width>101</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Say Hi</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="disconnectButton">
+   <property name="geometry">
+    <rect>
+     <x>190</x>
+     <y>40</y>
+     <width>91</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>disconnect</string>
    </property>
   </widget>
  </widget>

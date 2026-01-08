@@ -48,7 +48,7 @@ client_main_window::~client_main_window()
     delete ui;
 }
 
-void client_main_window::on_pushButton_clicked()
+void client_main_window::on_connectButton_clicked()
 {
     // If server is on the SAME machine, use 127.0.0.1
     // If server is on another machine, replace with its LAN IP (e.g. "192.168.1.10")
@@ -66,4 +66,38 @@ void client_main_window::on_pushButton_clicked()
 
     // Optional: send something right after connecting
     // (better to send in connected() callback if you want guaranteed timing)
+}
+
+
+void client_main_window::on_disconnectButton_clicked()
+{
+    if (!socket_) {
+        return;
+    }
+
+    // Not connected → nothing to do
+    if (socket_->state() == QAbstractSocket::UnconnectedState) {
+        QMessageBox::information(this, "Client", "Not connected to any server.");
+        return;
+    }
+
+    // Graceful disconnect
+    socket_->disconnectFromHost();
+
+    // Optional: wait a short time for clean close
+    if (socket_->state() != QAbstractSocket::UnconnectedState) {
+        socket_->waitForDisconnected(1000); // 1 second max
+    }
+
+    qInfo() << "Disconnect requested by user.";
+}
+
+void client_main_window::on_sayHiButton_clicked()
+{
+    if (socket_->state() != QAbstractSocket::ConnectedState) {
+        QMessageBox::warning(this, "Client", "Not connected.");
+        return;
+    }
+
+    socket_->write("Hi server!\n");
 }

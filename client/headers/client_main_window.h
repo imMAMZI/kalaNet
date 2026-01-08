@@ -31,7 +31,9 @@ private:
     QTcpSocket* socket_ = nullptr;
 
 private slots:
-    void on_pushButton_clicked();
+    void on_connectButton_clicked();
+    void on_sayHiButton_clicked();
+    void on_disconnectButton_clicked();
 };
 
 

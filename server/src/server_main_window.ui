@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>myMainWindow</class>
- <widget class="QMainWindow" name="myMainWindow">
+ <class>server_main_window</class>
+ <widget class="QMainWindow" name="server_main_window">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -14,17 +14,30 @@
    <string>myMainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QPushButton" name="pushButton">
+   <widget class="QPushButton" name="startListeningButton">
     <property name="geometry">
      <rect>
-      <x>100</x>
-      <y>80</y>
+      <x>50</x>
+      <y>50</y>
       <width>121</width>
       <height>61</height>
      </rect>
     </property>
     <property name="text">
      <string>start Listening</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="stopListeningButton">
+    <property name="geometry">
+     <rect>
+      <x>200</x>
+      <y>50</y>
+      <width>101</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>stop listening</string>
     </property>
    </widget>
   </widget>
