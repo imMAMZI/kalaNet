@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <cstdint>
+#include "models/wallet.h"
 
 namespace common {
 
@@ -37,9 +38,8 @@ namespace common {
         void setPasswordHash(const std::string& hash);
 
         // Wallet
-        std::int64_t getBalance() const;
-        void addBalance(std::int64_t amount);
-        bool deductBalance(std::int64_t amount);
+        Wallet& wallet();
+        const Wallet& wallet() const;
 
         // Role
         UserRole getRole() const;
@@ -55,6 +55,8 @@ namespace common {
         std::string fullName_;
         std::string email_;
         std::string phone_;
+
+        Wallet wallet_;
 
         // Security
         std::string passwordHash_;

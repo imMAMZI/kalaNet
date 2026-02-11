@@ -58,27 +58,13 @@ namespace common {
     }
 
     // Wallet
-    std::int64_t User::getBalance() const {
-        return walletBalance_;
+    Wallet& User::wallet()
+    {
+        return wallet_;
     }
-
-    void User::addBalance(std::int64_t amount) {
-        if (amount > 0) {
-            walletBalance_ += amount;
-        }
-    }
-
-    bool User::deductBalance(std::int64_t amount) {
-        if (amount <= 0) {
-            return false;
-        }
-
-        if (walletBalance_ < amount) {
-            return false;
-        }
-
-        walletBalance_ -= amount;
-        return true;
+    const Wallet& User::wallet() const
+    {
+        return wallet_;
     }
 
     // Role
