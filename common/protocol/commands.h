@@ -1,8 +1,16 @@
-//
-// Created by hosse on 2/11/2026.
-//
+#ifndef COMMANDS_H
+#define COMMANDS_H
 
-#ifndef KALANET_COMMANDS_H
-#define KALANET_COMMANDS_H
+namespace common::protocol {
 
-#endif //KALANET_COMMANDS_H
+    enum class Command {
+        Login,
+        Signup,
+        LoginResult,
+        SignupResult,
+        Error
+    };
+
+}
+
+#endif // COMMANDS_H
