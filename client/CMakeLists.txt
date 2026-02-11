@@ -17,7 +17,9 @@ find_package(Qt6 COMPONENTS
 add_executable(clientProject src/client_main.cpp
         src/client_main_window.cpp
         headers/client_main_window.h
-        src/client_main_window.ui)
+        src/client_main_window.ui
+        ../common/models/user.cpp
+        ../common/models/user.h)
 
 target_link_libraries(clientProject
         Qt6::Core
