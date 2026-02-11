@@ -6,7 +6,7 @@
 
 #include "protocol/commands.h"
 
-namespace common::protocol {
+namespace common {
 
     class Message {
     public:

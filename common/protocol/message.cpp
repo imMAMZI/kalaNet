@@ -1,6 +1,6 @@
 #include "protocol/message.h"
 
-namespace common::protocol {
+namespace common {
 
     Message::Message(Command cmd, const QJsonObject& payload)
         : command_(cmd), payload_(payload)

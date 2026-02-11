@@ -1,16 +1,21 @@
 #ifndef COMMANDS_H
 #define COMMANDS_H
 
-namespace common::protocol {
-
-    enum class Command {
+namespace common
+{
+    enum class Command
+    {
         Login,
         Signup,
         LoginResult,
         SignupResult,
-        Error
+        Error,
+        GetAds,
+        AddToCart,
+        RemoveFromCart,
+        Buy, // Client → Server
+        BuyResult, // Server → Client
     };
-
 }
 
 #endif // COMMANDS_H
