@@ -10,6 +10,7 @@ add_library(common STATIC
 
         protocol/message.cpp
         protocol/serializer.cpp
+        protocol/buy_message.cpp
 
         utils/hash_utils.cpp
         utils/id_generator.cpp
