@@ -5,10 +5,12 @@
 #include <QApplication>
 
 #include "../headers/client_main_window.h"
+#include "../headers/login_window.h"
 
 int main(int argc, char *argv[]) {
     QApplication a(argc, argv);
+    login_window login_page;
     client_main_window w;
-    w.show();
+    login_page.show();
     return QApplication::exec();
 }

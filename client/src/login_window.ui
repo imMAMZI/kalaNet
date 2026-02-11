@@ -1,0 +1,387 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+    <class>login_window</class>
+    <widget class="QMainWindow" name="LoginWindow">
+        <property name="geometry">
+            <rect>
+                <x>0</x>
+                <y>0</y>
+                <width>520</width>
+                <height>720</height>
+            </rect>
+        </property>
+        <property name="windowTitle">
+            <string>Login</string>
+        </property>
+        <property name="minimumSize">
+            <size>
+                <width>420</width>
+                <height>620</height>
+            </size>
+        </property>
+        <property name="styleSheet">
+            <string notr="true">
+                /* ===== Global theme: Pink + Black ===== */
+                QMainWindow, QWidget {
+                background: #0B0B0F;
+                color: #F4F4F6;
+                font-family: "Segoe UI";
+                font-size: 12pt;
+                }
+
+                QLabel#lblTitle {
+                color: #FF3DA5;
+                font-size: 28pt;
+                font-weight: 800;
+                }
+
+                QLabel#lblSubtitle {
+                color: #CFCFDB;
+                font-size: 11pt;
+                }
+
+                QFrame#card {
+                background: #111118;
+                border: 1px solid #242431;
+                border-radius: 18px;
+                }
+
+                QLabel#lblError {
+                color: #FF5C7A;
+                font-size: 10.5pt;
+                }
+
+                QLineEdit {
+                background: #0E0E14;
+                border: 1px solid #2A2A39;
+                border-radius: 12px;
+                padding: 10px 12px;
+                selection-background-color: #FF3DA5;
+                }
+
+                QLineEdit:focus {
+                border: 2px solid #FF3DA5;
+                }
+
+                QPushButton#btnLogin {
+                background: #FF3DA5;
+                color: #0B0B0F;
+                font-weight: 800;
+                border: none;
+                border-radius: 14px;
+                padding: 12px;
+                }
+
+                QPushButton#btnLogin:hover { background: #FF63B7; }
+                QPushButton#btnLogin:pressed { background: #E92A93; }
+
+                QPushButton#btnRefresh {
+                background: transparent;
+                color: #FF3DA5;
+                border: 1px solid #FF3DA5;
+                border-radius: 12px;
+                padding: 8px 10px;
+                font-weight: 700;
+                }
+                QPushButton#btnRefresh:hover { background: rgba(255, 61, 165, 0.12); }
+                QPushButton#btnRefresh:pressed { background: rgba(255, 61, 165, 0.22); }
+
+                QPushButton#btnSignup {
+                background: transparent;
+                color: #CFCFDB;
+                border: none;
+                text-decoration: underline;
+                }
+                QPushButton#btnSignup:hover { color: #FF3DA5; }
+
+                QLabel#lblCaptchaText {
+                color: #FF3DA5;
+                font-weight: 900;
+                letter-spacing: 2px;
+                font-size: 16pt;
+                }
+
+                QLabel#lblHint {
+                color: #9B9BB0;
+                font-size: 10pt;
+                }
+
+            </string>
+        </property>
+        <widget class="QWidget" name="centralwidget">
+            <layout class="QVBoxLayout" name="rootLayout">
+                <property name="leftMargin">
+                    <number>24</number>
+                </property>
+                <property name="topMargin">
+                    <number>24</number>
+                </property>
+                <property name="rightMargin">
+                    <number>24</number>
+                </property>
+                <property name="bottomMargin">
+                    <number>24</number>
+                </property>
+                <property name="spacing">
+                    <number>16</number>
+                </property>
+
+                <!-- Top spacer for responsiveness -->
+                <item>
+                    <spacer name="spacerTop">
+                        <property name="orientation">
+                            <enum>Qt::Vertical</enum>
+                        </property>
+                        <property name="sizeHint" stdset="0">
+                            <size>
+                                <width>20</width>
+                                <height>40</height>
+                            </size>
+                        </property>
+                    </spacer>
+                </item>
+
+                <!-- Header -->
+                <item>
+                    <widget class="QLabel" name="lblTitle">
+                        <property name="text">
+                            <string>PinkMart</string>
+                        </property>
+                        <property name="alignment">
+                            <set>Qt::AlignHCenter|Qt::AlignVCenter</set>
+                        </property>
+                    </widget>
+                </item>
+                <item>
+                    <widget class="QLabel" name="lblSubtitle">
+                        <property name="text">
+                            <string>Login to continue</string>
+                        </property>
+                        <property name="alignment">
+                            <set>Qt::AlignHCenter|Qt::AlignVCenter</set>
+                        </property>
+                    </widget>
+                </item>
+
+                <!-- Card -->
+                <item>
+                    <widget class="QFrame" name="card">
+                        <property name="sizePolicy">
+                            <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
+                            </sizepolicy>
+                        </property>
+                        <layout class="QVBoxLayout" name="cardLayout">
+                            <property name="leftMargin">
+                                <number>22</number>
+                            </property>
+                            <property name="topMargin">
+                                <number>22</number>
+                            </property>
+                            <property name="rightMargin">
+                                <number>22</number>
+                            </property>
+                            <property name="bottomMargin">
+                                <number>22</number>
+                            </property>
+                            <property name="spacing">
+                                <number>14</number>
+                            </property>
+
+                            <item>
+                                <widget class="QLabel" name="lblHint">
+                                    <property name="text">
+                                        <string>Enter your username and password. Complete the captcha for security.</string>
+                                    </property>
+                                    <property name="wordWrap">
+                                        <bool>true</bool>
+                                    </property>
+                                </widget>
+                            </item>
+
+                            <!-- Username -->
+                            <item>
+                                <widget class="QLineEdit" name="leUsername">
+                                    <property name="placeholderText">
+                                        <string>Username</string>
+                                    </property>
+                                    <property name="clearButtonEnabled">
+                                        <bool>true</bool>
+                                    </property>
+                                </widget>
+                            </item>
+
+                            <!-- Password -->
+                            <item>
+                                <widget class="QLineEdit" name="lePassword">
+                                    <property name="placeholderText">
+                                        <string>Password</string>
+                                    </property>
+                                    <property name="echoMode">
+                                        <enum>QLineEdit::Password</enum>
+                                    </property>
+                                    <property name="clearButtonEnabled">
+                                        <bool>true</bool>
+                                    </property>
+                                </widget>
+                            </item>
+
+                            <!-- Captcha row -->
+                            <item>
+                                <layout class="QHBoxLayout" name="captchaTopRow">
+                                    <property name="spacing">
+                                        <number>10</number>
+                                    </property>
+
+                                    <item>
+                                        <widget class="QLabel" name="lblCaptchaText">
+                                            <property name="text">
+                                                <string>AB12X</string>
+                                            </property>
+                                            <property name="alignment">
+                                                <set>Qt::AlignVCenter|Qt::AlignLeft</set>
+                                            </property>
+                                        </widget>
+                                    </item>
+
+                                    <item>
+                                        <spacer name="spacerCaptchaRow">
+                                            <property name="orientation">
+                                                <enum>Qt::Horizontal</enum>
+                                            </property>
+                                            <property name="sizeHint" stdset="0">
+                                                <size>
+                                                    <width>40</width>
+                                                    <height>20</height>
+                                                </size>
+                                            </property>
+                                        </spacer>
+                                    </item>
+
+                                    <item>
+                                        <widget class="QPushButton" name="btnRefresh">
+                                            <property name="text">
+                                                <string>Refresh</string>
+                                            </property>
+                                            <property name="cursor">
+                                                <cursorShape>PointingHandCursor</cursorShape>
+                                            </property>
+                                        </widget>
+                                    </item>
+                                </layout>
+                            </item>
+
+                            <item>
+                                <widget class="QLineEdit" name="leCaptcha">
+                                    <property name="placeholderText">
+                                        <string>Type the captcha shown above</string>
+                                    </property>
+                                    <property name="clearButtonEnabled">
+                                        <bool>true</bool>
+                                    </property>
+                                </widget>
+                            </item>
+
+                            <!-- Error label -->
+                            <item>
+                                <widget class="QLabel" name="lblError">
+                                    <property name="text">
+                                        <string/>
+                                    </property>
+                                    <property name="wordWrap">
+                                        <bool>true</bool>
+                                    </property>
+                                </widget>
+                            </item>
+
+                            <!-- Login button -->
+                            <item>
+                                <widget class="QPushButton" name="btnLogin">
+                                    <property name="text">
+                                        <string>Login</string>
+                                    </property>
+                                    <property name="cursor">
+                                        <cursorShape>PointingHandCursor</cursorShape>
+                                    </property>
+                                    <property name="default">
+                                        <bool>true</bool>
+                                    </property>
+                                </widget>
+                            </item>
+
+                            <!-- Signup link -->
+                            <item>
+                                <layout class="QHBoxLayout" name="signupRow">
+                                    <item>
+                                        <spacer name="spacerSignupLeft">
+                                            <property name="orientation">
+                                                <enum>Qt::Horizontal</enum>
+                                            </property>
+                                            <property name="sizeHint" stdset="0">
+                                                <size>
+                                                    <width>40</width>
+                                                    <height>20</height>
+                                                </size>
+                                            </property>
+                                        </spacer>
+                                    </item>
+                                    <item>
+                                        <widget class="QLabel" name="lblNoAccount">
+                                            <property name="text">
+                                                <string>Don’t have an account?</string>
+                                            </property>
+                                        </widget>
+                                    </item>
+                                    <item>
+                                        <widget class="QPushButton" name="btnSignup">
+                                            <property name="text">
+                                                <string>Sign up</string>
+                                            </property>
+                                            <property name="cursor">
+                                                <cursorShape>PointingHandCursor</cursorShape>
+                                            </property>
+                                        </widget>
+                                    </item>
+                                    <item>
+                                        <spacer name="spacerSignupRight">
+                                            <property name="orientation">
+                                                <enum>Qt::Horizontal</enum>
+                                            </property>
+                                            <property name="sizeHint" stdset="0">
+                                                <size>
+                                                    <width>40</width>
+                                                    <height>20</height>
+                                                </size>
+                                            </property>
+                                        </spacer>
+                                    </item>
+                                </layout>
+                            </item>
+
+                        </layout>
+                    </widget>
+                </item>
+
+                <!-- Bottom spacer for responsiveness -->
+                <item>
+                    <spacer name="spacerBottom">
+                        <property name="orientation">
+                            <enum>Qt::Vertical</enum>
+                        </property>
+                        <property name="sizeHint" stdset="0">
+                            <size>
+                                <width>20</width>
+                                <height>80</height>
+                            </size>
+                        </property>
+                    </spacer>
+                </item>
+
+            </layout>
+        </widget>
+        <widget class="QStatusBar" name="statusbar"/>
+    </widget>
+    <resources/>
+    <connections/>
+</ui>

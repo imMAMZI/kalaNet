@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 4.0)
+cmake_minimum_required(VERSION 3.21)
 project(clientProject)
 
 set(CMAKE_CXX_STANDARD 23)
@@ -17,7 +17,10 @@ find_package(Qt6 COMPONENTS
 add_executable(clientProject src/client_main.cpp
         src/client_main_window.cpp
         headers/client_main_window.h
-        src/client_main_window.ui)
+        src/client_main_window.ui
+        src/login_window.cpp
+        headers/login_window.h
+        src/login_window.ui)
 
 target_link_libraries(clientProject
         Qt6::Core
