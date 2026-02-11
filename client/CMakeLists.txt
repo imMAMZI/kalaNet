@@ -1,7 +1,8 @@
-cmake_minimum_required(VERSION 3.21)
+cmake_minimum_required(VERSION 4.0)
 project(clientProject)
 
 set(CMAKE_CXX_STANDARD 23)
+
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
@@ -23,8 +24,10 @@ add_executable(clientProject src/client_main.cpp
         src/login_window.ui)
 
 target_link_libraries(clientProject
+        PRIVATE
         Qt6::Core
         Qt6::Gui
         Qt6::Widgets
         Qt6::Network
+        common
 )
