@@ -1,8 +1,50 @@
-//
-// Created by hosse on 2/11/2026.
-//
+#ifndef TRANSACTION_H
+#define TRANSACTION_H
 
-#ifndef KALANET_TRANSACTION_H
-#define KALANET_TRANSACTION_H
+#include <string>
+#include <chrono>
 
-#endif //KALANET_TRANSACTION_H
+namespace common {
+
+    enum class TransactionStatus {
+        Pending,
+        Success,
+        Failed
+    };
+
+    class Transaction {
+    public:
+        Transaction() = default;
+
+        Transaction(
+            int id,
+            const std::string& buyerUsername,
+            const std::string& sellerUsername,
+            int adId,
+            double amount,
+            TransactionStatus status
+        );
+
+        int id() const;
+        const std::string& buyer() const;
+        const std::string& seller() const;
+        int adId() const;
+        double amount() const;
+        TransactionStatus status() const;
+        std::string timestamp() const;
+
+        void setStatus(TransactionStatus newStatus);
+
+    private:
+        int id_;
+        std::string buyer_;
+        std::string seller_;
+        int adId_;
+        double amount_;
+        TransactionStatus status_;
+        std::string timestamp_;  // stored as ISO 8601 string
+    };
+
+}
+
+#endif // TRANSACTION_H
