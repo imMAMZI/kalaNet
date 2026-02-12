@@ -1,33 +1,36 @@
-#include "protocol/message.h"
+#include "message.h"
 #include "protocol/command_utils.h"
 
-namespace common {
+using namespace common;
 
-    Message::Message(Command cmd, const QJsonObject& payload)
-        : command_(cmd), payload_(payload)
-    {
-    }
+Message::Message(Command cmd, const QJsonObject& payload)
+    : command_(cmd), payload_(payload)
+{
+}
 
-    Command Message::command() const {
-        return command_;
-    }
+Command Message::command() const
+{
+    return command_;
+}
 
-    const QJsonObject& Message::payload() const {
-        return payload_;
-    }
+const QJsonObject& Message::payload() const
+{
+    return payload_;
+}
 
-    QJsonObject Message::toJson() const {
-        QJsonObject json;
-        json["command"] = commandToString(command_);
-        json["payload"] = payload_;
-        return json;
-    }
+QJsonObject Message::toJson() const
+{
+    QJsonObject obj;
+    obj["command"] = commandToString(command_);
+    obj["payload"] = payload_;
+    return obj;
+}
 
-    Message Message::fromJson(const QJsonObject& json) {
-        Message msg;
-        msg.command_ = stringToCommand(json["command"].toString());
-        msg.payload_ = json["payload"].toObject();
-        return msg;
-    }
+Message Message::fromJson(const QJsonObject& json)
+{
+    const QString cmdStr = json.value("command").toString();
+    Command cmd = stringToCommand(cmdStr);
 
+    QJsonObject payload = json.value("payload").toObject();
+    return Message(cmd, payload);
 }
