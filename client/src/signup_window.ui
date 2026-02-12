@@ -1,0 +1,376 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+    <class>signup_window</class>
+    <widget class="QDialog" name="signup_window">
+        <property name="geometry">
+            <rect>
+                <x>0</x>
+                <y>0</y>
+                <width>540</width>
+                <height>820</height>
+            </rect>
+        </property>
+        <property name="windowTitle">
+            <string>Sign up</string>
+        </property>
+        <property name="minimumSize">
+            <size>
+                <width>460</width>
+                <height>740</height>
+            </size>
+        </property>
+        <property name="modal">
+            <bool>true</bool>
+        </property>
+        <property name="styleSheet">
+            <string notr="true">
+                /* ===== Global theme: Pink + Black ===== */
+                QDialog, QWidget {
+                background: #0B0B0F;
+                color: #F4F4F6;
+                font-family: "Segoe UI";
+                font-size: 12pt;
+                }
+
+                QLabel#lblTitle {
+                color: #FF3DA5;
+                font-size: 26pt;
+                font-weight: 800;
+                }
+
+                QLabel#lblSubtitle {
+                color: #CFCFDB;
+                font-size: 11pt;
+                }
+
+                QFrame#card {
+                background: #111118;
+                border: 1px solid #242431;
+                border-radius: 18px;
+                }
+
+                QLabel#lblError {
+                color: #FF5C7A;
+                font-size: 10.5pt;
+                }
+
+                QLabel#lblHint {
+                color: #9B9BB0;
+                font-size: 10pt;
+                }
+
+                QLineEdit {
+                background: #0E0E14;
+                border: 1px solid #2A2A39;
+                border-radius: 12px;
+                padding: 10px 12px;
+                selection-background-color: #FF3DA5;
+                }
+
+                QLineEdit:focus {
+                border: 2px solid #FF3DA5;
+                }
+
+                QPushButton#btnCreateAccount {
+                background: #FF3DA5;
+                color: #0B0B0F;
+                font-weight: 800;
+                border: none;
+                border-radius: 14px;
+                padding: 12px;
+                }
+
+                QPushButton#btnCreateAccount:hover { background: #FF63B7; }
+                QPushButton#btnCreateAccount:pressed { background: #E92A93; }
+
+                QPushButton#btnBack {
+                background: transparent;
+                color: #FF3DA5;
+                border: 1px solid #FF3DA5;
+                border-radius: 14px;
+                padding: 10px;
+                font-weight: 700;
+                }
+                QPushButton#btnBack:hover { background: rgba(255, 61, 165, 0.12); }
+                QPushButton#btnBack:pressed { background: rgba(255, 61, 165, 0.22); }
+
+                QLabel#lblPasswordNote {
+                color: #CFCFDB;
+                font-size: 10pt;
+                }
+
+                QLabel#lblSectionTitle {
+                color: #FF3DA5;
+                font-weight: 800;
+                font-size: 12pt;
+                }
+            </string>
+        </property>
+
+        <layout class="QVBoxLayout" name="rootLayout">
+            <property name="leftMargin">
+                <number>24</number>
+            </property>
+            <property name="topMargin">
+                <number>24</number>
+            </property>
+            <property name="rightMargin">
+                <number>24</number>
+            </property>
+            <property name="bottomMargin">
+                <number>24</number>
+            </property>
+            <property name="spacing">
+                <number>16</number>
+            </property>
+
+            <!-- Top spacer for responsiveness -->
+            <item>
+                <spacer name="spacerTop">
+                    <property name="orientation">
+                        <enum>Qt::Vertical</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                        <size>
+                            <width>20</width>
+                            <height>30</height>
+                        </size>
+                    </property>
+                </spacer>
+            </item>
+
+            <!-- Header -->
+            <item>
+                <widget class="QLabel" name="lblTitle">
+                    <property name="text">
+                        <string>Create account</string>
+                    </property>
+                    <property name="alignment">
+                        <set>Qt::AlignHCenter|Qt::AlignVCenter</set>
+                    </property>
+                </widget>
+            </item>
+
+            <item>
+                <widget class="QLabel" name="lblSubtitle">
+                    <property name="text">
+                        <string>Join PinkMart — it only takes a minute</string>
+                    </property>
+                    <property name="alignment">
+                        <set>Qt::AlignHCenter|Qt::AlignVCenter</set>
+                    </property>
+                </widget>
+            </item>
+
+            <!-- Card -->
+            <item>
+                <widget class="QFrame" name="card">
+                    <layout class="QVBoxLayout" name="cardLayout">
+                        <property name="leftMargin">
+                            <number>22</number>
+                        </property>
+                        <property name="topMargin">
+                            <number>22</number>
+                        </property>
+                        <property name="rightMargin">
+                            <number>22</number>
+                        </property>
+                        <property name="bottomMargin">
+                            <number>22</number>
+                        </property>
+                        <property name="spacing">
+                            <number>14</number>
+                        </property>
+
+                        <item>
+                            <widget class="QLabel" name="lblHint">
+                                <property name="text">
+                                    <string>Fill in your details below. All fields are required.</string>
+                                </property>
+                                <property name="wordWrap">
+                                    <bool>true</bool>
+                                </property>
+                            </widget>
+                        </item>
+
+                        <item>
+                            <widget class="QLabel" name="lblSectionTitleAccount">
+                                <property name="text">
+                                    <string>Account info</string>
+                                </property>
+                            </widget>
+                        </item>
+
+                        <!-- Name + Username -->
+                        <item>
+                            <layout class="QHBoxLayout" name="rowNameUser">
+                                <property name="spacing">
+                                    <number>10</number>
+                                </property>
+                                <item>
+                                    <widget class="QLineEdit" name="leName">
+                                        <property name="placeholderText">
+                                            <string>Full name</string>
+                                        </property>
+                                        <property name="clearButtonEnabled">
+                                            <bool>true</bool>
+                                        </property>
+                                    </widget>
+                                </item>
+                                <item>
+                                    <widget class="QLineEdit" name="leUsername">
+                                        <property name="placeholderText">
+                                            <string>Username</string>
+                                        </property>
+                                        <property name="clearButtonEnabled">
+                                            <bool>true</bool>
+                                        </property>
+                                    </widget>
+                                </item>
+                            </layout>
+                        </item>
+
+                        <!-- Phone + Email -->
+                        <item>
+                            <layout class="QHBoxLayout" name="rowPhoneEmail">
+                                <property name="spacing">
+                                    <number>10</number>
+                                </property>
+                                <item>
+                                    <widget class="QLineEdit" name="lePhone">
+                                        <property name="placeholderText">
+                                            <string>Phone number</string>
+                                        </property>
+                                        <property name="clearButtonEnabled">
+                                            <bool>true</bool>
+                                        </property>
+                                        <property name="inputMethodHints">
+                                            <set>Qt::ImhDigitsOnly</set>
+                                        </property>
+                                    </widget>
+                                </item>
+                                <item>
+                                    <widget class="QLineEdit" name="leEmail">
+                                        <property name="placeholderText">
+                                            <string>Email address</string>
+                                        </property>
+                                        <property name="clearButtonEnabled">
+                                            <bool>true</bool>
+                                        </property>
+                                    </widget>
+                                </item>
+                            </layout>
+                        </item>
+
+                        <item>
+                            <widget class="QLabel" name="lblSectionTitleSecurity">
+                                <property name="text">
+                                    <string>Security</string>
+                                </property>
+                            </widget>
+                        </item>
+
+                        <!-- Password -->
+                        <item>
+                            <widget class="QLineEdit" name="lePassword">
+                                <property name="placeholderText">
+                                    <string>Password</string>
+                                </property>
+                                <property name="echoMode">
+                                    <enum>QLineEdit::Password</enum>
+                                </property>
+                                <property name="clearButtonEnabled">
+                                    <bool>true</bool>
+                                </property>
+                            </widget>
+                        </item>
+
+                        <!-- Confirm Password -->
+                        <item>
+                            <widget class="QLineEdit" name="leConfirmPassword">
+                                <property name="placeholderText">
+                                    <string>Confirm password</string>
+                                </property>
+                                <property name="echoMode">
+                                    <enum>QLineEdit::Password</enum>
+                                </property>
+                                <property name="clearButtonEnabled">
+                                    <bool>true</bool>
+                                </property>
+                            </widget>
+                        </item>
+
+                        <item>
+                            <widget class="QLabel" name="lblPasswordNote">
+                                <property name="text">
+                                    <string>Password must be at least 8 characters and strong (we’ll validate it).</string>
+                                </property>
+                                <property name="wordWrap">
+                                    <bool>true</bool>
+                                </property>
+                            </widget>
+                        </item>
+
+                        <!-- Error label -->
+                        <item>
+                            <widget class="QLabel" name="lblError">
+                                <property name="text">
+                                    <string/>
+                                </property>
+                                <property name="wordWrap">
+                                    <bool>true</bool>
+                                </property>
+                            </widget>
+                        </item>
+
+                        <!-- Create account button -->
+                        <item>
+                            <widget class="QPushButton" name="btnCreateAccount">
+                                <property name="text">
+                                    <string>Create account</string>
+                                </property>
+                                <property name="cursor">
+                                    <cursorShape>PointingHandCursor</cursorShape>
+                                </property>
+                                <property name="default">
+                                    <bool>true</bool>
+                                </property>
+                            </widget>
+                        </item>
+
+                        <!-- Back button -->
+                        <item>
+                            <widget class="QPushButton" name="btnBack">
+                                <property name="text">
+                                    <string>Back to login</string>
+                                </property>
+                                <property name="cursor">
+                                    <cursorShape>PointingHandCursor</cursorShape>
+                                </property>
+                            </widget>
+                        </item>
+
+                    </layout>
+                </widget>
+            </item>
+
+            <!-- Bottom spacer for responsiveness -->
+            <item>
+                <spacer name="spacerBottom">
+                    <property name="orientation">
+                        <enum>Qt::Vertical</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                        <size>
+                            <width>20</width>
+                            <height>60</height>
+                        </size>
+                    </property>
+                </spacer>
+            </item>
+
+        </layout>
+    </widget>
+    <resources/>
+    <connections/>
+</ui>
