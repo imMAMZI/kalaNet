@@ -2,7 +2,8 @@
 #include "../network/ClientConnection.h"
 #include "protocol/commands.h"
 
-RequestDispatcher::RequestDispatcher()
+RequestDispatcher::RequestDispatcher(AuthService& authService)
+    : authService_(authService)
 {
 }
 

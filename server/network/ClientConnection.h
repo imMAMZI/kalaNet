@@ -10,7 +10,9 @@ class ClientConnection : public QObject
     Q_OBJECT
 
 public:
-    explicit ClientConnection(QTcpSocket* socket, QObject* parent = nullptr);
+    explicit ClientConnection(QTcpSocket* socket,
+                              RequestDispatcher& dispatcher,
+                              QObject* parent = nullptr);
 
     void send(const common::Message& message);
 
@@ -19,7 +21,10 @@ private slots:
 
 private:
     QTcpSocket* socket_;
-    RequestDispatcher dispatcher_;
+    RequestDispatcher& dispatcher_;
+
+    QByteArray buffer_;
+    qint32 expectedSize_ = -1;
 };
 
 #endif // CLIENT_CONNECTION_H

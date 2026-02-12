@@ -9,7 +9,7 @@ class ClientConnection;
 class RequestDispatcher
 {
 public:
-    RequestDispatcher();
+    explicit RequestDispatcher(AuthService& authService);
 
     void dispatch(
         const common::Message& message,
@@ -17,7 +17,7 @@ public:
     );
 
 private:
-    AuthService authService_;
+    AuthService& authService_;
 
     void handleLogin(
         const common::Message& message,
