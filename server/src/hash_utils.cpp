@@ -1,4 +1,4 @@
-#include "utils/hash_utils.h"
+#include "../headers/hash_utils.h"
 
 #include <QCryptographicHash>
 #include <QString>
