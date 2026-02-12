@@ -5,7 +5,7 @@
 
 namespace common {
 
-    class Ad; // forward declaration
+    // class Ad; // forward declaration
 
     class Cart {
     public:
