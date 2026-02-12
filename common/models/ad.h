@@ -44,7 +44,7 @@ namespace common {
         std::string description_;
         double price_;
         Category category_;
-        std::string seller_;
+        std::string seller_; // intentional
         std::string imagePath_;
         AdStatus status_;
     };
