@@ -14,10 +14,6 @@ add_library(common STATIC
         protocol/command_utils.cpp
         protocol/login_message.cpp
         protocol/signup_message.cpp
-
-        utils/hash_utils.cpp
-        utils/id_generator.cpp
-        utils/time_utils.cpp
 )
 find_package(Qt6 COMPONENTS
         Core
