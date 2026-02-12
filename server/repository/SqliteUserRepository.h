@@ -2,32 +2,30 @@
 #define SQLITE_USER_REPOSITORY_H
 
 #include "UserRepository.h"
-#include <QHash>
 #include <QMutex>
+#include <QSqlDatabase>
 
 class SqliteUserRepository : public UserRepository
 {
 public:
-    SqliteUserRepository();
+    explicit SqliteUserRepository(const QString& databasePath = QString());
+    ~SqliteUserRepository() override;
 
     bool userExists(const QString& username) override;
-
-    bool checkPassword(
-        const QString& username,
-        const QString& passwordHash
-    ) override;
-
-    bool getUser(
-        const QString& username,
-        User& outUser
-    ) override;
-
-    void createUser(
-        const User& user
-    ) override;
+    bool checkPassword(const QString& username,
+                       const QString& passwordHash) override;
+    bool getUser(const QString& username, User& outUser) override;
+    void createUser(const User& user) override;
 
 private:
-    QHash<QString, User> users_;
+    bool ensureConnection();
+    void initializeSchema();
+    [[noreturn]] void throwDatabaseError(const QString& context,
+                                         const QSqlError& error) const;
+
+    QSqlDatabase db_;
+    QString connectionName_;
+    QString databasePath_;
     QMutex mutex_;
 };
 

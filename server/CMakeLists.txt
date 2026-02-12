@@ -12,6 +12,7 @@ find_package(Qt6 COMPONENTS
         Gui
         Widgets
         Network
+        Sql
         REQUIRED
 )
 
@@ -39,5 +40,6 @@ target_link_libraries(serverProject
         Qt6::Gui
         Qt6::Widgets
         Qt6::Network
+        Qt6::Sql
         common
 )
