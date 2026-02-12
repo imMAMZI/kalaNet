@@ -1,5 +1,5 @@
 #include "SqliteUserRepository.h"
-
+#include <QMutexLocker>
 #include <QCoreApplication>
 #include <QDir>
 #include <QSqlError>
