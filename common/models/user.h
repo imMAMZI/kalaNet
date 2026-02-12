@@ -5,7 +5,7 @@
 #include <vector>
 #include <cstdint>
 
-#include "cart.h"
+#include "models/cart.h"
 #include "models/wallet.h"
 
 namespace common {
@@ -55,6 +55,8 @@ namespace common {
         // History (transaction IDs or summaries)
         const std::vector<std::string>& getHistory() const;
         void addHistoryRecord(const std::string& record);
+
+        void setRole(UserRole role); // server only usage
 
     private:
         // Core identity

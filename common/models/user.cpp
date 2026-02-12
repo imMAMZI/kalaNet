@@ -13,7 +13,6 @@ namespace common {
           email_(std::move(email)),
           phone_(std::move(phone)),
           passwordHash_(std::move(passwordHash)),
-          walletBalance_(0),
           role_(UserRole::User)
     {
     }
@@ -92,5 +91,10 @@ namespace common {
     const Cart& User::cart() const
     {
         return cart_;
+    }
+
+    void User::setRole(UserRole role) // Intended for server-side only
+    {
+        role_ = role;
     }
 } // namespace common
