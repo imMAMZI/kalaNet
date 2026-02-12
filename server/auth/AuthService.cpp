@@ -1,5 +1,6 @@
 #include "AuthService.h"
 #include "protocol/commands.h"
+#include <stdexcept>
 
 AuthService::AuthService(UserRepository& repo)
     : repo_(repo)
@@ -27,31 +28,53 @@ common::Message AuthService::login(const QJsonObject& payload)
         );
     }
 
-    const QString hash = PasswordHasher::hash(password);
+    try
+    {
+        const QString hash = PasswordHasher::hash(password);
 
-    if (!repo_.checkPassword(username, hash))
+        if (!repo_.checkPassword(username, hash))
+        {
+            return common::Message(
+                common::Command::LoginResult,
+                QJsonObject{
+                    {"success", false},
+                    {"message", "Invalid username or password"}
+                }
+            );
+        }
+
+        User user;
+        if (!repo_.getUser(username, user))
+        {
+            return common::Message(
+                common::Command::LoginResult,
+                QJsonObject{
+                    {"success", false},
+                    {"message", "User not found"}
+                }
+            );
+        }
+
+        return common::Message(
+            common::Command::LoginResult,
+            QJsonObject{
+                {"success", true},
+                {"message", "Login successful"},
+                {"fullName", user.fullName},
+                {"role", roleToString(user.role)}
+            }
+        );
+    }
+    catch (const std::exception&)
     {
         return common::Message(
             common::Command::LoginResult,
             QJsonObject{
                 {"success", false},
-                {"message", "Invalid username or password"}
+                {"message", "Login failed due to server error"}
             }
         );
     }
-
-    User user;
-    repo_.getUser(username, user);
-
-    return common::Message(
-        common::Command::LoginResult,
-        QJsonObject{
-            {"success", true},
-            {"message", "Login successful"},
-            {"fullName", user.fullName},
-            {"role", roleToString(user.role)}
-        }
-    );
 }
 
 common::Message AuthService::signup(const QJsonObject& payload)
@@ -107,6 +130,17 @@ common::Message AuthService::signup(const QJsonObject& payload)
         );
     }
 
+    if (repo_.emailExists(email))
+    {
+        return common::Message(
+            common::Command::SignupResult,
+            QJsonObject{
+                {"success", false},
+                {"message", "Email already exists"}
+            }
+        );
+    }
+
     User user;
     user.fullName     = fullName;
     user.username     = username;
@@ -115,7 +149,25 @@ common::Message AuthService::signup(const QJsonObject& payload)
     user.passwordHash = PasswordHasher::hash(password);
     user.role         = "User";
 
-    repo_.createUser(user);
+    try {
+        repo_.createUser(user);
+    } catch (const std::runtime_error&) {
+        return common::Message(
+            common::Command::SignupResult,
+            QJsonObject{
+                {"success", false},
+                {"message", "Username or email already exists"}
+            }
+        );
+    } catch (...) {
+        return common::Message(
+            common::Command::SignupResult,
+            QJsonObject{
+                {"success", false},
+                {"message", "Signup failed due to server error"}
+            }
+        );
+    }
 
     return common::Message(
         common::Command::SignupResult,

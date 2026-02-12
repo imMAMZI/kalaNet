@@ -14,6 +14,7 @@ public:
     bool userExists(const QString& username) override;
     bool checkPassword(const QString& username,
                        const QString& passwordHash) override;
+    bool emailExists(const QString& email) override;
     bool getUser(const QString& username, User& outUser) override;
     void createUser(const User& user) override;
 

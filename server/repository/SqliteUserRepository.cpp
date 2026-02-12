@@ -176,3 +176,19 @@ void SqliteUserRepository::createUser(const User& user)
                                 .arg(context, error.text());
     throw std::runtime_error(message.toStdString());
 }
+bool SqliteUserRepository::emailExists(const QString& email)
+{
+    QMutexLocker locker(&mutex_);
+    ensureConnection();
+
+    QSqlQuery query(db_);
+    query.prepare(QStringLiteral(
+        "SELECT 1 FROM users WHERE email = :email LIMIT 1;"));
+    query.bindValue(QStringLiteral(":email"), email);
+
+    if (!query.exec()) {
+        throwDatabaseError(QStringLiteral("emailExists"), query.lastError());
+    }
+
+    return query.next();
+}

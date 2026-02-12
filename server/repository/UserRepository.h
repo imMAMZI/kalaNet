@@ -17,6 +17,7 @@ class UserRepository
 {
 public:
     virtual bool userExists(const QString& username) = 0;
+    virtual bool emailExists(const QString& email) = 0;
 
     virtual bool checkPassword(
         const QString& username,
