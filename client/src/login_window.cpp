@@ -1,5 +1,6 @@
 #include "../headers/login_window.h"
 #include "ui_login_window.h"
+#include "../headers/signup_window.h"
 
 
 login_window::login_window(QMainWindow *parent) : QMainWindow(parent), ui(new Ui::login_window) {
@@ -22,5 +23,23 @@ void login_window::on_btnRefresh_clicked()
 
 void login_window::on_btnSignup_clicked()
 {
-    // TODO: implement later (open signup window/dialog)
+    auto *dlg = new signup_window(this);  // parented => auto cleanup on close
+
+    // When user clicks "Back", close dialog
+    connect(dlg, &signup_window::backToLoginRequested, dlg, &QDialog::reject);
+
+    // Optional: when signup submits successfully, close dialog and maybe fill login username
+    connect(dlg, &signup_window::signupSubmitted, this,
+            [this, dlg](const QString& name,
+                        const QString& username,
+                        const QString& phone,
+                        const QString& email,
+                        const QString& passPlain)
+            {
+                // later you’ll send this to server; for now just close and fill username
+                ui->leUsername->setText(username);
+                dlg->accept();
+            });
+
+    dlg->exec(); // modal popup
 }

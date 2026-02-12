@@ -24,5 +24,6 @@ void signup_window::on_btnCreateAccount_clicked()
 
 void signup_window::on_btnBack_clicked()
 {
-    // TODO: implement later
+    emit backToLoginRequested();
 }
+
