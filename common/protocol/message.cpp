@@ -1,4 +1,5 @@
 #include "protocol/message.h"
+#include "protocol/command_utils.h"
 
 namespace common {
 
@@ -17,14 +18,14 @@ namespace common {
 
     QJsonObject Message::toJson() const {
         QJsonObject json;
-        json["command"] = static_cast<int>(command_);
+        json["command"] = commandToString(command_);
         json["payload"] = payload_;
         return json;
     }
 
     Message Message::fromJson(const QJsonObject& json) {
         Message msg;
-        msg.command_ = static_cast<Command>(json["command"].toInt());
+        msg.command_ = stringToCommand(json["command"].toString());
         msg.payload_ = json["payload"].toObject();
         return msg;
     }
