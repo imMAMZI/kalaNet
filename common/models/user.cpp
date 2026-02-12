@@ -85,4 +85,12 @@ namespace common {
         history_.push_back(record);
     }
 
+    Cart& User::cart()
+    {
+        return cart_;
+    }
+    const Cart& User::cart() const
+    {
+        return cart_;
+    }
 } // namespace common

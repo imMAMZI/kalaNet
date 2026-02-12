@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 #include <cstdint>
+
+#include "cart.h"
 #include "models/wallet.h"
 
 namespace common {
@@ -41,6 +43,11 @@ namespace common {
         Wallet& wallet();
         const Wallet& wallet() const;
 
+        // Cart
+        Cart& cart();
+        const Cart& cart() const;
+
+
         // Role
         UserRole getRole() const;
         bool isAdmin() const;
@@ -57,12 +64,12 @@ namespace common {
         std::string phone_;
 
         Wallet wallet_;
+        Cart cart_;
 
         // Security
         std::string passwordHash_;
 
         // System data
-        std::int64_t walletBalance_ {0};
         UserRole role_ {UserRole::User};
 
         // Activity history (simple for now)
