@@ -10,9 +10,8 @@
 
 int main(int argc, char *argv[]) {
     QApplication a(argc, argv);
-    client_main_window mw;
     login_window login_page;
     client_main_window w;
-    mw.show();
+    login_page.show();
     return QApplication::exec();
 }
