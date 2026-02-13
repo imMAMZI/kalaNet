@@ -1,5 +1,11 @@
-#include "ui/serverconsolewindow.h"
-// ...
+#include <QApplication>
+#include <QMessageBox>
+
+#include "network/TcpServer.h"
+#include "protocol/RequestDispatcher.h"
+#include "auth/AuthService.h"
+#include "repository/SqliteUserRepository.h"
+#include "ui/ServerConsoleWindow.h"
 
 int main(int argc, char *argv[])
 {
@@ -8,8 +14,14 @@ int main(int argc, char *argv[])
     ServerConsoleWindow console;
     console.show();
 
-    // اینجا instance سرور را ایجاد کنید
-    TcpServer server;
+    static constexpr quint16 kDefaultServerPort = 4545;
+
+    SqliteUserRepository userRepo("kalanet.db"); // مسیر فایل DB را مطابق پروژه تنظیم کنید
+    AuthService authService(userRepo);
+    RequestDispatcher dispatcher(authService);
+
+    TcpServer server(kDefaultServerPort, dispatcher);
+
     QObject::connect(&server, &TcpServer::serverStarted,
                      &console, &ServerConsoleWindow::onServerStarted);
     QObject::connect(&server, &TcpServer::serverStopped,

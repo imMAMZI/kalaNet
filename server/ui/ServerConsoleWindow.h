@@ -6,9 +6,11 @@
 #define KALANET_SERVERCONSOLEWINDOW_H
 // server/ui/serverconsolewindow.h
 
+#include <QDateTime>
 #include <QMainWindow>
 #include <QSortFilterProxyModel>
 #include <QTimer>
+#include "RequestLogFilterProxy.h"
 
 #include "requestlogmodel.h"
 
@@ -45,7 +47,7 @@ private:
 
     Ui::ServerConsoleWindow* ui;
     RequestLogModel* logModel;
-    QSortFilterProxyModel* proxyModel;
+    RequestLogFilterProxy* proxyModel = nullptr;
     bool paused = false;
     QTimer uptimeTimer;
     QDateTime serverStartTime;

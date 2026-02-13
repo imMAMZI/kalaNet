@@ -15,13 +15,14 @@ ServerConsoleWindow::ServerConsoleWindow(QWidget* parent)
     : QMainWindow(parent),
       ui(new Ui::ServerConsoleWindow),
       logModel(new RequestLogModel(this)),
-      proxyModel(new QSortFilterProxyModel(this))
+      proxyModel(new RequestLogFilterProxy(this))
 {
     ui->setupUi(this);
 
     proxyModel->setSourceModel(logModel);
     proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
     proxyModel->setFilterKeyColumn(-1);
+
     ui->tableViewLogs->setModel(proxyModel);
     ui->tableViewLogs->horizontalHeader()->setStretchLastSection(true);
     ui->tableViewLogs->verticalHeader()->setVisible(false);
@@ -85,52 +86,17 @@ void ServerConsoleWindow::populateStatusFilter() {
     });
 }
 
-void ServerConsoleWindow::applyFilters() {
-    const auto text = ui->lineEditFilterText->text();
-    proxyModel->setFilterFixedString(text);
-
+void ServerConsoleWindow::applyFilters()
+{
+    const QString text = ui->lineEditFilterText->text();
     const QString command = ui->comboBoxCommandFilter->currentText();
     const QString status = ui->comboBoxStatusFilter->currentText();
 
-    proxyModel->setFilterRole(Qt::UserRole);
-    proxyModel->setFilterRegularExpression({});
-    proxyModel->setFilterWildcard({});
-
-    proxyModel->setFilterAcceptsRow([=](int sourceRow, const QModelIndex& sourceParent) {
-        const auto indexCommand = logModel->index(sourceRow, 3, sourceParent);
-        const auto indexStatus = logModel->index(sourceRow, 4, sourceParent);
-        const auto indexError  = logModel->index(sourceRow, 5, sourceParent);
-        const auto indexMessage= logModel->index(sourceRow, 6, sourceParent);
-        const auto indexUser   = logModel->index(sourceRow, 2, sourceParent);
-        const auto indexRemote = logModel->index(sourceRow, 1, sourceParent);
-
-        const auto commandValue = logModel->data(indexCommand).toString();
-        const auto statusValue  = logModel->data(indexStatus).toString();
-        const auto errorValue   = logModel->data(indexError).toString();
-        const auto messageValue = logModel->data(indexMessage).toString();
-        const auto userValue    = logModel->data(indexUser).toString();
-        const auto remoteValue  = logModel->data(indexRemote).toString();
-
-        if (command != tr("All Commands") && commandValue != command) {
-            return false;
-        }
-        if (status != tr("All Statuses") && statusValue != status) {
-            return false;
-        }
-        if (!text.isEmpty()) {
-            const auto haystack = QStringList{
-                commandValue, statusValue, errorValue, messageValue, userValue, remoteValue
-            }.join(' ').toLower();
-            if (!haystack.contains(text.toLower())) {
-                return false;
-            }
-        }
-        return true;
-    });
-
-    // این خط برای مجبور کردن QSortFilterProxyModel به فیلتر مجدد است.
-    proxyModel->invalidate();
+    proxyModel->setCommandFilter(command);
+    proxyModel->setStatusFilter(status);
+    proxyModel->setTextFilter(text);
 }
+
 
 void ServerConsoleWindow::clearFilters() {
     ui->lineEditFilterText->clear();

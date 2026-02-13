@@ -72,7 +72,20 @@ void ClientConnection::onReadyRead()
             continue;
         }
 
-        common::Message message = common::Message::fromJson(doc.object());
-        dispatcher_.dispatch(message, *this);
+        QString parseError;
+        auto maybeMessage = common::Message::fromJson(doc.object(), &parseError);
+        if (!maybeMessage) {
+            common::Message response(
+                common::Command::Error,
+                QJsonObject{
+                    {"message", parseError.isEmpty()
+                        ? QStringLiteral("Malformed message envelope")
+                        : parseError}
+                }
+            );
+            send(response);
+            continue;
+        }
+        dispatcher_.dispatch(*maybeMessage, *this);
     }
 }

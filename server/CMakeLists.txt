@@ -35,6 +35,8 @@ add_executable(serverProject
         ui/requestlogmodel.cpp
         ui/ServerConsoleWindow.h
         ui/ServerConsoleWindow.cpp
+        ui/RequestLogFilterProxy.h
+        ui/RequestLogFilterProxy.cpp
 
 )
 

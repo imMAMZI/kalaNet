@@ -64,12 +64,13 @@ void signup_window::on_btnCreateAccount_clicked()
     ui->btnCreateAccount->setEnabled(false);
 
     const common::Message request = common::SignupMessage::createRequest(
-        pendingName_.toStdString(),
-        pendingUsername_.toStdString(),
-        pendingPhone_.toStdString(),
-        pendingEmail_.toStdString(),
-        pendingPassword_.toStdString()
-    );
+    pendingName_,
+    pendingUsername_,
+    pendingPhone_,
+    pendingEmail_,
+    pendingPassword_
+);
+
 
     AuthClient::instance()->sendMessage(request);
 }

@@ -5,22 +5,27 @@
 
 namespace common {
 
-    Message SignupMessage::createRequest(const std::string& username,
-                                         const std::string& password,
-                                         const std::string& email,
-                                         const QString& requestId,
-                                         const QJsonObject& profile)
+    Message SignupMessage::createRequest(const QString& fullName,
+                                      const QString& username,
+                                      const QString& phone,
+                                      const QString& email,
+                                      const QString& password)
     {
-        QJsonObject payload;
-        payload.insert(QStringLiteral("username"), QString::fromStdString(username));
-        payload.insert(QStringLiteral("password"), QString::fromStdString(password));
-        payload.insert(QStringLiteral("email"), QString::fromStdString(email));
-        if (!profile.isEmpty()) {
-            payload.insert(QStringLiteral("profile"), profile);
-        }
+        QJsonObject payload{
+            {"fullName", fullName},
+            {"username", username},
+            {"phone", phone},
+            {"email", email},
+            {"password", password}
+        };
 
-        return Message(Command::Signup, payload, requestId);
+        return Message(Command::Signup, payload);
     }
+
+
+
+
+
 
     Message SignupMessage::createSuccessResponse(const QJsonObject& userPayload,
                                                  const QString& requestId,

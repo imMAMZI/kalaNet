@@ -13,12 +13,11 @@ namespace common {
 
     class SignupMessage {
     public:
-        static Message createRequest(const std::string& username,
-                                     const std::string& password,
-                                     const std::string& email,
-                                     const QString& requestId = {},
-                                     const QJsonObject& profile = {});
-
+        static Message createRequest(const QString& fullName,
+                                 const QString& username,
+                                 const QString& phone,
+                                 const QString& email,
+                                 const QString& password);
         static Message createSuccessResponse(const QJsonObject& userPayload,
                                              const QString& requestId = {},
                                              const QString& statusMessage = QStringLiteral("Signup completed successfully"));
