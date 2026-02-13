@@ -1,14 +1,14 @@
-#ifndef COMMAND_UTILS_H
-#define COMMAND_UTILS_H
+#ifndef COMMON_PROTOCOL_COMMAND_UTILS_H
+#define COMMON_PROTOCOL_COMMAND_UTILS_H
 
 #include <QString>
 #include "protocol/commands.h"
 
 namespace common {
 
-    QString commandToString(Command cmd);
-    Command stringToCommand(const QString& str);
+    QString commandToString(Command command);
+    Command commandFromString(const QString& commandString);
 
-}
+} // namespace common
 
-#endif // COMMAND_UTILS_H
+#endif // COMMON_PROTOCOL_COMMAND_UTILS_H

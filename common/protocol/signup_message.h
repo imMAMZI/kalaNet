@@ -1,29 +1,34 @@
-#ifndef SIGNUP_MESSAGE_H
-#define SIGNUP_MESSAGE_H
+#ifndef COMMON_PROTOCOL_SIGNUP_MESSAGE_H
+#define COMMON_PROTOCOL_SIGNUP_MESSAGE_H
 
+#include <string>
+
+#include <QJsonObject>
+#include <QString>
+
+#include "protocol/error_codes.h"
 #include "protocol/message.h"
 
 namespace common {
 
     class SignupMessage {
     public:
-        static Message createRequest(
-            const std::string& fullName,
-            const std::string& username,
-            const std::string& phone,
-            const std::string& email,
-            const std::string& password
-        );
+        static Message createRequest(const std::string& username,
+                                     const std::string& password,
+                                     const std::string& email,
+                                     const QString& requestId = {},
+                                     const QJsonObject& profile = {});
 
-        static Message createSuccessResponse(
-            const std::string& message = "Signup Was Successful"
-        );
+        static Message createSuccessResponse(const QJsonObject& userPayload,
+                                             const QString& requestId = {},
+                                             const QString& statusMessage = QStringLiteral("Signup completed successfully"));
 
-        static Message createFailureResponse(
-            const std::string& reason
-        );
+        static Message createFailureResponse(ErrorCode errorCode,
+                                             const QString& reason,
+                                             const QString& requestId = {},
+                                             const QJsonObject& payload = {});
     };
 
-}
+} // namespace common
 
-#endif // SIGNUP_MESSAGE_H
+#endif // COMMON_PROTOCOL_SIGNUP_MESSAGE_H

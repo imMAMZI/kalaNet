@@ -14,6 +14,8 @@ add_library(common STATIC
         protocol/command_utils.cpp
         protocol/login_message.cpp
         protocol/signup_message.cpp
+        protocol/error_codes.h
+        protocol/error_codes.cpp
 )
 find_package(Qt6 COMPONENTS
         Core

@@ -1,36 +1,105 @@
-#include "command_utils.h"
+#include "protocol/command_utils.h"
 
-using namespace common;
+#include <QHash>
 
-QString common::commandToString(Command cmd)
+namespace common {
+
+namespace {
+
+const QHash<Command, QString>& forwardMap()
 {
-    switch (cmd) {
-    case Command::Login:        return "Login";
-    case Command::Signup:       return "Signup";
-    case Command::LoginResult:  return "LoginResult";
-    case Command::SignupResult: return "SignupResult";
-    case Command::Error:        return "Error";
-    case Command::GetAds:       return "GetAds";
-    case Command::AddToCart:    return "AddToCart";
-    case Command::RemoveFromCart:return "RemoveFromCart";
-    case Command::Buy:          return "Buy";
-    case Command::BuyResult:    return "BuyResult";
-    }
-    return "Error";
+    static const QHash<Command, QString> map = {
+        { Command::Unknown, QStringLiteral("system/unknown") },
+        { Command::Ping, QStringLiteral("system/ping") },
+        { Command::Pong, QStringLiteral("system/pong") },
+        { Command::Error, QStringLiteral("system/error") },
+
+        { Command::Login, QStringLiteral("auth/login/request") },
+        { Command::LoginResult, QStringLiteral("auth/login/response") },
+        { Command::Signup, QStringLiteral("auth/signup/request") },
+        { Command::SignupResult, QStringLiteral("auth/signup/response") },
+        { Command::Logout, QStringLiteral("auth/logout/request") },
+        { Command::LogoutResult, QStringLiteral("auth/logout/response") },
+        { Command::SessionRefresh, QStringLiteral("auth/session/refresh/request") },
+        { Command::SessionRefreshResult, QStringLiteral("auth/session/refresh/response") },
+
+        { Command::AdCreate, QStringLiteral("ad/create/request") },
+        { Command::AdCreateResult, QStringLiteral("ad/create/response") },
+        { Command::AdUpdate, QStringLiteral("ad/update/request") },
+        { Command::AdUpdateResult, QStringLiteral("ad/update/response") },
+        { Command::AdDelete, QStringLiteral("ad/delete/request") },
+        { Command::AdDeleteResult, QStringLiteral("ad/delete/response") },
+        { Command::AdList, QStringLiteral("ad/list/request") },
+        { Command::AdListResult, QStringLiteral("ad/list/response") },
+        { Command::AdDetail, QStringLiteral("ad/detail/request") },
+        { Command::AdDetailResult, QStringLiteral("ad/detail/response") },
+        { Command::AdStatusUpdate, QStringLiteral("ad/status/update") },
+        { Command::AdStatusNotify, QStringLiteral("ad/status/notify") },
+
+        { Command::CategoryList, QStringLiteral("category/list/request") },
+        { Command::CategoryListResult, QStringLiteral("category/list/response") },
+
+        { Command::CartAddItem, QStringLiteral("cart/add-item/request") },
+        { Command::CartAddItemResult, QStringLiteral("cart/add-item/response") },
+        { Command::CartRemoveItem, QStringLiteral("cart/remove-item/request") },
+        { Command::CartRemoveItemResult, QStringLiteral("cart/remove-item/response") },
+        { Command::CartList, QStringLiteral("cart/list/request") },
+        { Command::CartListResult, QStringLiteral("cart/list/response") },
+        { Command::CartClear, QStringLiteral("cart/clear/request") },
+        { Command::CartClearResult, QStringLiteral("cart/clear/response") },
+
+        { Command::Buy, QStringLiteral("purchase/checkout/request") },
+        { Command::BuyResult, QStringLiteral("purchase/checkout/response") },
+        { Command::TransactionHistory, QStringLiteral("purchase/history/request") },
+        { Command::TransactionHistoryResult, QStringLiteral("purchase/history/response") },
+
+        { Command::WalletBalance, QStringLiteral("wallet/balance/request") },
+        { Command::WalletBalanceResult, QStringLiteral("wallet/balance/response") },
+        { Command::WalletTopUp, QStringLiteral("wallet/topup/request") },
+        { Command::WalletTopUpResult, QStringLiteral("wallet/topup/response") },
+        { Command::WalletAdjustNotify, QStringLiteral("wallet/adjust/notify") },
+
+        { Command::SystemNotification, QStringLiteral("system/notify") }
+    };
+
+    return map;
 }
 
-Command common::stringToCommand(const QString& str)
+const QHash<QString, Command>& backwardMap()
 {
-    if (str == "Login") return Command::Login;
-    if (str == "Signup") return Command::Signup;
-    if (str == "LoginResult") return Command::LoginResult;
-    if (str == "SignupResult") return Command::SignupResult;
-    if (str == "Error") return Command::Error;
-    if (str == "GetAds") return Command::GetAds;
-    if (str == "AddToCart") return Command::AddToCart;
-    if (str == "RemoveFromCart") return Command::RemoveFromCart;
-    if (str == "Buy") return Command::Buy;
-    if (str == "BuyResult") return Command::BuyResult;
+    static const QHash<QString, Command> map = [] {
+        QHash<QString, Command> result;
+        const auto& forward = forwardMap();
+        for (auto it = forward.cbegin(); it != forward.cend(); ++it) {
+            result.insert(it.value(), it.key());
+        }
 
-    return Command::Error;
+        // Backward compatibility aliases (legacy command strings)
+        result.insert(QStringLiteral("login"), Command::Login);
+        result.insert(QStringLiteral("login_result"), Command::LoginResult);
+        result.insert(QStringLiteral("signup"), Command::Signup);
+        result.insert(QStringLiteral("signup_result"), Command::SignupResult);
+        result.insert(QStringLiteral("logout"), Command::Logout);
+        result.insert(QStringLiteral("logout_result"), Command::LogoutResult);
+        result.insert(QStringLiteral("buy"), Command::Buy);
+        result.insert(QStringLiteral("buy_result"), Command::BuyResult);
+
+        return result;
+    }();
+
+    return map;
 }
+
+} // namespace
+
+QString commandToString(Command command)
+{
+    return forwardMap().value(command, QStringLiteral("system/unknown"));
+}
+
+Command commandFromString(const QString& commandString)
+{
+    return backwardMap().value(commandString, Command::Unknown);
+}
+
+} // namespace common

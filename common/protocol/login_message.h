@@ -1,27 +1,34 @@
-#ifndef LOGIN_MESSAGE_H
-#define LOGIN_MESSAGE_H
+#ifndef COMMON_PROTOCOL_LOGIN_MESSAGE_H
+#define COMMON_PROTOCOL_LOGIN_MESSAGE_H
 
+#include <string>
+
+#include <QJsonObject>
+#include <QString>
+
+#include "protocol/error_codes.h"
 #include "protocol/message.h"
 
 namespace common {
 
     class LoginMessage {
     public:
-        static Message createRequest(
-            const std::string& username,
-            const std::string& password
-        );
+        static Message createRequest(const std::string& username,
+                                     const std::string& password,
+                                     const QString& requestId = {},
+                                     const QString& captchaToken = {});
 
-        static Message createSuccessResponse(
-            const std::string& fullName,
-            const std::string& role
-        );
+        static Message createSuccessResponse(const QJsonObject& userPayload,
+                                             const QString& sessionToken,
+                                             const QString& requestId = {},
+                                             const QString& statusMessage = QStringLiteral("Login successful"));
 
-        static Message createFailureResponse(
-            const std::string& reason
-        );
+        static Message createFailureResponse(ErrorCode errorCode,
+                                             const QString& reason,
+                                             const QString& requestId = {},
+                                             const QJsonObject& payload = {});
     };
 
-}
+} // namespace common
 
-#endif // LOGIN_MESSAGE_H
+#endif // COMMON_PROTOCOL_LOGIN_MESSAGE_H

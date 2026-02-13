@@ -1,45 +1,48 @@
 #include "protocol/signup_message.h"
-#include "protocol/commands.h"
+
 #include <QJsonObject>
 #include <QString>
 
 namespace common {
 
-    Message SignupMessage::createRequest(
-        const std::string& fullName,
-        const std::string& username,
-        const std::string& phone,
-        const std::string& email,
-        const std::string& password)
+    Message SignupMessage::createRequest(const std::string& username,
+                                         const std::string& password,
+                                         const std::string& email,
+                                         const QString& requestId,
+                                         const QJsonObject& profile)
     {
         QJsonObject payload;
-        payload["fullName"] = QString::fromStdString(fullName);
-        payload["username"] = QString::fromStdString(username);
-        payload["phone"] = QString::fromStdString(phone);
-        payload["email"] = QString::fromStdString(email);
-        payload["password"] = QString::fromStdString(password);
+        payload.insert(QStringLiteral("username"), QString::fromStdString(username));
+        payload.insert(QStringLiteral("password"), QString::fromStdString(password));
+        payload.insert(QStringLiteral("email"), QString::fromStdString(email));
+        if (!profile.isEmpty()) {
+            payload.insert(QStringLiteral("profile"), profile);
+        }
 
-        return Message(Command::Signup, payload);
+        return Message(Command::Signup, payload, requestId);
     }
 
-    Message SignupMessage::createSuccessResponse(
-        const std::string& message)
+    Message SignupMessage::createSuccessResponse(const QJsonObject& userPayload,
+                                                 const QString& requestId,
+                                                 const QString& statusMessage)
     {
         QJsonObject payload;
-        payload["success"] = true;
-        payload["message"] = QString::fromStdString(message);
+        payload.insert(QStringLiteral("success"), true);
+        payload.insert(QStringLiteral("user"), userPayload);
 
-        return Message(Command::SignupResult, payload);
+        return Message::makeSuccess(Command::SignupResult, payload, requestId, {}, statusMessage);
     }
 
-    Message SignupMessage::createFailureResponse(
-        const std::string& reason)
+    Message SignupMessage::createFailureResponse(ErrorCode errorCode,
+                                                 const QString& reason,
+                                                 const QString& requestId,
+                                                 const QJsonObject& payload)
     {
-        QJsonObject payload;
-        payload["success"] = false;
-        payload["message"] = QString::fromStdString(reason);
+        QJsonObject responsePayload = payload;
+        responsePayload.insert(QStringLiteral("success"), false);
+        responsePayload.insert(QStringLiteral("reason"), reason);
 
-        return Message(Command::SignupResult, payload);
+        return Message::makeFailure(Command::SignupResult, errorCode, reason, responsePayload, requestId);
     }
 
-}
+} // namespace common

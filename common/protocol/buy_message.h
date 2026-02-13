@@ -1,30 +1,36 @@
 #ifndef BUY_MESSAGE_H
 #define BUY_MESSAGE_H
 
-#include "protocol/message.h"
-#include "protocol/commands.h"
 #include <vector>
 
+#include <QString>
+
+#include "protocol/error_codes.h"
+#include "protocol/message.h"
+
 namespace common {
+
     class BuyMessage {
     public:
-        static Message createRequest(
-            const std::string& username,
-            const std::vector<int>& cart
-        );
+        static Message createRequest(const std::string& username,
+                                     const std::vector<int>& cart,
+                                     const QString& requestId = {},
+                                     const QString& sessionToken = {});
 
-        static Message createSuccessResponse(
-            int transactionId,
-            double updatedWallet,
-            const std::vector<int>& soldAds
-        );
+        static Message createSuccessResponse(int transactionId,
+                                             double updatedWallet,
+                                             const std::vector<int>& soldAds,
+                                             const QString& requestId = {},
+                                             const QString& sessionToken = {},
+                                             const QString& statusMessage = QStringLiteral("Purchase completed successfully"));
 
-        static Message createFailureResponse(
-            const std::string& reason,
-            const std::vector<int>& invalidAds = {}
-        );
+        static Message createFailureResponse(ErrorCode errorCode,
+                                             const QString& reason,
+                                             const std::vector<int>& invalidAds = {},
+                                             const QString& requestId = {},
+                                             const QString& sessionToken = {});
     };
 
-}
+} // namespace common
 
-#endif
+#endif // BUY_MESSAGE_H
