@@ -162,12 +162,14 @@ void ServerConsoleWindow::updateUptime() {
     ui->labelUptimeValue->setText(time.toString("hh:mm:ss"));
 }
 
-void ServerConsoleWindow::onServerStarted() {
+void ServerConsoleWindow::onServerStarted(quint16 /*port*/)
+{
     ui->labelStatusValue->setText(tr("Online"));
-    ui->labelStatusValue->setStyleSheet("color: rgb(70, 180, 70); font-weight: bold;");
+    ui->labelStatusValue->setStyleSheet(QStringLiteral("color: rgb(70, 180, 70); font-weight: bold;"));
     serverStartTime = QDateTime::currentDateTime();
     uptimeTimer.start();
 }
+
 
 void ServerConsoleWindow::onServerStopped() {
     ui->labelStatusValue->setText(tr("Offline"));
@@ -185,4 +187,98 @@ void ServerConsoleWindow::onRequestLogged(const RequestLogEntry& entry) {
         return;
     }
     logModel->appendLog(entry);
+}
+
+
+void ServerConsoleWindow::onRequestProcessed(const common::Message& request,
+                                             const common::Message& response)
+{
+    RequestLogEntry entry;
+
+    entry.timestamp = QDateTime::currentDateTime().toString(Qt::ISODate);
+    entry.remoteAddress = QStringLiteral("-"); // در صورت نیاز، بعداً از ClientConnection پاس داده شود
+
+    if (!response.sessionToken().isEmpty()) {
+        entry.sessionToken = response.sessionToken();
+    } else {
+        entry.sessionToken = request.sessionToken();
+    }
+
+    entry.username = extractUsername(request.payload());
+    entry.command = mapCommandToText(request.command());
+    entry.statusCode = static_cast<int>(response.status());
+
+    entry.errorCode = mapErrorCodeToText(response.errorCode());
+    entry.message = response.statusMessage();
+
+    if (entry.message.isEmpty()) {
+        const QJsonObject responsePayload = response.payload();
+        entry.message = responsePayload.value(QStringLiteral("message")).toString();
+        if (entry.message.isEmpty()) {
+            entry.message = responsePayload.value(QStringLiteral("reason")).toString();
+        }
+    }
+
+    if (entry.message.isEmpty()) {
+        entry.message = QStringLiteral("-");
+    }
+
+    onRequestLogged(entry);
+}
+
+QString ServerConsoleWindow::mapCommandToText(common::Command command) const
+{
+    switch (command) {
+    case common::Command::Signup:          return tr("Signup");
+    case common::Command::SignupResult:    return tr("Signup Result");
+    case common::Command::Login:           return tr("Login");
+    case common::Command::LoginResult:     return tr("Login Result");
+    case common::Command::Error:           return tr("Error");
+        // سایر فرمان‌ها را طبق نیاز پروژه اضافه کنید
+    default:
+        return tr("Unknown (%1)").arg(static_cast<int>(command));
+    }
+}
+
+QString ServerConsoleWindow::mapErrorCodeToText(common::ErrorCode code) const
+{
+    switch (code) {
+    case common::ErrorCode::None:                 return tr("None");
+    case common::ErrorCode::UnknownCommand:       return tr("Unknown Command");
+    case common::ErrorCode::InvalidJson:          return tr("Invalid JSON");
+    case common::ErrorCode::InvalidPayload:       return tr("Invalid Payload");
+    case common::ErrorCode::AuthInvalidCredentials:return tr("Invalid Credentials");
+    case common::ErrorCode::AuthSessionExpired:   return tr("Session Expired");
+    case common::ErrorCode::AuthUnauthorized:     return tr("Unauthorized");
+    case common::ErrorCode::ValidationFailed:     return tr("Validation Failed");
+    case common::ErrorCode::NotFound:             return tr("Not Found");
+    case common::ErrorCode::AlreadyExists:        return tr("Already Exists");
+    case common::ErrorCode::PermissionDenied:     return tr("Permission Denied");
+    case common::ErrorCode::InsufficientFunds:    return tr("Insufficient Funds");
+    case common::ErrorCode::AdNotAvailable:       return tr("Ad Not Available");
+    case common::ErrorCode::DuplicateAd:          return tr("Duplicate Ad");
+    case common::ErrorCode::DatabaseError:        return tr("Database Error");
+    case common::ErrorCode::InternalError:        return tr("Internal Error");
+    default:
+        return tr("Unknown (%1)").arg(static_cast<int>(code));
+    }
+}
+
+
+QString ServerConsoleWindow::extractUsername(const QJsonObject& payload) const
+{
+    const auto usernameValue = payload.value(QStringLiteral("username"));
+    if (usernameValue.isString()) {
+        return usernameValue.toString();
+    }
+
+    const auto userObject = payload.value(QStringLiteral("user"));
+    if (userObject.isObject()) {
+        const auto nestedUsername = userObject.toObject().value(QStringLiteral("username"));
+        if (nestedUsername.isString()) {
+            return nestedUsername.toString();
+        }
+    }
+
+    return QStringLiteral("-");
 }

@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
     ServerConsoleWindow console;
     console.show();
 
-    static constexpr quint16 kDefaultServerPort = 4545;
+    static constexpr quint16 kDefaultServerPort = 8080;
 
     SqliteUserRepository userRepo("kalanet.db"); // مسیر فایل DB را مطابق پروژه تنظیم کنید
     AuthService authService(userRepo);
@@ -24,12 +24,15 @@ int main(int argc, char *argv[])
 
     QObject::connect(&server, &TcpServer::serverStarted,
                      &console, &ServerConsoleWindow::onServerStarted);
+
     QObject::connect(&server, &TcpServer::serverStopped,
                      &console, &ServerConsoleWindow::onServerStopped);
+
     QObject::connect(&server, &TcpServer::activeConnectionCountChanged,
                      &console, &ServerConsoleWindow::onActiveConnectionCountChanged);
+
     QObject::connect(&server, &TcpServer::requestProcessed,
-                     &console, &ServerConsoleWindow::onRequestLogged);
+                     &console, &ServerConsoleWindow::onRequestProcessed);
 
     if (!server.startListening()) {
         QMessageBox::critical(&console, QObject::tr("Server"),

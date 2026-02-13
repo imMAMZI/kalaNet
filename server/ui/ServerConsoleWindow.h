@@ -13,6 +13,7 @@
 #include "RequestLogFilterProxy.h"
 
 #include "requestlogmodel.h"
+#include "protocol/message.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class ServerConsoleWindow; }
@@ -27,10 +28,12 @@ public:
     ~ServerConsoleWindow() override;
 
 public slots:
-    void onServerStarted();
+    void onServerStarted(quint16 port);
     void onServerStopped();
     void onActiveConnectionCountChanged(int count);
     void onRequestLogged(const RequestLogEntry& entry);
+    void onRequestProcessed(const common::Message& request,
+                           const common::Message& response);
 
 private slots:
     void applyFilters();
@@ -44,6 +47,10 @@ private:
     void setupConnections();
     void populateCommandFilter();
     void populateStatusFilter();
+
+    QString mapCommandToText(common::Command command) const;
+    QString mapErrorCodeToText(common::ErrorCode code) const;
+    QString extractUsername(const QJsonObject& payload) const;
 
     Ui::ServerConsoleWindow* ui;
     RequestLogModel* logModel;
