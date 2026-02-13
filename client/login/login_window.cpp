@@ -2,7 +2,7 @@
 #include "ui_login_window.h"
 #include "../signup/signup_window.h"
 #include "../network/auth_client.h"
-#include "../headers/client_main_window.h"
+#include "../main_window/client_main_window.h"
 
 #include <QCryptographicHash>
 #include <QRandomGenerator>

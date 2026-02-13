@@ -16,9 +16,9 @@ find_package(Qt6 COMPONENTS
 
 
 add_executable(clientProject src/client_main.cpp
-        src/client_main_window.cpp
-        headers/client_main_window.h
-        src/client_main_window.ui
+        main_window/client_main_window.cpp
+        main_window/client_main_window.h
+        main_window/client_main_window.ui
         login/login_window.cpp
         login/login_window.h
         login/login_window.ui
