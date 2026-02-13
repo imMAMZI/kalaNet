@@ -1,0 +1,54 @@
+//
+// Created by hosse on 2/13/2026.
+//
+
+#ifndef KALANET_SERVERCONSOLEWINDOW_H
+#define KALANET_SERVERCONSOLEWINDOW_H
+// server/ui/serverconsolewindow.h
+
+#include <QMainWindow>
+#include <QSortFilterProxyModel>
+#include <QTimer>
+
+#include "requestlogmodel.h"
+
+QT_BEGIN_NAMESPACE
+namespace Ui { class ServerConsoleWindow; }
+QT_END_NAMESPACE
+
+class ServerConsoleWindow : public QMainWindow
+{
+    Q_OBJECT
+
+public:
+    explicit ServerConsoleWindow(QWidget* parent = nullptr);
+    ~ServerConsoleWindow() override;
+
+public slots:
+    void onServerStarted();
+    void onServerStopped();
+    void onActiveConnectionCountChanged(int count);
+    void onRequestLogged(const RequestLogEntry& entry);
+
+private slots:
+    void applyFilters();
+    void clearFilters();
+    void clearLog();
+    void exportLogs();
+    void togglePause(bool paused);
+    void updateUptime();
+
+private:
+    void setupConnections();
+    void populateCommandFilter();
+    void populateStatusFilter();
+
+    Ui::ServerConsoleWindow* ui;
+    RequestLogModel* logModel;
+    QSortFilterProxyModel* proxyModel;
+    bool paused = false;
+    QTimer uptimeTimer;
+    QDateTime serverStartTime;
+};
+
+#endif //KALANET_SERVERCONSOLEWINDOW_H

@@ -1,20 +1,31 @@
-#include <QCoreApplication>
-
-#include "network/TcpServer.h"
-#include "protocol/RequestDispatcher.h"
-#include "auth/AuthService.h"
-#include "repository/SqliteUserRepository.h"
+#include "ui/serverconsolewindow.h"
+// ...
 
 int main(int argc, char *argv[])
 {
-    QCoreApplication app(argc, argv);
+    QApplication app(argc, argv);
 
-    SqliteUserRepository userRepo("kalanet.db");
-    AuthService authService(userRepo);
-    RequestDispatcher dispatcher(authService);
+    ServerConsoleWindow console;
+    console.show();
 
-    TcpServer server(8080, dispatcher);
-    server.start();
+    // اینجا instance سرور را ایجاد کنید
+    TcpServer server;
+    QObject::connect(&server, &TcpServer::serverStarted,
+                     &console, &ServerConsoleWindow::onServerStarted);
+    QObject::connect(&server, &TcpServer::serverStopped,
+                     &console, &ServerConsoleWindow::onServerStopped);
+    QObject::connect(&server, &TcpServer::activeConnectionCountChanged,
+                     &console, &ServerConsoleWindow::onActiveConnectionCountChanged);
+    QObject::connect(&server, &TcpServer::requestProcessed,
+                     &console, &ServerConsoleWindow::onRequestLogged);
 
-    return app.exec();
+    if (!server.startListening()) {
+        QMessageBox::critical(&console, QObject::tr("Server"),
+                              QObject::tr("Failed to bind server socket"));
+        return EXIT_FAILURE;
+    }
+
+    const int exitCode = app.exec();
+    server.stopListening();
+    return exitCode;
 }

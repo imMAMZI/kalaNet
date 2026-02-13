@@ -135,31 +135,10 @@ bool Message::isFailure() const
 
 QByteArray Message::serialize() const
 {
-    QJsonObject envelope;
-    envelope.insert(QStringLiteral("command"), commandToString(command_));
-    if (!requestId_.isEmpty()) {
-        envelope.insert(QStringLiteral("requestId"), requestId_);
-    }
-    if (!sessionToken_.isEmpty()) {
-        envelope.insert(QStringLiteral("sessionToken"), sessionToken_);
-    }
-    if (status_ != MessageStatus::None) {
-        envelope.insert(QStringLiteral("status"), statusToString(status_));
-    }
-    if (errorCode_ != ErrorCode::None) {
-        envelope.insert(QStringLiteral("errorCode"), errorCodeToString(errorCode_));
-    }
-    if (!statusMessage_.isEmpty()) {
-        envelope.insert(QStringLiteral("message"), statusMessage_);
-    }
-
-    envelope.insert(QStringLiteral("payload"), payload_);
-
-    const QJsonDocument doc(envelope);
-    return doc.toJson(QJsonDocument::Compact);
+    return QJsonDocument(toJson()).toJson(QJsonDocument::Compact);
 }
 
-std::optional<Message> Message::deserialize(const QByteArray& bytes, QString* error)
+    std::optional<Message> Message::deserialize(const QByteArray& bytes, QString* error)
 {
     QJsonParseError parseError;
     const QJsonDocument doc = QJsonDocument::fromJson(bytes, &parseError);
@@ -169,6 +148,7 @@ std::optional<Message> Message::deserialize(const QByteArray& bytes, QString* er
         }
         return std::nullopt;
     }
+
     if (!doc.isObject()) {
         if (error) {
             *error = QStringLiteral("Root JSON is not an object");
@@ -176,51 +156,9 @@ std::optional<Message> Message::deserialize(const QByteArray& bytes, QString* er
         return std::nullopt;
     }
 
-    const QJsonObject envelope = doc.object();
-    const QString commandString = envelope.value(QStringLiteral("command")).toString();
-    const Command command = commandFromString(commandString);
-    if (command == Command::Unknown) {
-        if (error) {
-            *error = QStringLiteral("Unknown command: %1").arg(commandString);
-        }
-        return std::nullopt;
-    }
-
-    const QJsonValue payloadValue = envelope.value(QStringLiteral("payload"));
-    const QJsonObject payload = payloadValue.isObject() ? payloadValue.toObject() : QJsonObject{};
-
-    Message message(command, payload);
-    message.requestId_ = envelope.value(QStringLiteral("requestId")).toString();
-    message.sessionToken_ = envelope.value(QStringLiteral("sessionToken")).toString();
-
-    const QString statusString = envelope.value(QStringLiteral("status")).toString();
-    if (!statusString.isEmpty()) {
-        message.status_ = statusFromString(statusString);
-    }
-
-    const QString errorCodeString = envelope.value(QStringLiteral("errorCode")).toString();
-    if (!errorCodeString.isEmpty()) {
-        message.errorCode_ = errorCodeFromString(errorCodeString);
-        if (message.errorCode_ != ErrorCode::None && message.status_ == MessageStatus::None) {
-            message.status_ = MessageStatus::Failure;
-        }
-    }
-
-    const QString statusMessage = envelope.value(QStringLiteral("message")).toString();
-    if (!statusMessage.isEmpty()) {
-        message.statusMessage_ = statusMessage;
-    }
-
-    if (message.status_ == MessageStatus::None && payload.contains(QStringLiteral("success"))) {
-        if (payload.value(QStringLiteral("success")).toBool(false)) {
-            message.status_ = MessageStatus::Success;
-        } else {
-            message.status_ = MessageStatus::Failure;
-        }
-    }
-
-    return message;
+    return fromJson(doc.object(), error);
 }
+
 
 Message Message::makeSuccess(Command command,
                              const QJsonObject& payload,
@@ -246,6 +184,129 @@ Message Message::makeFailure(Command command,
     message.status_ = MessageStatus::Failure;
     message.errorCode_ = errorCode;
     message.statusMessage_ = std::move(statusMessage);
+    return message;
+}
+QJsonObject Message::toJson() const
+{
+    QJsonObject envelope;
+    envelope.insert(QStringLiteral("command"), commandToString(command_));
+
+    if (!requestId_.isEmpty()) {
+        envelope.insert(QStringLiteral("requestId"), requestId_);
+    }
+
+    if (!sessionToken_.isEmpty()) {
+        envelope.insert(QStringLiteral("sessionToken"), sessionToken_);
+    }
+
+    if (status_ != MessageStatus::None) {
+        envelope.insert(QStringLiteral("status"), statusToString(status_));
+    }
+
+    if (errorCode_ != ErrorCode::None) {
+        envelope.insert(QStringLiteral("errorCode"), errorCodeToString(errorCode_));
+    }
+
+    if (!statusMessage_.isEmpty()) {
+        envelope.insert(QStringLiteral("message"), statusMessage_);
+    }
+
+    envelope.insert(QStringLiteral("payload"), payload_);
+    return envelope;
+}
+
+std::optional<Message> Message::fromJson(const QJsonObject& envelope, QString* error)
+{
+    const QJsonValue commandValue = envelope.value(QStringLiteral("command"));
+    if (!commandValue.isString()) {
+        if (error) {
+            *error = QStringLiteral("Missing or invalid 'command' field");
+        }
+        return std::nullopt;
+    }
+
+    const QString commandStr = commandValue.toString();
+    const Command parsedCommand = commandFromString(commandStr);
+    if (commandToString(parsedCommand).compare(commandStr, Qt::CaseInsensitive) != 0) {
+        if (error) {
+            *error = QStringLiteral("Unknown command: %1").arg(commandStr);
+        }
+        return std::nullopt;
+    }
+
+    Message message(parsedCommand);
+
+    if (const QJsonValue requestIdValue = envelope.value(QStringLiteral("requestId"));
+        requestIdValue.isString()) {
+        message.requestId_ = requestIdValue.toString();
+    }
+
+    if (const QJsonValue sessionTokenValue = envelope.value(QStringLiteral("sessionToken"));
+        sessionTokenValue.isString()) {
+        message.sessionToken_ = sessionTokenValue.toString();
+    }
+
+    message.status_ = MessageStatus::None;
+    if (const QJsonValue statusValue = envelope.value(QStringLiteral("status"));
+        !statusValue.isUndefined()) {
+        if (!statusValue.isString()) {
+            if (error) {
+                *error = QStringLiteral("'status' must be a string");
+            }
+            return std::nullopt;
+        }
+
+        const QString statusStr = statusValue.toString();
+        const MessageStatus parsedStatus = statusFromString(statusStr);
+        if (statusToString(parsedStatus).compare(statusStr, Qt::CaseInsensitive) != 0) {
+            if (error) {
+                *error = QStringLiteral("Unknown status: %1").arg(statusStr);
+            }
+            return std::nullopt;
+        }
+
+        message.status_ = parsedStatus;
+    }
+
+    message.errorCode_ = ErrorCode::None;
+    if (const QJsonValue errorCodeValue = envelope.value(QStringLiteral("errorCode"));
+        !errorCodeValue.isUndefined()) {
+        if (!errorCodeValue.isString()) {
+            if (error) {
+                *error = QStringLiteral("'errorCode' must be a string");
+            }
+            return std::nullopt;
+        }
+
+        const QString errorCodeStr = errorCodeValue.toString();
+        const ErrorCode parsedErrorCode = errorCodeFromString(errorCodeStr);
+        if (errorCodeToString(parsedErrorCode).compare(errorCodeStr, Qt::CaseInsensitive) != 0) {
+            if (error) {
+                *error = QStringLiteral("Unknown error code: %1").arg(errorCodeStr);
+            }
+            return std::nullopt;
+        }
+
+        message.errorCode_ = parsedErrorCode;
+    }
+
+    if (const QJsonValue statusMessageValue = envelope.value(QStringLiteral("message"));
+        statusMessageValue.isString()) {
+        message.statusMessage_ = statusMessageValue.toString();
+    }
+
+    const QJsonValue payloadValue = envelope.value(QStringLiteral("payload"));
+    if (payloadValue.isUndefined()) {
+        message.payload_ = QJsonObject{};
+    } else if (!payloadValue.isObject()) {
+        if (error) {
+            *error = QStringLiteral("'payload' must be a JSON object");
+        }
+        return std::nullopt;
+    } else {
+        message.payload_ = payloadValue.toObject();
+    }
+
     return message;
 }
 

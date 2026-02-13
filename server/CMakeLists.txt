@@ -31,6 +31,10 @@ add_executable(serverProject
         repository/UserRepository.h
         security/PasswordHasher.cpp
         security/PasswordHasher.h
+        ui/RequestLogModel.h
+        ui/requestlogmodel.cpp
+        ui/ServerConsoleWindow.h
+        ui/ServerConsoleWindow.cpp
 
 )
 

@@ -18,6 +18,8 @@ enum class MessageStatus {
     Failure
 };
 
+// ... بخش‌های بالایی فایل بدون تغییر ...
+
 class Message {
 public:
     Message();
@@ -55,6 +57,10 @@ public:
     QByteArray serialize() const;
     static std::optional<Message> deserialize(const QByteArray& bytes, QString* error = nullptr);
 
+    QJsonObject toJson() const;
+    QJsonObject json() const { return toJson(); }
+    static std::optional<Message> fromJson(const QJsonObject& object, QString* error = nullptr);
+
     static Message makeSuccess(Command command,
                                const QJsonObject& payload = {},
                                QString requestId = {},
@@ -76,6 +82,8 @@ private:
     QString statusMessage_;
     QJsonObject payload_;
 };
+
+// ... بقیه فایل بدون تغییر ...
 
 } // namespace common
 

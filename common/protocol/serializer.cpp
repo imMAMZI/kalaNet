@@ -1,24 +1,42 @@
+// common/protocol/serializer.cpp
 #include "serializer.h"
-#include <QJsonDocument>
-#include <QJsonParseError>
+
+#include <QJsonObject>
+#include <QString>
+
+#include "protocol/error_codes.h"
 
 using namespace common;
 
 QByteArray Serializer::serialize(const Message& message)
 {
-    QJsonDocument doc(message.toJson());
-    return doc.toJson(QJsonDocument::Compact);
+    return message.serialize();
 }
 
 Message Serializer::deserialize(const QByteArray& data)
 {
-    QJsonParseError err;
-    QJsonDocument doc = QJsonDocument::fromJson(data, &err);
-
-    if (err.error != QJsonParseError::NoError || !doc.isObject()) {
-        return Message(Command::Error,
-                       QJsonObject{{"message", "Invalid JSON"}});
+    QString parseError;
+    auto maybeMessage = Message::deserialize(data, &parseError);
+    if (maybeMessage.has_value()) {
+        return *maybeMessage;
     }
 
-    return Message::fromJson(doc.object());
+    QJsonObject payload;
+    if (!parseError.isEmpty()) {
+        payload.insert(QStringLiteral("message"), parseError);
+    }
+
+    Message errorMessage(
+        Command::Error,
+        payload,
+        {},
+        {},
+        MessageStatus::Failure,
+        ErrorCode::InvalidPayload,
+        parseError.isEmpty()
+            ? QStringLiteral("Invalid message payload")
+            : parseError
+    );
+
+    return errorMessage;
 }
