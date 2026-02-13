@@ -1,5 +1,5 @@
 // server/ui/requestlogmodel.cpp
-#include "requestlogmodel.h"
+#include "request_log_model.h"
 
 RequestLogModel::RequestLogModel(QObject* parent)
     : QAbstractTableModel(parent)

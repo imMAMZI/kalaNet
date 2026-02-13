@@ -2,7 +2,7 @@
 #define REQUEST_DISPATCHER_H
 
 #include "protocol/message.h"
-#include "../auth/AuthService.h"
+#include "../auth/auth_service.h"
 
 class ClientConnection;
 

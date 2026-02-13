@@ -1,9 +1,10 @@
 // server/ui/serverconsolewindow.cpp
 #include <QApplication>
 
-#include "serverconsolewindow.h"
-#include "ui_ServerConsoleWindow.h"
-
+#include "server_console_window.h"
+#include "ui_server_console_window.h"
+#include "request_log_model.h"
+#include "request_log_filter_proxy.h"
 #include <QDateTime>
 #include <QFileDialog>
 #include <QMessageBox>

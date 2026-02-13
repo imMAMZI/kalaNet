@@ -1,4 +1,4 @@
-#include "AuthService.h"
+#include "auth_service.h"
 #include "protocol/commands.h"
 #include <stdexcept>
 
@@ -9,7 +9,7 @@ AuthService::AuthService(UserRepository& repo)
 
 static QString roleToString(const QString& role)
 {
-    return role; // اگر role را رشته ذخیره می‌کنید
+    return role;
 }
 
 common::Message AuthService::login(const QJsonObject& payload)

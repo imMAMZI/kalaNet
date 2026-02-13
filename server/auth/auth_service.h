@@ -2,8 +2,8 @@
 #define AUTH_SERVICE_H
 
 #include "protocol/message.h"
-#include "../repository/UserRepository.h"
-#include "../security/PasswordHasher.h"
+#include "../repository/user_repository.h"
+#include "../security/password_hasher.h"
 #include <QJsonObject>
 
 class AuthService

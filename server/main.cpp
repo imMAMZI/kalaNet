@@ -1,11 +1,11 @@
 #include <QApplication>
 #include <QMessageBox>
 
-#include "network/TcpServer.h"
-#include "protocol/RequestDispatcher.h"
-#include "auth/AuthService.h"
-#include "repository/SqliteUserRepository.h"
-#include "ui/ServerConsoleWindow.h"
+#include "network/tcp_server.h"
+#include "protocol/request_dispatcher.h"
+#include "auth/auth_service.h"
+#include "repository/sqlite_user_repository.h"
+#include "ui/server_console_window.h"
 
 int main(int argc, char *argv[])
 {

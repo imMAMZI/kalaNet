@@ -1,7 +1,7 @@
 #ifndef SQLITE_USER_REPOSITORY_H
 #define SQLITE_USER_REPOSITORY_H
 
-#include "UserRepository.h"
+#include "user_repository.h"
 #include <QMutex>
 #include <QSqlDatabase>
 

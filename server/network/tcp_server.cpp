@@ -1,9 +1,9 @@
 #include <QTcpServer>
 #include <QTcpSocket>
 #include <QDebug>
-#include "TcpServer.h"
+#include "tcp_server.h"
 
-#include "ClientConnection.h"
+#include "client_connection.h"
 
 TcpServer::TcpServer(quint16 port, RequestDispatcher& dispatcher, QObject* parent)
     : QObject(parent)

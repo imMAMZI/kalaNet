@@ -1,4 +1,4 @@
-#include "RequestLogFilterProxy.h"
+#include "request_log_filter_proxy.h"
 
 RequestLogFilterProxy::RequestLogFilterProxy(QObject* parent)
     : QSortFilterProxyModel(parent)

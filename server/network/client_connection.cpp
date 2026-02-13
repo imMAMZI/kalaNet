@@ -1,4 +1,4 @@
-#include "ClientConnection.h"
+#include "client_connection.h"
 #include "protocol/message.h"
 #include <QJsonDocument>
 #include <QJsonParseError>

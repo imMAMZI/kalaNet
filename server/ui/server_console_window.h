@@ -10,9 +10,9 @@
 #include <QMainWindow>
 #include <QSortFilterProxyModel>
 #include <QTimer>
-#include "RequestLogFilterProxy.h"
+#include "request_log_filter_proxy.h"
 
-#include "requestlogmodel.h"
+#include "request_log_model.h"
 #include "protocol/message.h"
 
 QT_BEGIN_NAMESPACE

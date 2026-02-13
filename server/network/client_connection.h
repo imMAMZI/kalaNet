@@ -3,7 +3,7 @@
 
 #include <QObject>
 #include <QTcpSocket>
-#include "../protocol/RequestDispatcher.h"
+#include "../protocol/request_dispatcher.h"
 
 class ClientConnection : public QObject
 {

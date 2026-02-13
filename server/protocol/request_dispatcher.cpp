@@ -1,5 +1,5 @@
-#include "RequestDispatcher.h"
-#include "../network/ClientConnection.h"
+#include "request_dispatcher.h"
+#include "../network/client_connection.h"
 #include "protocol/commands.h"
 
 RequestDispatcher::RequestDispatcher(AuthService& authService)

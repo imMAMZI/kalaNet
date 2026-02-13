@@ -1,4 +1,4 @@
-#include "SqliteUserRepository.h"
+#include "sqlite_user_repository.h"
 #include <QMutexLocker>
 #include <QCoreApplication>
 #include <QDir>

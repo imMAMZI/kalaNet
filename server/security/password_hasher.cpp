@@ -1,4 +1,4 @@
-#include "PasswordHasher.h"
+#include "password_hasher.h"
 
 QString PasswordHasher::hash(const QString& rawPassword)
 {
