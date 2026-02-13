@@ -71,6 +71,9 @@ void TcpServer::handleNewConnection()
 
         connect(connection, &QObject::destroyed,
                 this, &TcpServer::onConnectionDestroyed);
+        connect(connection, &ClientConnection::requestProcessed,
+        this, &TcpServer::requestProcessed);
+
     }
 }
 

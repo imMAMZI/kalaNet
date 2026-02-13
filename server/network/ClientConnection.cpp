@@ -89,3 +89,9 @@ void ClientConnection::onReadyRead()
         dispatcher_.dispatch(*maybeMessage, *this);
     }
 }
+void ClientConnection::sendResponse(const common::Message& request,
+                                    const common::Message& response)
+{
+    send(response);                    // همان متد موجود برای ارسال روی سوکت
+    emit requestProcessed(request, response);
+}

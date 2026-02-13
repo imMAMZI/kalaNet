@@ -9,6 +9,14 @@ class ClientConnection : public QObject
 {
     Q_OBJECT
 
+    signals:
+    void requestProcessed(const common::Message& request,
+                          const common::Message& response);
+
+public:
+    void sendResponse(const common::Message& request,
+                      const common::Message& response);
+
 public:
     explicit ClientConnection(QTcpSocket* socket,
                               RequestDispatcher& dispatcher,

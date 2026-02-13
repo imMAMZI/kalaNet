@@ -34,6 +34,7 @@ int main(int argc, char *argv[])
     QObject::connect(&server, &TcpServer::requestProcessed,
                      &console, &ServerConsoleWindow::onRequestProcessed);
 
+
     if (!server.startListening()) {
         QMessageBox::critical(&console, QObject::tr("Server"),
                               QObject::tr("Failed to bind server socket"));
