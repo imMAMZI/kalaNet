@@ -1,0 +1,463 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>client_main_window</class>
+ <widget class="QMainWindow" name="main_menu_window">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>900</width>
+    <height>620</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>PinkMart - Main Menu</string>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>760</width>
+    <height>520</height>
+   </size>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">
+    /* ===== Global theme: Pink + Black ===== */
+    QMainWindow, QWidget {
+    background: #0B0B0F;
+    color: #F4F4F6;
+    font-family: "Segoe UI";
+    font-size: 12pt;
+    }
+
+    QLabel#lblTitle {
+    color: #FF3DA5;
+    font-size: 30pt;
+    font-weight: 900;
+    }
+
+    QLabel#lblSubtitle {
+    color: #CFCFDB;
+    font-size: 11pt;
+    }
+
+    QFrame#card {
+    background: #111118;
+    border: 1px solid #242431;
+    border-radius: 18px;
+    }
+
+    QLabel#lblTimeCaption {
+    color: #9B9BB0;
+    font-size: 10pt;
+    }
+
+    QLabel#lblTime {
+    color: #FF3DA5;
+    font-weight: 900;
+    font-size: 14pt;
+    letter-spacing: 1px;
+    }
+
+    QPushButton#btnRefreshTime {
+    background: transparent;
+    color: #FF3DA5;
+    border: 1px solid #FF3DA5;
+    border-radius: 12px;
+    padding: 8px 10px;
+    font-weight: 700;
+    }
+    QPushButton#btnRefreshTime:hover { background: rgba(255, 61, 165, 0.12); }
+    QPushButton#btnRefreshTime:pressed { background: rgba(255, 61, 165, 0.22); }
+
+    /* Menu buttons */
+    QPushButton {
+    background: #0E0E14;
+    color: #F4F4F6;
+    border: 1px solid #2A2A39;
+    border-radius: 16px;
+    padding: 14px 16px;
+    font-weight: 800;
+    text-align: left;
+    }
+
+    QPushButton:hover {
+    border: 2px solid #FF3DA5;
+    }
+
+    QPushButton:pressed {
+    background: rgba(255, 61, 165, 0.12);
+    }
+
+    /* Exit button more aggressive */
+    QPushButton#btnExit {
+    background: transparent;
+    color: #FF5C7A;
+    border: 1px solid #FF5C7A;
+    font-weight: 900;
+    }
+    QPushButton#btnExit:hover { background: rgba(255, 92, 122, 0.12); }
+    QPushButton#btnExit:pressed { background: rgba(255, 92, 122, 0.20); }
+
+    QLabel#lblHint {
+    color: #9B9BB0;
+    font-size: 10pt;
+    }
+   </string>
+  </property>
+
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="rootLayout">
+    <property name="leftMargin">
+     <number>24</number>
+    </property>
+    <property name="topMargin">
+     <number>24</number>
+    </property>
+    <property name="rightMargin">
+     <number>24</number>
+    </property>
+    <property name="bottomMargin">
+     <number>24</number>
+    </property>
+    <property name="spacing">
+     <number>16</number>
+    </property>
+
+    <!-- Header -->
+    <item>
+     <layout class="QHBoxLayout" name="headerRow">
+      <property name="spacing">
+       <number>12</number>
+      </property>
+
+      <item>
+       <layout class="QVBoxLayout" name="titleCol">
+        <property name="spacing">
+         <number>4</number>
+        </property>
+        <item>
+         <widget class="QLabel" name="lblTitle">
+          <property name="text">
+           <string>Main Menu</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="lblSubtitle">
+          <property name="text">
+           <string>Choose what you want to do next</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+
+      <item>
+       <spacer name="spacerHeader">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+
+      <!-- Time block -->
+      <item>
+       <widget class="QFrame" name="timeBox">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">
+          QFrame#timeBox {
+          background: #111118;
+          border: 1px solid #242431;
+          border-radius: 16px;
+          }
+         </string>
+        </property>
+        <layout class="QHBoxLayout" name="timeRow">
+         <property name="leftMargin">
+          <number>14</number>
+         </property>
+         <property name="topMargin">
+          <number>12</number>
+         </property>
+         <property name="rightMargin">
+          <number>14</number>
+         </property>
+         <property name="bottomMargin">
+          <number>12</number>
+         </property>
+         <property name="spacing">
+          <number>10</number>
+         </property>
+
+         <item>
+          <layout class="QVBoxLayout" name="timeCol">
+           <property name="spacing">
+            <number>2</number>
+           </property>
+           <item>
+            <widget class="QLabel" name="lblTimeCaption">
+             <property name="text">
+              <string>System time</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="lblTime">
+             <property name="text">
+              <string>--:--:--</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+
+         <item>
+          <widget class="QPushButton" name="btnRefreshTime">
+           <property name="text">
+            <string>Refresh</string>
+           </property>
+           <property name="cursor">
+            <cursorShape>PointingHandCursor</cursorShape>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+
+     </layout>
+    </item>
+
+    <!-- Main content card -->
+    <item>
+     <widget class="QFrame" name="card">
+      <layout class="QHBoxLayout" name="cardRow">
+       <property name="leftMargin">
+        <number>18</number>
+       </property>
+       <property name="topMargin">
+        <number>18</number>
+       </property>
+       <property name="rightMargin">
+        <number>18</number>
+       </property>
+       <property name="bottomMargin">
+        <number>18</number>
+       </property>
+       <property name="spacing">
+        <number>18</number>
+       </property>
+
+       <!-- Left: menu buttons -->
+       <item>
+        <layout class="QVBoxLayout" name="menuCol">
+         <property name="spacing">
+          <number>12</number>
+         </property>
+
+         <item>
+          <widget class="QPushButton" name="btnNewAd">
+           <property name="text">
+            <string>➕  New Ad</string>
+           </property>
+           <property name="cursor">
+            <cursorShape>PointingHandCursor</cursorShape>
+           </property>
+           <property name="minimumHeight">
+            <number>54</number>
+           </property>
+          </widget>
+         </item>
+
+         <item>
+          <widget class="QPushButton" name="btnShop">
+           <property name="text">
+            <string>🛍️  Shop</string>
+           </property>
+           <property name="cursor">
+            <cursorShape>PointingHandCursor</cursorShape>
+           </property>
+           <property name="minimumHeight">
+            <number>54</number>
+           </property>
+          </widget>
+         </item>
+
+         <item>
+          <widget class="QPushButton" name="btnCart">
+           <property name="text">
+            <string>🧾  Cart</string>
+           </property>
+           <property name="cursor">
+            <cursorShape>PointingHandCursor</cursorShape>
+           </property>
+           <property name="minimumHeight">
+            <number>54</number>
+           </property>
+          </widget>
+         </item>
+
+         <item>
+          <widget class="QPushButton" name="btnProfile">
+           <property name="text">
+            <string>👤  Profile</string>
+           </property>
+           <property name="cursor">
+            <cursorShape>PointingHandCursor</cursorShape>
+           </property>
+           <property name="minimumHeight">
+            <number>54</number>
+           </property>
+          </widget>
+         </item>
+
+         <item>
+          <widget class="QPushButton" name="btnHowItWorks">
+           <property name="text">
+            <string>❓  How does it work?</string>
+           </property>
+           <property name="cursor">
+            <cursorShape>PointingHandCursor</cursorShape>
+           </property>
+           <property name="minimumHeight">
+            <number>54</number>
+           </property>
+          </widget>
+         </item>
+
+         <item>
+          <widget class="QPushButton" name="btnExit">
+           <property name="text">
+            <string>⛔  Exit</string>
+           </property>
+           <property name="cursor">
+            <cursorShape>PointingHandCursor</cursorShape>
+           </property>
+           <property name="minimumHeight">
+            <number>54</number>
+           </property>
+          </widget>
+         </item>
+
+         <item>
+          <spacer name="spacerMenuBottom">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+
+       <!-- Right: placeholder panel (for later hints / user greeting / status) -->
+       <item>
+        <widget class="QFrame" name="rightPanel">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+           <horstretch>2</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">
+           QFrame#rightPanel {
+           background: #0E0E14;
+           border: 1px solid #2A2A39;
+           border-radius: 16px;
+           }
+          </string>
+         </property>
+         <layout class="QVBoxLayout" name="rightPanelLayout">
+          <property name="leftMargin">
+           <number>16</number>
+          </property>
+          <property name="topMargin">
+           <number>16</number>
+          </property>
+          <property name="rightMargin">
+           <number>16</number>
+          </property>
+          <property name="bottomMargin">
+           <number>16</number>
+          </property>
+          <property name="spacing">
+           <number>10</number>
+          </property>
+
+          <item>
+           <widget class="QLabel" name="lblHint">
+            <property name="text">
+             <string>Tips:
+              • New Ad: post something to sell (goes to pending approval)
+              • Shop: search and buy approved ads
+              • Cart: review and finalize purchase
+              • Profile: edit your information</string>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+
+          <item>
+           <spacer name="spacerRightPanel">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+
+         </layout>
+        </widget>
+       </item>
+
+      </layout>
+     </widget>
+    </item>
+
+    <!-- Bottom spacer -->
+    <item>
+     <spacer name="spacerBottom">
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>20</width>
+        <height>10</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+
+   </layout>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
