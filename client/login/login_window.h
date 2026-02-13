@@ -15,6 +15,8 @@ namespace Ui {
 }
 QT_END_NAMESPACE
 
+class client_main_window;
+
 class login_window : public QMainWindow {
     Q_OBJECT
 
@@ -23,10 +25,7 @@ public:
     ~login_window() override;
 
     signals:
-        // Emitted when login is successful (later we'll pass user/session info too)
-        void loginSucceeded(const QString& username);
-
-    // Optional: if you want to open signup page/dialog later
+    void loginSucceeded(const QString& username);
     void signupRequested();
 
 private slots:
@@ -35,14 +34,10 @@ private slots:
     void on_btnSignup_clicked();
 
 private:
-    // Captcha
     void regenerateCaptcha();
     bool verifyCaptcha(const QString& input) const;
-
-    // Password hashing helper (client-side)
     QString hashPasswordSha256(const QString& password) const;
 
-    // UI helpers
     void setError(const QString& message);
     void clearError();
 
@@ -50,6 +45,7 @@ private:
     Ui::login_window *ui;
 
     QString currentCaptcha;
+    client_main_window* mainWindow_ = nullptr;
 };
 
 #endif // KALANET_LOGIN_WINDOW_H

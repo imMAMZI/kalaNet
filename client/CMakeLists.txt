@@ -24,7 +24,9 @@ add_executable(clientProject src/client_main.cpp
         login/login_window.ui
         signup/signup_window.cpp
         signup/signup_window.h
-        signup/signup_window.ui)
+        signup/signup_window.ui
+        network/auth_client.cpp
+        network/auth_client.h)
 
 target_link_libraries(clientProject
         PRIVATE

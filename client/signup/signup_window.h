@@ -22,11 +22,8 @@ public:
     ~signup_window() override;
 
     signals:
-        // Emitted when user clicks "Back to login"
-        void backToLoginRequested();
+    void backToLoginRequested();
 
-    // Emitted when signup data is valid and user confirms creation
-    // Later you can pass a struct, for now just pass fields.
     void signupSubmitted(const QString& name,
                          const QString& username,
                          const QString& phone,
@@ -38,11 +35,9 @@ private slots:
     void on_btnBack_clicked();
 
 private:
-    // UI helpers
     void setError(const QString& message);
     void clearError();
 
-    // Validation helpers (we'll implement fully in .cpp)
     bool validateInputs(QString& errorOut) const;
     bool isEmailValid(const QString& email) const;
     bool isPhoneValid(const QString& phone) const;
@@ -50,6 +45,11 @@ private:
 
 private:
     Ui::signup_window *ui;
+    QString pendingName_;
+    QString pendingUsername_;
+    QString pendingPhone_;
+    QString pendingEmail_;
+    QString pendingPassword_;
 };
 
 #endif // KALANET_SIGNUP_WINDOW_H
