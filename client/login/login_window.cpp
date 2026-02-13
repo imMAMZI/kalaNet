@@ -1,6 +1,6 @@
-#include "../headers/login_window.h"
+#include "login_window.h"
 #include "ui_login_window.h"
-#include "../headers/signup_window.h"
+#include "../signup/signup_window.h"
 
 
 login_window::login_window(QMainWindow *parent) : QMainWindow(parent), ui(new Ui::login_window) {

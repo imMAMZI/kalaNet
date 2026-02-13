@@ -5,7 +5,7 @@
 #include <QApplication>
 
 #include "../headers/client_main_window.h"
-#include "../headers/login_window.h"
+#include "../login/login_window.h"
 
 int main(int argc, char *argv[]) {
     QApplication a(argc, argv);

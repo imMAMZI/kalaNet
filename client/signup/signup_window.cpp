@@ -2,7 +2,7 @@
 // Created by mamzi on 2/12/26.
 //
 
-#include "../headers/signup_window.h"
+#include "signup_window.h"
 #include "ui_signup_window.h"
 
 signup_window::signup_window(QWidget *parent)

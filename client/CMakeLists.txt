@@ -19,12 +19,12 @@ add_executable(clientProject src/client_main.cpp
         src/client_main_window.cpp
         headers/client_main_window.h
         src/client_main_window.ui
-        src/login_window.cpp
-        headers/login_window.h
-        src/login_window.ui
-        src/signup_window.cpp
-        headers/signup_window.h
-        src/signup_window.ui)
+        login/login_window.cpp
+        login/login_window.h
+        login/login_window.ui
+        signup/signup_window.cpp
+        signup/signup_window.h
+        signup/signup_window.ui)
 
 target_link_libraries(clientProject
         PRIVATE
