@@ -94,8 +94,8 @@ void PendingAdsWindow::bindConnections()
             this, &PendingAdsWindow::loadPendingAds);
     connect(ui->comboBoxCategoryFilter, &QComboBox::currentTextChanged,
             this, &PendingAdsWindow::loadPendingAds);
-    connect(ui->checkBoxOnlyWithImage, &QCheckBox::checkStateChanged,
-            this, [this](Qt::CheckState) { loadPendingAds(); });
+    connect(ui->checkBoxOnlyWithImage, qOverload<int>(&QCheckBox::stateChanged),
+            this, [this](int) { loadPendingAds(); });
     connect(ui->spinBoxMaxPrice, qOverload<int>(&QSpinBox::valueChanged),
             this, [this](int) { loadPendingAds(); });
 
@@ -227,7 +227,9 @@ int PendingAdsWindow::selectedAdId() const
     }
 
     const QModelIndex idIndex = currentIndex.siblingAtColumn(AdTableColumns::Id);
-    return idIndex.data().toInt(-1);
+    bool ok = false;
+    const int adId = idIndex.data().toInt(&ok);
+    return ok ? adId : -1;
 }
 
 void PendingAdsWindow::onAdSelectionChanged()
