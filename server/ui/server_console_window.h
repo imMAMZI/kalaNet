@@ -12,6 +12,7 @@
 #include <QTimer>
 
 class PendingAdsWindow;
+class AdRepository;
 #include "request_log_filter_proxy.h"
 
 #include "request_log_model.h"
@@ -26,7 +27,7 @@ class ServerConsoleWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit ServerConsoleWindow(QWidget* parent = nullptr);
+    explicit ServerConsoleWindow(AdRepository& adRepository, QWidget* parent = nullptr);
     ~ServerConsoleWindow() override;
 
 public slots:
@@ -62,6 +63,7 @@ private:
     QTimer uptimeTimer;
     QDateTime serverStartTime;
     PendingAdsWindow* pendingAdsWindow = nullptr;
+    AdRepository& adRepository_;
 };
 
 #endif //KALANET_SERVERCONSOLEWINDOW_H

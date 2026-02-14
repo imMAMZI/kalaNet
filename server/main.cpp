@@ -19,13 +19,12 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
-    ServerConsoleWindow console;
-    console.show();
-
     static constexpr quint16 kDefaultServerPort = 8080;
 
     SqliteUserRepository userRepo("kalanet.db");
     SqliteAdRepository adRepo("kalanet.db");
+    ServerConsoleWindow console(adRepo);
+    console.show();
     SqliteCartRepository cartRepo("kalanet.db");
     SqliteWalletRepository walletRepo("kalanet.db");
 
