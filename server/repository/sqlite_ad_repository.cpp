@@ -285,7 +285,7 @@ QVector<AdRepository::AdSummaryRecord> SqliteAdRepository::listApprovedAds(
     ensureConnection();
 
     QString sql = QStringLiteral(
-        "SELECT id, title, category, price_tokens, seller_username, created_at, image_bytes "
+        "SELECT id, title, category, price_tokens, seller_username, status, created_at, updated_at, image_bytes "
         "FROM ads WHERE status = :status");
 
     if (!filters.nameContains.trimmed().isEmpty()) {
@@ -343,8 +343,10 @@ QVector<AdRepository::AdSummaryRecord> SqliteAdRepository::listApprovedAds(
         record.category = query.value(2).toString();
         record.priceTokens = query.value(3).toInt();
         record.sellerUsername = query.value(4).toString();
-        record.createdAt = query.value(5).toString();
-        record.hasImage = !query.value(6).toByteArray().isEmpty();
+        record.status = query.value(5).toString();
+        record.createdAt = query.value(6).toString();
+        record.updatedAt = query.value(7).toString();
+        record.hasImage = !query.value(8).toByteArray().isEmpty();
         ads.push_back(record);
     }
 
@@ -452,6 +454,127 @@ bool SqliteAdRepository::hasDuplicateActiveAdForSeller(const NewAd& ad)
     return query.value(0).toInt() > 0;
 }
 
+
+QVector<AdRepository::AdSummaryRecord> SqliteAdRepository::listAdsForModeration(
+    const AdListFilters& filters,
+    const QString& statusFilter,
+    bool onlyWithImage,
+    const QString& sellerContains,
+    const QString& fullTextContains)
+{
+    QMutexLocker locker(&mutex_);
+    ensureConnection();
+
+    QString sql = QStringLiteral(
+        "SELECT id, title, category, price_tokens, seller_username, status, created_at, updated_at, image_bytes "
+        "FROM ads WHERE 1 = 1");
+
+    if (!statusFilter.trimmed().isEmpty() && statusFilter.compare(QStringLiteral("all"), Qt::CaseInsensitive) != 0) {
+        sql += QStringLiteral(" AND status = :status");
+    }
+    if (!filters.nameContains.trimmed().isEmpty()) {
+        sql += QStringLiteral(" AND title LIKE :title");
+    }
+    if (!filters.category.trimmed().isEmpty()) {
+        sql += QStringLiteral(" AND LOWER(category) = LOWER(:category)");
+    }
+    if (filters.minPriceTokens > 0) {
+        sql += QStringLiteral(" AND price_tokens >= :min_price");
+    }
+    if (filters.maxPriceTokens > 0) {
+        sql += QStringLiteral(" AND price_tokens <= :max_price");
+    }
+    if (onlyWithImage) {
+        sql += QStringLiteral(" AND image_bytes IS NOT NULL AND length(image_bytes) > 0");
+    }
+    if (!sellerContains.trimmed().isEmpty()) {
+        sql += QStringLiteral(" AND seller_username LIKE :seller");
+    }
+    if (!fullTextContains.trimmed().isEmpty()) {
+        sql += QStringLiteral(" AND (title LIKE :text_query OR description LIKE :text_query)");
+    }
+
+    const QString sortField = sortFieldToSqlColumn(filters.sortField);
+    const QString sortOrder = filters.sortOrder == AdRepository::SortOrder::Asc
+                                  ? QStringLiteral("ASC")
+                                  : QStringLiteral("DESC");
+    sql += QStringLiteral(" ORDER BY %1 %2, id %2;").arg(sortField, sortOrder);
+
+    QSqlQuery query(db_);
+    query.prepare(sql);
+
+    if (!statusFilter.trimmed().isEmpty() && statusFilter.compare(QStringLiteral("all"), Qt::CaseInsensitive) != 0) {
+        query.bindValue(QStringLiteral(":status"), statusFilter.trimmed().toLower());
+    }
+    if (!filters.nameContains.trimmed().isEmpty()) {
+        query.bindValue(QStringLiteral(":title"), QStringLiteral("%") + filters.nameContains.trimmed() + QStringLiteral("%"));
+    }
+    if (!filters.category.trimmed().isEmpty()) {
+        query.bindValue(QStringLiteral(":category"), filters.category.trimmed());
+    }
+    if (filters.minPriceTokens > 0) {
+        query.bindValue(QStringLiteral(":min_price"), filters.minPriceTokens);
+    }
+    if (filters.maxPriceTokens > 0) {
+        query.bindValue(QStringLiteral(":max_price"), filters.maxPriceTokens);
+    }
+    if (!sellerContains.trimmed().isEmpty()) {
+        query.bindValue(QStringLiteral(":seller"), QStringLiteral("%") + sellerContains.trimmed() + QStringLiteral("%"));
+    }
+    if (!fullTextContains.trimmed().isEmpty()) {
+        query.bindValue(QStringLiteral(":text_query"), QStringLiteral("%") + fullTextContains.trimmed() + QStringLiteral("%"));
+    }
+
+    if (!query.exec()) {
+        throwDatabaseError(QStringLiteral("list ads for moderation"), query.lastError());
+    }
+
+    QVector<AdSummaryRecord> ads;
+    while (query.next()) {
+        AdSummaryRecord record;
+        record.id = query.value(0).toInt();
+        record.title = query.value(1).toString();
+        record.category = query.value(2).toString();
+        record.priceTokens = query.value(3).toInt();
+        record.sellerUsername = query.value(4).toString();
+        record.status = query.value(5).toString();
+        record.createdAt = query.value(6).toString();
+        record.updatedAt = query.value(7).toString();
+        record.hasImage = !query.value(8).toByteArray().isEmpty();
+        ads.push_back(record);
+    }
+
+    return ads;
+}
+
+QVector<AdRepository::AdStatusHistoryRecord> SqliteAdRepository::getStatusHistory(int adId)
+{
+    QMutexLocker locker(&mutex_);
+    ensureConnection();
+
+    QSqlQuery query(db_);
+    query.prepare(QStringLiteral(
+        "SELECT previous_status, new_status, reason, changed_at "
+        "FROM ad_status_history WHERE ad_id = :ad_id ORDER BY changed_at DESC, id DESC;"));
+    query.bindValue(QStringLiteral(":ad_id"), adId);
+
+    if (!query.exec()) {
+        throwDatabaseError(QStringLiteral("get ad status history"), query.lastError());
+    }
+
+    QVector<AdStatusHistoryRecord> history;
+    while (query.next()) {
+        AdStatusHistoryRecord item;
+        item.previousStatus = query.value(0).toString();
+        item.newStatus = query.value(1).toString();
+        item.reason = query.value(2).toString();
+        item.changedAt = query.value(3).toString();
+        history.push_back(item);
+    }
+
+    return history;
+}
+
 bool SqliteAdRepository::updateStatus(int adId,
                                       AdModerationStatus newStatus,
                                       const QString& reason)
@@ -539,7 +662,7 @@ QVector<AdRepository::AdSummaryRecord> SqliteAdRepository::listAdsBySeller(const
     ensureConnection();
 
     QString sql = QStringLiteral(
-        "SELECT id, title, category, price_tokens, seller_username, created_at, image_bytes "
+        "SELECT id, title, category, price_tokens, seller_username, status, created_at, updated_at, image_bytes "
         "FROM ads WHERE seller_username = :seller_username");
     if (!statusFilter.trimmed().isEmpty()) {
         sql += QStringLiteral(" AND status = :status");
@@ -565,8 +688,10 @@ QVector<AdRepository::AdSummaryRecord> SqliteAdRepository::listAdsBySeller(const
         record.category = query.value(2).toString();
         record.priceTokens = query.value(3).toInt();
         record.sellerUsername = query.value(4).toString();
-        record.createdAt = query.value(5).toString();
-        record.hasImage = !query.value(6).toByteArray().isEmpty();
+        record.status = query.value(5).toString();
+        record.createdAt = query.value(6).toString();
+        record.updatedAt = query.value(7).toString();
+        record.hasImage = !query.value(8).toByteArray().isEmpty();
         ads.push_back(record);
     }
 
@@ -581,7 +706,7 @@ QVector<AdRepository::AdSummaryRecord> SqliteAdRepository::listPurchasedAdsByBuy
 
     QSqlQuery query(db_);
     query.prepare(QStringLiteral(
-        "SELECT a.id, a.title, a.category, a.price_tokens, a.seller_username, tl.created_at, a.image_bytes "
+        "SELECT a.id, a.title, a.category, a.price_tokens, a.seller_username, a.status, tl.created_at, a.updated_at, a.image_bytes "
         "FROM transaction_ledger tl "
         "JOIN ads a ON a.id = tl.ad_id "
         "WHERE tl.username = :username AND tl.type = 'purchase_debit' "
@@ -601,8 +726,10 @@ QVector<AdRepository::AdSummaryRecord> SqliteAdRepository::listPurchasedAdsByBuy
         record.category = query.value(2).toString();
         record.priceTokens = query.value(3).toInt();
         record.sellerUsername = query.value(4).toString();
-        record.createdAt = query.value(5).toString();
-        record.hasImage = !query.value(6).toByteArray().isEmpty();
+        record.status = query.value(5).toString();
+        record.createdAt = query.value(6).toString();
+        record.updatedAt = query.value(7).toString();
+        record.hasImage = !query.value(8).toByteArray().isEmpty();
         ads.push_back(record);
     }
 

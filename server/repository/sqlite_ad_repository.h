@@ -23,6 +23,12 @@ public:
     bool updateStatus(int adId,
                       AdModerationStatus newStatus,
                       const QString& reason) override;
+    QVector<AdSummaryRecord> listAdsForModeration(const AdListFilters& filters,
+                                                  const QString& statusFilter,
+                                                  bool onlyWithImage,
+                                                  const QString& sellerContains,
+                                                  const QString& fullTextContains) override;
+    QVector<AdStatusHistoryRecord> getStatusHistory(int adId) override;
     QVector<AdSummaryRecord> listAdsBySeller(const QString& sellerUsername, const QString& statusFilter) override;
     QVector<AdSummaryRecord> listPurchasedAdsByBuyer(const QString& buyerUsername, int limit) override;
     AdStatusCounts getAdStatusCounts() override;

@@ -298,28 +298,47 @@ void RequestDispatcher::handleAdCreate(const common::Message& message,
 void RequestDispatcher::handleAdList(const common::Message& message,
                                      ClientConnection& client)
 {
-    if (!requireSession(message, client, common::Command::AdListResult).has_value()) {
+    const auto session = requireSession(message, client, common::Command::AdListResult);
+    if (!session.has_value()) {
         return;
     }
-    client.sendResponse(message, adService_.list(message.payload()));
+
+    QJsonObject payload = message.payload();
+    if (session->role.compare(QStringLiteral("Admin"), Qt::CaseInsensitive) == 0) {
+        payload.insert(QStringLiteral("allowAdminView"), true);
+    }
+
+    client.sendResponse(message, adService_.list(payload));
 }
 
 void RequestDispatcher::handleAdDetail(const common::Message& message,
                                        ClientConnection& client)
 {
-    if (!requireSession(message, client, common::Command::AdDetailResult).has_value()) {
+    const auto session = requireSession(message, client, common::Command::AdDetailResult);
+    if (!session.has_value()) {
         return;
     }
-    client.sendResponse(message, adService_.detail(message.payload()));
+
+    QJsonObject payload = message.payload();
+    if (session->role.compare(QStringLiteral("Admin"), Qt::CaseInsensitive) == 0) {
+        payload.insert(QStringLiteral("includeUnapproved"), true);
+        payload.insert(QStringLiteral("includeHistory"), true);
+    }
+
+    client.sendResponse(message, adService_.detail(payload));
 }
 
 void RequestDispatcher::handleAdStatusUpdate(const common::Message& message,
                                              ClientConnection& client)
 {
-    if (!requireSession(message, client, common::Command::AdUpdateResult, QStringLiteral("Admin")).has_value()) {
+    const auto session = requireSession(message, client, common::Command::AdStatusUpdate, QStringLiteral("Admin"));
+    if (!session.has_value()) {
         return;
     }
-    client.sendResponse(message, adService_.updateStatus(message.payload()));
+
+    QJsonObject payload = message.payload();
+    payload.insert(QStringLiteral("moderatorUsername"), session->username);
+    client.sendResponse(message, adService_.updateStatus(payload));
 }
 
 void RequestDispatcher::handleCartAddItem(const common::Message& message,

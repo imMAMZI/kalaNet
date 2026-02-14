@@ -301,6 +301,18 @@ bool SqliteWalletRepository::checkout(const QString& buyerUsername,
             return false;
         }
 
+        QSqlQuery adHistory(db_);
+        adHistory.prepare(QStringLiteral(
+            "INSERT INTO ad_status_history (ad_id, previous_status, new_status, reason) "
+            "VALUES (:ad_id, 'approved', 'sold', :reason);"));
+        adHistory.bindValue(QStringLiteral(":ad_id"), item.adId);
+        adHistory.bindValue(QStringLiteral(":reason"),
+                            QStringLiteral("sold to %1").arg(buyer));
+        if (!adHistory.exec()) {
+            db_.rollback();
+            throwDatabaseError(QStringLiteral("insert sold ad history"), adHistory.lastError());
+        }
+
         QSqlQuery buyerLedger(db_);
         buyerLedger.prepare(QStringLiteral(
             "INSERT INTO transaction_ledger(username, type, amount_tokens, balance_after, ad_id, counterparty) "
