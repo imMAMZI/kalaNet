@@ -11,7 +11,8 @@ void RequestLogFilterProxy::setCommandFilter(const QString& command)
     if (commandFilter_ == QObject::tr("All Commands")) {
         commandFilter_.clear();
     }
-    invalidateFilter();
+    beginFilterChange();
+    endFilterChange(QSortFilterProxyModel::Direction::Rows);
 }
 
 void RequestLogFilterProxy::setStatusFilter(const QString& status)
@@ -20,13 +21,15 @@ void RequestLogFilterProxy::setStatusFilter(const QString& status)
     if (statusFilter_ == QObject::tr("All Statuses")) {
         statusFilter_.clear();
     }
-    invalidateFilter();
+    beginFilterChange();
+    endFilterChange(QSortFilterProxyModel::Direction::Rows);
 }
 
 void RequestLogFilterProxy::setTextFilter(const QString& text)
 {
     textFilter_ = text;
-    invalidateFilter();
+    beginFilterChange();
+    endFilterChange(QSortFilterProxyModel::Direction::Rows);
 }
 
 bool RequestLogFilterProxy::filterAcceptsRow(int sourceRow, const QModelIndex& sourceParent) const
