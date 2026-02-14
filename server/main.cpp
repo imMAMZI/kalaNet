@@ -4,6 +4,7 @@
 #include "network/tcp_server.h"
 #include "protocol/request_dispatcher.h"
 #include "auth/auth_service.h"
+#include "auth/session_service.h"
 #include "ads/ad_service.h"
 #include "cart/cart_service.h"
 #include "wallet/wallet_service.h"
@@ -28,10 +29,11 @@ int main(int argc, char *argv[])
     SqliteWalletRepository walletRepo("kalanet.db");
 
     AuthService authService(userRepo, &adRepo, &walletRepo);
+    SessionService sessionService;
     AdService adService(adRepo);
     CartService cartService(cartRepo, adRepo);
     WalletService walletService(walletRepo);
-    RequestDispatcher dispatcher(authService, adService, cartService, walletService);
+    RequestDispatcher dispatcher(authService, sessionService, adService, cartService, walletService);
 
     TcpServer server(kDefaultServerPort, dispatcher);
     dispatcher.setNotifyUserCallback([&server](const QString& username, const common::Message& message) {

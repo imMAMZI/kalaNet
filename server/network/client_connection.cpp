@@ -35,6 +35,39 @@ void ClientConnection::send(const common::Message& message)
     socket_->flush();
 }
 
+void ClientConnection::bindAuthenticatedIdentity(const QString& username,
+                                                 const QString& role,
+                                                 const QString& sessionToken)
+{
+    const QString previousUsername = authenticatedUsername_;
+    authenticatedUsername_ = username.trimmed();
+    authenticatedRole_ = role.trimmed();
+    sessionToken_ = sessionToken.trimmed();
+    if (previousUsername != authenticatedUsername_) {
+        emit authenticatedUserChanged(previousUsername, authenticatedUsername_);
+    }
+}
+
+void ClientConnection::updateAuthenticatedUsername(const QString& username)
+{
+    const QString previousUsername = authenticatedUsername_;
+    authenticatedUsername_ = username.trimmed();
+    if (previousUsername != authenticatedUsername_) {
+        emit authenticatedUserChanged(previousUsername, authenticatedUsername_);
+    }
+}
+
+void ClientConnection::clearAuthenticatedIdentity()
+{
+    const QString previousUsername = authenticatedUsername_;
+    authenticatedUsername_.clear();
+    authenticatedRole_.clear();
+    sessionToken_.clear();
+    if (!previousUsername.isEmpty()) {
+        emit authenticatedUserChanged(previousUsername, QString());
+    }
+}
+
 void ClientConnection::onReadyRead()
 {
     buffer_.append(socket_->readAll());
