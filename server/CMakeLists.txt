@@ -37,6 +37,7 @@ add_executable(serverProject
         ui/server_console_window.cpp
         ui/request_log_filter_proxy.h
         ui/request_log_filter_proxy.cpp
+        ui/pending_ads_window.ui
 
 )
 
