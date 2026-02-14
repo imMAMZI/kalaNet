@@ -8,12 +8,18 @@ RequestLogFilterProxy::RequestLogFilterProxy(QObject* parent)
 void RequestLogFilterProxy::setCommandFilter(const QString& command)
 {
     commandFilter_ = command;
+    if (commandFilter_ == QObject::tr("All Commands")) {
+        commandFilter_.clear();
+    }
     invalidateFilter();
 }
 
 void RequestLogFilterProxy::setStatusFilter(const QString& status)
 {
     statusFilter_ = status;
+    if (statusFilter_ == QObject::tr("All Statuses")) {
+        statusFilter_.clear();
+    }
     invalidateFilter();
 }
 
@@ -39,10 +45,10 @@ bool RequestLogFilterProxy::filterAcceptsRow(int sourceRow, const QModelIndex& s
     const auto userValue    = sourceModel()->data(indexUser).toString();
     const auto remoteValue  = sourceModel()->data(indexRemote).toString();
 
-    if (commandFilter_ != QObject::tr("All Commands") && commandValue != commandFilter_) {
+    if (!commandFilter_.isEmpty() && commandValue != commandFilter_) {
         return false;
     }
-    if (statusFilter_ != QObject::tr("All Statuses") && statusValue != statusFilter_) {
+    if (!statusFilter_.isEmpty() && statusValue != statusFilter_) {
         return false;
     }
     if (!textFilter_.isEmpty()) {

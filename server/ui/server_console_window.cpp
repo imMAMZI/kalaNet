@@ -31,6 +31,7 @@ ServerConsoleWindow::ServerConsoleWindow(QWidget* parent)
     populateCommandFilter();
     populateStatusFilter();
     setupConnections();
+    applyFilters();
 
     uptimeTimer.setInterval(1000);
     connect(&uptimeTimer, &QTimer::timeout, this, &ServerConsoleWindow::updateUptime);
@@ -61,20 +62,22 @@ void ServerConsoleWindow::setupConnections() {
 }
 
 void ServerConsoleWindow::populateCommandFilter() {
-    // بعداً لیست واقعی فرمان‌ها از common/commands تامین می‌شود.
+    ui->comboBoxCommandFilter->clear();
+
     QStringList commands = {
         tr("All Commands"),
-        QStringLiteral("AUTH_LOGIN"),
-        QStringLiteral("AUTH_SIGNUP"),
-        QStringLiteral("AD_CREATE"),
-        QStringLiteral("AD_APPROVE"),
-        QStringLiteral("AD_REJECT"),
-        QStringLiteral("TRANSACTION_CHECKOUT")
+        tr("Signup"),
+        tr("Signup Result"),
+        tr("Login"),
+        tr("Login Result"),
+        tr("Error")
     };
     ui->comboBoxCommandFilter->addItems(commands);
 }
 
 void ServerConsoleWindow::populateStatusFilter() {
+    ui->comboBoxStatusFilter->clear();
+
     ui->comboBoxStatusFilter->addItems({
         tr("All Statuses"),
         QStringLiteral("200"),
