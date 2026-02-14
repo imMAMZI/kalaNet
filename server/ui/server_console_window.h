@@ -10,6 +10,8 @@
 #include <QMainWindow>
 #include <QSortFilterProxyModel>
 #include <QTimer>
+
+class PendingAdsWindow;
 #include "request_log_filter_proxy.h"
 
 #include "request_log_model.h"
@@ -42,6 +44,7 @@ private slots:
     void exportLogs();
     void togglePause(bool paused);
     void updateUptime();
+    void showPendingAdsWindow();
 
 private:
     void setupConnections();
@@ -58,6 +61,7 @@ private:
     bool paused = false;
     QTimer uptimeTimer;
     QDateTime serverStartTime;
+    PendingAdsWindow* pendingAdsWindow = nullptr;
 };
 
 #endif //KALANET_SERVERCONSOLEWINDOW_H
