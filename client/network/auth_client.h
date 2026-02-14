@@ -28,6 +28,10 @@ public:
     void signupResultReceived(bool success,
                               const QString& message);
 
+    void adCreateResultReceived(bool success,
+                                const QString& message,
+                                int adId);
+
     void networkError(const QString& message);
 
 private:

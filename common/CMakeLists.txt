@@ -12,6 +12,7 @@ add_library(common STATIC
         protocol/serializer.cpp
         protocol/buy_message.cpp
         protocol/command_utils.cpp
+        protocol/ad_create_message.cpp
         protocol/login_message.cpp
         protocol/signup_message.cpp
         protocol/error_codes.h

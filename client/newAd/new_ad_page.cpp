@@ -190,12 +190,5 @@ void new_ad_page::on_btnSubmitAd_clicked()
 
     // Emit for main window / backend wiring later
     emit submitAdRequested(title, desc, cat, price, selectedImageBytes);
-
-    // For now: local success message (since server/common not ready yet)
-    setStatus("Ad submitted locally (will be sent to server later). Status: Pending approval.");
-    QMessageBox::information(this, "Submitted", "Your ad was submitted and is pending admin approval.");
-
-    // Optional UX: clear form after submit
-    clearForm();
-    setStatus("Ad submitted. Form cleared.");
+    setStatus("Submitting ad to server...");
 }
