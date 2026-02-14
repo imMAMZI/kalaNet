@@ -22,6 +22,8 @@ add_executable(serverProject
         ads/ad_service.h
         cart/cart_service.cpp
         cart/cart_service.h
+        wallet/wallet_service.cpp
+        wallet/wallet_service.h
         auth/auth_service.cpp
         auth/auth_service.h
         network/client_connection.cpp
@@ -39,6 +41,9 @@ add_executable(serverProject
         repository/sqlite_cart_repository.cpp
         repository/sqlite_ad_repository.h
         repository/sqlite_ad_repository.cpp
+        repository/wallet_repository.h
+        repository/sqlite_wallet_repository.h
+        repository/sqlite_wallet_repository.cpp
         security/password_hasher.cpp
         security/password_hasher.h
         ui/request_log_model.h

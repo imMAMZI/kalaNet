@@ -9,9 +9,13 @@ class ClientConnection : public QObject
 {
     Q_OBJECT
 
-    signals:
+signals:
     void requestProcessed(const common::Message& request,
                           const common::Message& response);
+
+public:
+    QString authenticatedUsername() const { return authenticatedUsername_; }
+    void setAuthenticatedUsername(const QString& username) { authenticatedUsername_ = username.trimmed(); }
 
 public:
     void sendResponse(const common::Message& request,
@@ -33,6 +37,7 @@ private:
 
     QByteArray buffer_;
     qint32 expectedSize_ = -1;
+    QString authenticatedUsername_;
 };
 
 #endif // CLIENT_CONNECTION_H

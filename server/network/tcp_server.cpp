@@ -4,6 +4,7 @@
 #include "tcp_server.h"
 
 #include "client_connection.h"
+#include "protocol/commands.h"
 
 TcpServer::TcpServer(quint16 port, RequestDispatcher& dispatcher, QObject* parent)
     : QObject(parent)
@@ -61,6 +62,22 @@ bool TcpServer::isListening() const
     return server_->isListening();
 }
 
+
+void TcpServer::sendToUser(const QString& username, const common::Message& message)
+{
+    const QString normalized = username.trimmed();
+    if (normalized.isEmpty()) {
+        return;
+    }
+
+    const auto connections = userConnections_.value(normalized);
+    for (ClientConnection* connection : connections) {
+        if (connection) {
+            connection->send(message);
+        }
+    }
+}
+
 void TcpServer::handleNewConnection()
 {
     while (server_->hasPendingConnections()) {
@@ -72,7 +89,22 @@ void TcpServer::handleNewConnection()
         connect(connection, &QObject::destroyed,
                 this, &TcpServer::onConnectionDestroyed);
         connect(connection, &ClientConnection::requestProcessed,
-        this, &TcpServer::requestProcessed);
+                this, &TcpServer::requestProcessed);
+        connect(connection, &ClientConnection::requestProcessed, this,
+                [this, connection](const common::Message&, const common::Message& response) {
+            const common::Command cmd = response.command();
+            if ((cmd == common::Command::LoginResult || cmd == common::Command::SignupResult) && response.isSuccess()) {
+                const QString username = response.payload().value(QStringLiteral("username")).toString().trimmed();
+                if (!username.isEmpty()) {
+                    const QString previous = connection->authenticatedUsername();
+                    if (!previous.isEmpty()) {
+                        userConnections_[previous].remove(connection);
+                    }
+                    connection->setAuthenticatedUsername(username);
+                    userConnections_[username].insert(connection);
+                }
+            }
+        });
 
     }
 }
@@ -80,6 +112,12 @@ void TcpServer::handleNewConnection()
 void TcpServer::onConnectionDestroyed(QObject* connection)
 {
     auto* clientConnection = static_cast<ClientConnection*>(connection);
+    if (clientConnection) {
+        for (auto it = userConnections_.begin(); it != userConnections_.end(); ++it) {
+            it.value().remove(clientConnection);
+        }
+    }
+
     if (connections_.remove(clientConnection) > 0) {
         emit activeConnectionCountChanged(connections_.size());
     }
