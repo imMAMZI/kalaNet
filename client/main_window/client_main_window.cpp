@@ -1,6 +1,10 @@
 #include "../main_window/client_main_window.h"
 #include "ui_client_main_window.h"
-
+#include "../cart/cart_page.h"
+#include "../guide/how_it_works_page.h"
+#include "../newAd/new_ad_page.h"
+#include "../profile/profile_page.h"
+#include "../shop/shop_page.h"
 #include <QDateTime>
 #include <QApplication>
 #include <QMessageBox>
@@ -13,7 +17,9 @@ client_main_window::client_main_window(QWidget *parent)
     ui->setupUi(this);
 
     setupClock();
-    updateTimeLabel(); // initial update immediately
+    setupPages();
+    wireNavigation();
+    updateTimeLabel();
 }
 
 client_main_window::~client_main_window()
@@ -28,6 +34,55 @@ void client_main_window::setupClock()
     connect(clockTimer, &QTimer::timeout, this, &client_main_window::updateTimeLabel);
     clockTimer->start();
 }
+void client_main_window::setupPages()
+{
+    auto clearLayout = [](QLayout *layout) {
+        while (layout && layout->count() > 0) {
+            QLayoutItem *item = layout->takeAt(0);
+            if (!item) continue;
+            if (QWidget *w = item->widget()) {
+                w->deleteLater();
+            }
+            delete item;
+        }
+    };
+
+    clearLayout(ui->pageShopLayout);
+    clearLayout(ui->pageCartLayout);
+    clearLayout(ui->pageProfileLayout);
+    clearLayout(ui->pageNewAdLayout);
+    clearLayout(ui->pageHowLayout);
+
+    shopPageWidget = new shop_page(this);
+    cartPageWidget = new cart_page(this);
+    profilePageWidget = new profile_page(this);
+    newAdPageWidget = new new_ad_page(this);
+    howItWorksPageWidget = new how_it_works_page(this);
+
+    ui->pageShopLayout->addWidget(shopPageWidget);
+    ui->pageCartLayout->addWidget(cartPageWidget);
+    ui->pageProfileLayout->addWidget(profilePageWidget);
+    ui->pageNewAdLayout->addWidget(newAdPageWidget);
+    ui->pageHowLayout->addWidget(howItWorksPageWidget);
+}
+
+void client_main_window::wireNavigation()
+{
+    connect(shopPageWidget, &shop_page::backToMenuRequested, this, [this]() { showPage(MenuPage); });
+    connect(cartPageWidget, &cart_page::backToMenuRequested, this, [this]() { showPage(MenuPage); });
+    connect(profilePageWidget, &profile_page::backToMenuRequested, this, [this]() { showPage(MenuPage); });
+    connect(newAdPageWidget, &new_ad_page::backToMenuRequested, this, [this]() { showPage(MenuPage); });
+    connect(howItWorksPageWidget, &how_it_works_page::backToMenuRequested, this, [this]() { showPage(MenuPage); });
+
+    connect(shopPageWidget, &shop_page::goToCartRequested, this, [this]() { showPage(CartPage); });
+    connect(cartPageWidget, &cart_page::purchaseRequested, this, [this](const QString &) { showPage(ProfilePage); });
+}
+
+void client_main_window::showPage(PageIndex page)
+{
+    ui->stackedMain->setCurrentIndex(page);
+}
+
 
 void client_main_window::updateTimeLabel()
 {
@@ -48,38 +103,34 @@ void client_main_window::on_btnRefreshTime_clicked()
 void client_main_window::on_btnNewAd_clicked()
 {
     emit newAdRequested();
-
-    // Temporary placeholder until we build the page:
-    QMessageBox::information(this, "New Ad", "New Ad page is not implemented yet.");
+    showPage(NewAdPage);
 }
 
 void client_main_window::on_btnShop_clicked()
 {
     emit shopRequested();
-    QMessageBox::information(this, "Shop", "Shop page is not implemented yet.");
+    showPage(ShopPage);
 }
 
 void client_main_window::on_btnCart_clicked()
 {
     emit cartRequested();
-    QMessageBox::information(this, "Cart", "Cart page is not implemented yet.");
+    showPage(CartPage);
 }
 
 void client_main_window::on_btnProfile_clicked()
 {
     emit profileRequested();
-    QMessageBox::information(this, "Profile", "Profile page is not implemented yet.");
+    showPage(ProfilePage);
 }
 
 void client_main_window::on_btnHowItWorks_clicked()
 {
     emit howItWorksRequested();
-    QMessageBox::information(this, "How does it work?", "How it works page is not implemented yet.");
+    showPage(HowItWorksPage);
 }
 
 void client_main_window::on_btnExit_clicked()
 {
-    // “Kills the program”
-    // close() is enough, but this ensures app exits even if other windows exist.
     QApplication::quit();
 }
