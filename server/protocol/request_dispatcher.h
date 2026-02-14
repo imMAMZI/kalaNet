@@ -47,6 +47,11 @@ private:
         const common::Message& message,
         ClientConnection& client
     );
+
+    void handleAdStatusUpdate(
+        const common::Message& message,
+        ClientConnection& client
+    );
 };
 
 #endif // REQUEST_DISPATCHER_H

@@ -14,6 +14,43 @@ bool isInvalidText(const QString& value, int minLength)
     return value.trimmed().size() < minLength;
 }
 
+
+AdRepository::AdListSortField parseSortField(const QString& value)
+{
+    const QString normalized = value.trimmed().toLower();
+    if (normalized == QStringLiteral("title") || normalized == QStringLiteral("name")) {
+        return AdRepository::AdListSortField::Title;
+    }
+    if (normalized == QStringLiteral("price") || normalized == QStringLiteral("pricetokens")) {
+        return AdRepository::AdListSortField::PriceTokens;
+    }
+    return AdRepository::AdListSortField::CreatedAt;
+}
+
+AdRepository::SortOrder parseSortOrder(const QString& value)
+{
+    const QString normalized = value.trimmed().toLower();
+    if (normalized == QStringLiteral("asc") || normalized == QStringLiteral("ascending")) {
+        return AdRepository::SortOrder::Asc;
+    }
+    return AdRepository::SortOrder::Desc;
+}
+
+AdRepository::AdModerationStatus parseModerationStatus(const QString& value)
+{
+    const QString normalized = value.trimmed().toLower();
+    if (normalized == QStringLiteral("approve") || normalized == QStringLiteral("approved")) {
+        return AdRepository::AdModerationStatus::Approved;
+    }
+    if (normalized == QStringLiteral("reject") || normalized == QStringLiteral("rejected")) {
+        return AdRepository::AdModerationStatus::Rejected;
+    }
+    if (normalized == QStringLiteral("sold")) {
+        return AdRepository::AdModerationStatus::Sold;
+    }
+    return AdRepository::AdModerationStatus::Unknown;
+}
+
 } // namespace
 
 AdService::AdService(AdRepository& adRepository)
@@ -64,6 +101,12 @@ common::Message AdService::create(const QJsonObject& payload)
         ad.sellerUsername = sellerUsername;
         ad.imageBytes = imageBytes;
 
+        if (adRepository_.hasDuplicateActiveAdForSeller(ad)) {
+            return common::AdCreateMessage::createFailureResponse(
+                common::ErrorCode::DuplicateAd,
+                QStringLiteral("Duplicate ad detected for this seller"));
+        }
+
         const int adId = adRepository_.createPendingAd(ad);
         return common::AdCreateMessage::createSuccessResponse(adId);
     } catch (const std::exception& ex) {
@@ -101,6 +144,8 @@ common::Message AdService::list(const QJsonObject& payload)
         filters.category = category;
         filters.minPriceTokens = minPriceTokens;
         filters.maxPriceTokens = maxPriceTokens;
+        filters.sortField = parseSortField(payload.value(QStringLiteral("sortBy")).toString());
+        filters.sortOrder = parseSortOrder(payload.value(QStringLiteral("sortOrder")).toString());
 
         const QVector<AdRepository::AdSummaryRecord> ads = adRepository_.listApprovedAds(filters);
 
@@ -132,6 +177,73 @@ common::Message AdService::list(const QJsonObject& payload)
             common::Command::AdListResult,
             common::ErrorCode::InternalError,
             QStringLiteral("Failed to load advertisements: %1")
+                .arg(QString::fromUtf8(ex.what())));
+    }
+}
+
+
+
+common::Message AdService::updateStatus(const QJsonObject& payload)
+{
+    const int adId = payload.value(QStringLiteral("adId")).toInt(-1);
+    if (adId <= 0) {
+        return common::Message::makeFailure(
+            common::Command::AdStatusUpdate,
+            common::ErrorCode::ValidationFailed,
+            QStringLiteral("A valid adId is required"));
+    }
+
+    const QString action = payload.value(QStringLiteral("action")).toString();
+    const AdRepository::AdModerationStatus newStatus = parseModerationStatus(action);
+    if (newStatus == AdRepository::AdModerationStatus::Unknown) {
+        return common::Message::makeFailure(
+            common::Command::AdStatusUpdate,
+            common::ErrorCode::ValidationFailed,
+            QStringLiteral("Action must be either approve or reject"));
+    }
+
+    if (newStatus == AdRepository::AdModerationStatus::Sold) {
+        return common::Message::makeFailure(
+            common::Command::AdStatusUpdate,
+            common::ErrorCode::PermissionDenied,
+            QStringLiteral("Sold status can only be set by a successful purchase"));
+    }
+
+    const QString reason = payload.value(QStringLiteral("reason")).toString().trimmed();
+    if (newStatus == AdRepository::AdModerationStatus::Rejected && reason.isEmpty()) {
+        return common::Message::makeFailure(
+            common::Command::AdStatusUpdate,
+            common::ErrorCode::ValidationFailed,
+            QStringLiteral("Rejection reason is required"));
+    }
+
+    try {
+        const bool updated = adRepository_.updateStatus(adId, newStatus, reason);
+        if (!updated) {
+            return common::Message::makeFailure(
+                common::Command::AdStatusUpdate,
+                common::ErrorCode::NotFound,
+                QStringLiteral("Advertisement not found"));
+        }
+
+        QJsonObject responsePayload;
+        responsePayload.insert(QStringLiteral("adId"), adId);
+        responsePayload.insert(QStringLiteral("status"),
+                               newStatus == AdRepository::AdModerationStatus::Approved
+                                   ? QStringLiteral("approved")
+                                   : QStringLiteral("rejected"));
+
+        return common::Message::makeSuccess(
+            common::Command::AdStatusUpdate,
+            responsePayload,
+            {},
+            {},
+            QStringLiteral("Advertisement moderation updated"));
+    } catch (const std::exception& ex) {
+        return common::Message::makeFailure(
+            common::Command::AdStatusUpdate,
+            common::ErrorCode::InternalError,
+            QStringLiteral("Failed to update advertisement status: %1")
                 .arg(QString::fromUtf8(ex.what())));
     }
 }
