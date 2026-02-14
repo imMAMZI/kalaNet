@@ -15,6 +15,7 @@ public:
     common::Message create(const QJsonObject& payload);
     common::Message list(const QJsonObject& payload);
     common::Message detail(const QJsonObject& payload);
+    common::Message updateStatus(const QJsonObject& payload);
 
 private:
     AdRepository& adRepository_;

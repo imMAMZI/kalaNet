@@ -35,6 +35,10 @@ void RequestDispatcher::dispatch(
         handleAdDetail(message, client);
         break;
 
+    case common::Command::AdStatusUpdate:
+        handleAdStatusUpdate(message, client);
+        break;
+
     default: {
             common::Message response = common::Message::makeFailure(
                 common::Command::Error,
@@ -86,5 +90,14 @@ void RequestDispatcher::handleAdDetail(
     ClientConnection& client
 ) {
     common::Message response = adService_.detail(message.payload());
+    client.sendResponse(message, response);
+}
+
+
+void RequestDispatcher::handleAdStatusUpdate(
+    const common::Message& message,
+    ClientConnection& client
+) {
+    common::Message response = adService_.updateStatus(message.payload());
     client.sendResponse(message, response);
 }

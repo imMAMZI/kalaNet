@@ -10,11 +10,32 @@
 class AdRepository
 {
 public:
+    enum class AdListSortField {
+        CreatedAt,
+        Title,
+        PriceTokens
+    };
+
+    enum class SortOrder {
+        Desc,
+        Asc
+    };
+
+    enum class AdModerationStatus {
+        Pending,
+        Approved,
+        Rejected,
+        Sold,
+        Unknown
+    };
+
     struct AdListFilters {
         QString nameContains;
         QString category;
         int minPriceTokens = 0;
         int maxPriceTokens = 0;
+        AdListSortField sortField = AdListSortField::CreatedAt;
+        SortOrder sortOrder = SortOrder::Desc;
     };
 
     struct NewAd {
@@ -54,6 +75,10 @@ public:
     virtual int createPendingAd(const NewAd& ad) = 0;
     virtual QVector<AdSummaryRecord> listApprovedAds(const AdListFilters& filters) = 0;
     virtual std::optional<AdDetailRecord> findApprovedAdById(int adId) = 0;
+    virtual bool hasDuplicateActiveAdForSeller(const NewAd& ad) = 0;
+    virtual bool updateStatus(int adId,
+                              AdModerationStatus newStatus,
+                              const QString& reason) = 0;
 };
 
 #endif // AD_REPOSITORY_H

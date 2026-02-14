@@ -59,6 +59,37 @@ constexpr Migration kMigrations[] = {
 
 constexpr int kLatestSchemaVersion = sizeof(kMigrations) / sizeof(kMigrations[0]);
 
+
+QString sortFieldToSqlColumn(AdRepository::AdListSortField field)
+{
+    switch (field) {
+    case AdRepository::AdListSortField::Title:
+        return QStringLiteral("title");
+    case AdRepository::AdListSortField::PriceTokens:
+        return QStringLiteral("price_tokens");
+    case AdRepository::AdListSortField::CreatedAt:
+    default:
+        return QStringLiteral("created_at");
+    }
+}
+
+QString moderationStatusToDb(AdRepository::AdModerationStatus status)
+{
+    switch (status) {
+    case AdRepository::AdModerationStatus::Pending:
+        return QStringLiteral("pending");
+    case AdRepository::AdModerationStatus::Approved:
+        return QStringLiteral("approved");
+    case AdRepository::AdModerationStatus::Rejected:
+        return QStringLiteral("rejected");
+    case AdRepository::AdModerationStatus::Sold:
+        return QStringLiteral("sold");
+    case AdRepository::AdModerationStatus::Unknown:
+    default:
+        return QString();
+    }
+}
+
 } // namespace
 
 SqliteAdRepository::SqliteAdRepository(const QString& databasePath)
@@ -273,7 +304,12 @@ QVector<AdRepository::AdSummaryRecord> SqliteAdRepository::listApprovedAds(
         sql += QStringLiteral(" AND price_tokens <= :max_price");
     }
 
-    sql += QStringLiteral(" ORDER BY created_at DESC, id DESC;");
+    const QString sortField = sortFieldToSqlColumn(filters.sortField);
+    const QString sortOrder = filters.sortOrder == AdRepository::SortOrder::Asc
+                                  ? QStringLiteral("ASC")
+                                  : QStringLiteral("DESC");
+
+    sql += QStringLiteral(" ORDER BY %1 %2, id %2;").arg(sortField, sortOrder);
 
     QSqlQuery query(db_);
     query.prepare(sql);
@@ -347,6 +383,110 @@ std::optional<AdRepository::AdDetailRecord> SqliteAdRepository::findApprovedAdBy
     record.createdAt = query.value(8).toString();
     record.updatedAt = query.value(9).toString();
     return record;
+}
+
+
+
+bool SqliteAdRepository::hasDuplicateActiveAdForSeller(const NewAd& ad)
+{
+    QMutexLocker locker(&mutex_);
+    ensureConnection();
+
+    QSqlQuery query(db_);
+    query.prepare(QStringLiteral(
+        "SELECT COUNT(1) "
+        "FROM ads "
+        "WHERE LOWER(title) = LOWER(:title) "
+        "  AND LOWER(category) = LOWER(:category) "
+        "  AND price_tokens = :price_tokens "
+        "  AND seller_username = :seller_username "
+        "  AND status IN ('pending', 'approved', 'sold')"));
+
+    query.bindValue(QStringLiteral(":title"), ad.title.trimmed());
+    query.bindValue(QStringLiteral(":category"), ad.category.trimmed());
+    query.bindValue(QStringLiteral(":price_tokens"), ad.priceTokens);
+    query.bindValue(QStringLiteral(":seller_username"), ad.sellerUsername.trimmed());
+
+    if (!query.exec()) {
+        throwDatabaseError(QStringLiteral("detect duplicate ad"), query.lastError());
+    }
+
+    if (!query.next()) {
+        return false;
+    }
+
+    return query.value(0).toInt() > 0;
+}
+
+bool SqliteAdRepository::updateStatus(int adId,
+                                      AdModerationStatus newStatus,
+                                      const QString& reason)
+{
+    QMutexLocker locker(&mutex_);
+    ensureConnection();
+
+    const QString newStatusDb = moderationStatusToDb(newStatus);
+    if (newStatusDb.isEmpty()) {
+        return false;
+    }
+
+    if (!db_.transaction()) {
+        throwDatabaseError(QStringLiteral("begin update ad status transaction"), db_.lastError());
+    }
+
+    QSqlQuery currentStatusQuery(db_);
+    currentStatusQuery.prepare(QStringLiteral("SELECT status FROM ads WHERE id = :id LIMIT 1;"));
+    currentStatusQuery.bindValue(QStringLiteral(":id"), adId);
+
+    if (!currentStatusQuery.exec()) {
+        db_.rollback();
+        throwDatabaseError(QStringLiteral("read current ad status"), currentStatusQuery.lastError());
+    }
+
+    if (!currentStatusQuery.next()) {
+        db_.rollback();
+        return false;
+    }
+
+    const QString previousStatus = currentStatusQuery.value(0).toString();
+
+    QSqlQuery updateQuery(db_);
+    updateQuery.prepare(QStringLiteral(
+        "UPDATE ads SET status = :new_status, updated_at = CURRENT_TIMESTAMP "
+        "WHERE id = :id;"));
+    updateQuery.bindValue(QStringLiteral(":new_status"), newStatusDb);
+    updateQuery.bindValue(QStringLiteral(":id"), adId);
+
+    if (!updateQuery.exec()) {
+        db_.rollback();
+        throwDatabaseError(QStringLiteral("update ad status"), updateQuery.lastError());
+    }
+
+    if (updateQuery.numRowsAffected() <= 0) {
+        db_.rollback();
+        return false;
+    }
+
+    QSqlQuery insertHistory(db_);
+    insertHistory.prepare(QStringLiteral(
+        "INSERT INTO ad_status_history (ad_id, previous_status, new_status, reason) "
+        "VALUES (:ad_id, :previous_status, :new_status, :reason);"));
+    insertHistory.bindValue(QStringLiteral(":ad_id"), adId);
+    insertHistory.bindValue(QStringLiteral(":previous_status"), previousStatus);
+    insertHistory.bindValue(QStringLiteral(":new_status"), newStatusDb);
+    insertHistory.bindValue(QStringLiteral(":reason"), reason.trimmed());
+
+    if (!insertHistory.exec()) {
+        db_.rollback();
+        throwDatabaseError(QStringLiteral("insert ad status update history"), insertHistory.lastError());
+    }
+
+    if (!db_.commit()) {
+        db_.rollback();
+        throwDatabaseError(QStringLiteral("commit ad status update transaction"), db_.lastError());
+    }
+
+    return true;
 }
 
 [[noreturn]] void SqliteAdRepository::throwDatabaseError(
