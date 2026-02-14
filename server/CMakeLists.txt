@@ -20,6 +20,8 @@ add_executable(serverProject
         main.cpp
         ads/ad_service.cpp
         ads/ad_service.h
+        cart/cart_service.cpp
+        cart/cart_service.h
         auth/auth_service.cpp
         auth/auth_service.h
         network/client_connection.cpp
@@ -32,6 +34,9 @@ add_executable(serverProject
         repository/sqlite_user_repository.h
         repository/user_repository.h
         repository/ad_repository.h
+        repository/cart_repository.h
+        repository/sqlite_cart_repository.h
+        repository/sqlite_cart_repository.cpp
         repository/sqlite_ad_repository.h
         repository/sqlite_ad_repository.cpp
         security/password_hasher.cpp

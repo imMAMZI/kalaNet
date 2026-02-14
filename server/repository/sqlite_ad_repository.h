@@ -18,6 +18,7 @@ public:
     int createPendingAd(const NewAd& ad) override;
     QVector<AdSummaryRecord> listApprovedAds(const AdListFilters& filters) override;
     std::optional<AdDetailRecord> findApprovedAdById(int adId) override;
+    std::optional<AdDetailRecord> findAdById(int adId) override;
     bool hasDuplicateActiveAdForSeller(const NewAd& ad) override;
     bool updateStatus(int adId,
                       AdModerationStatus newStatus,

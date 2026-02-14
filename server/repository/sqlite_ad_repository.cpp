@@ -387,6 +387,40 @@ std::optional<AdRepository::AdDetailRecord> SqliteAdRepository::findApprovedAdBy
 
 
 
+
+std::optional<AdRepository::AdDetailRecord> SqliteAdRepository::findAdById(int adId)
+{
+    QMutexLocker locker(&mutex_);
+    ensureConnection();
+
+    QSqlQuery query(db_);
+    query.prepare(QStringLiteral(
+        "SELECT id, title, description, category, price_tokens, seller_username, image_bytes, status, created_at, updated_at "
+        "FROM ads WHERE id = :id LIMIT 1;"));
+    query.bindValue(QStringLiteral(":id"), adId);
+
+    if (!query.exec()) {
+        throwDatabaseError(QStringLiteral("find ad by id"), query.lastError());
+    }
+
+    if (!query.next()) {
+        return std::nullopt;
+    }
+
+    AdDetailRecord record;
+    record.id = query.value(0).toInt();
+    record.title = query.value(1).toString();
+    record.description = query.value(2).toString();
+    record.category = query.value(3).toString();
+    record.priceTokens = query.value(4).toInt();
+    record.sellerUsername = query.value(5).toString();
+    record.imageBytes = query.value(6).toByteArray();
+    record.status = query.value(7).toString();
+    record.createdAt = query.value(8).toString();
+    record.updatedAt = query.value(9).toString();
+    return record;
+}
+
 bool SqliteAdRepository::hasDuplicateActiveAdForSeller(const NewAd& ad)
 {
     QMutexLocker locker(&mutex_);

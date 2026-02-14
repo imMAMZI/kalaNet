@@ -5,6 +5,7 @@
 #include "../auth/auth_service.h"
 
 class AdService;
+class CartService;
 
 class ClientConnection;
 
@@ -12,7 +13,8 @@ class RequestDispatcher
 {
 public:
     explicit RequestDispatcher(AuthService& authService,
-                               AdService& adService);
+                               AdService& adService,
+                               CartService& cartService);
 
     void dispatch(
         const common::Message& message,
@@ -22,6 +24,7 @@ public:
 private:
     AuthService& authService_;
     AdService& adService_;
+    CartService& cartService_;
 
     void handleLogin(
         const common::Message& message,
@@ -49,6 +52,26 @@ private:
     );
 
     void handleAdStatusUpdate(
+        const common::Message& message,
+        ClientConnection& client
+    );
+
+    void handleCartAddItem(
+        const common::Message& message,
+        ClientConnection& client
+    );
+
+    void handleCartRemoveItem(
+        const common::Message& message,
+        ClientConnection& client
+    );
+
+    void handleCartList(
+        const common::Message& message,
+        ClientConnection& client
+    );
+
+    void handleCartClear(
         const common::Message& message,
         ClientConnection& client
     );

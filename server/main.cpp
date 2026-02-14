@@ -5,8 +5,10 @@
 #include "protocol/request_dispatcher.h"
 #include "auth/auth_service.h"
 #include "ads/ad_service.h"
+#include "cart/cart_service.h"
 #include "repository/sqlite_user_repository.h"
 #include "repository/sqlite_ad_repository.h"
+#include "repository/sqlite_cart_repository.h"
 #include "ui/server_console_window.h"
 
 int main(int argc, char *argv[])
@@ -22,7 +24,9 @@ int main(int argc, char *argv[])
     AuthService authService(userRepo);
     SqliteAdRepository adRepo("kalanet.db");
     AdService adService(adRepo);
-    RequestDispatcher dispatcher(authService, adService);
+    SqliteCartRepository cartRepo("kalanet.db");
+    CartService cartService(cartRepo, adRepo);
+    RequestDispatcher dispatcher(authService, adService, cartService);
 
     TcpServer server(kDefaultServerPort, dispatcher);
 
