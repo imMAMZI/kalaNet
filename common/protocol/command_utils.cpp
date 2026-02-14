@@ -22,6 +22,12 @@ const QHash<Command, QString>& forwardMap()
         { Command::LogoutResult, QStringLiteral("auth/logout/response") },
         { Command::SessionRefresh, QStringLiteral("auth/session/refresh/request") },
         { Command::SessionRefreshResult, QStringLiteral("auth/session/refresh/response") },
+        { Command::ProfileUpdate, QStringLiteral("auth/profile/update/request") },
+        { Command::ProfileUpdateResult, QStringLiteral("auth/profile/update/response") },
+        { Command::ProfileHistory, QStringLiteral("auth/profile/history/request") },
+        { Command::ProfileHistoryResult, QStringLiteral("auth/profile/history/response") },
+        { Command::AdminStats, QStringLiteral("admin/stats/request") },
+        { Command::AdminStatsResult, QStringLiteral("admin/stats/response") },
 
         { Command::AdCreate, QStringLiteral("ad/create/request") },
         { Command::AdCreateResult, QStringLiteral("ad/create/response") },

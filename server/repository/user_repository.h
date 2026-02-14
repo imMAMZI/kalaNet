@@ -33,6 +33,10 @@ public:
         const User& user
     ) = 0;
 
+    virtual bool updateUser(const QString& currentUsername, const User& updatedUser) = 0;
+    virtual int countAllUsers() = 0;
+    virtual int countUsersByRole(const QString& role) = 0;
+
     virtual ~UserRepository() = default;
 };
 

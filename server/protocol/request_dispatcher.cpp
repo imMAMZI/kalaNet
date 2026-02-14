@@ -37,6 +37,18 @@ void RequestDispatcher::dispatch(
         handleSignup(message, client);
         break;
 
+    case common::Command::ProfileUpdate:
+        handleProfileUpdate(message, client);
+        break;
+
+    case common::Command::ProfileHistory:
+        handleProfileHistory(message, client);
+        break;
+
+    case common::Command::AdminStats:
+        handleAdminStats(message, client);
+        break;
+
     case common::Command::AdCreate:
         handleAdCreate(message, client);
         break;
@@ -111,6 +123,28 @@ void RequestDispatcher::handleSignup(
     ClientConnection& client
 ) {
     common::Message response = authService_.signup(message.payload());
+    client.sendResponse(message, response);
+}
+
+
+void RequestDispatcher::handleProfileUpdate(const common::Message& message,
+                                            ClientConnection& client)
+{
+    common::Message response = authService_.updateProfile(message.payload());
+    client.sendResponse(message, response);
+}
+
+void RequestDispatcher::handleProfileHistory(const common::Message& message,
+                                             ClientConnection& client)
+{
+    common::Message response = authService_.profileHistory(message.payload());
+    client.sendResponse(message, response);
+}
+
+void RequestDispatcher::handleAdminStats(const common::Message& message,
+                                         ClientConnection& client)
+{
+    common::Message response = authService_.adminStats(message.payload());
     client.sendResponse(message, response);
 }
 

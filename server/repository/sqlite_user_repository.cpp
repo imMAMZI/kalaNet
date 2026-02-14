@@ -192,3 +192,59 @@ bool SqliteUserRepository::emailExists(const QString& email)
 
     return query.next();
 }
+
+bool SqliteUserRepository::updateUser(const QString& currentUsername, const User& updatedUser)
+{
+    QMutexLocker locker(&mutex_);
+    ensureConnection();
+
+    QSqlQuery query(db_);
+    query.prepare(QStringLiteral(
+        "UPDATE users "
+        "SET full_name = :full_name, username = :username, phone = :phone, "
+        "email = :email, passwordHash = :passwordHash "
+        "WHERE username = :current_username;"));
+    query.bindValue(QStringLiteral(":full_name"), updatedUser.fullName);
+    query.bindValue(QStringLiteral(":username"), updatedUser.username);
+    query.bindValue(QStringLiteral(":phone"), updatedUser.phone);
+    query.bindValue(QStringLiteral(":email"), updatedUser.email);
+    query.bindValue(QStringLiteral(":passwordHash"), updatedUser.passwordHash);
+    query.bindValue(QStringLiteral(":current_username"), currentUsername);
+
+    if (!query.exec()) {
+        if (query.lastError().nativeErrorCode() == QStringLiteral("2067")) {
+            return false;
+        }
+        throwDatabaseError(QStringLiteral("updateUser"), query.lastError());
+    }
+
+    return query.numRowsAffected() > 0;
+}
+
+int SqliteUserRepository::countAllUsers()
+{
+    QMutexLocker locker(&mutex_);
+    ensureConnection();
+
+    QSqlQuery query(db_);
+    if (!query.exec(QStringLiteral("SELECT COUNT(1) FROM users;"))) {
+        throwDatabaseError(QStringLiteral("countAllUsers"), query.lastError());
+    }
+
+    return query.next() ? query.value(0).toInt() : 0;
+}
+
+int SqliteUserRepository::countUsersByRole(const QString& role)
+{
+    QMutexLocker locker(&mutex_);
+    ensureConnection();
+
+    QSqlQuery query(db_);
+    query.prepare(QStringLiteral("SELECT COUNT(1) FROM users WHERE role = :role;"));
+    query.bindValue(QStringLiteral(":role"), role);
+    if (!query.exec()) {
+        throwDatabaseError(QStringLiteral("countUsersByRole"), query.lastError());
+    }
+
+    return query.next() ? query.value(0).toInt() : 0;
+}
