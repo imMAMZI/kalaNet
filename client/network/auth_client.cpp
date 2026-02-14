@@ -129,6 +129,17 @@ void AuthClient::onReadyRead()
             );
             break;
 
+        case common::Command::CaptchaChallengeResult:
+            emit captchaChallengeReceived(
+                data.value("success").toBool(false),
+                data.value("message").toString(),
+                data.value("scope").toString(),
+                data.value("challenge").toString(),
+                data.value("nonce").toString(),
+                data.value("expiresAt").toString()
+            );
+            break;
+
         case common::Command::AdCreateResult:
             emit adCreateResultReceived(
                 data.value("success").toBool(false),

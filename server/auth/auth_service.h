@@ -8,11 +8,13 @@
 
 class AdRepository;
 class WalletRepository;
+class CaptchaService;
 
 class AuthService
 {
 public:
     explicit AuthService(UserRepository& repo,
+                         CaptchaService& captchaService,
                          AdRepository* adRepository = nullptr,
                          WalletRepository* walletRepository = nullptr);
 
@@ -25,6 +27,7 @@ public:
 private:
     UserRepository& repo_;
     AdRepository* adRepository_;
+    CaptchaService& captchaService_;
     WalletRepository* walletRepository_;
 };
 

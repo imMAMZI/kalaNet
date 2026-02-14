@@ -34,9 +34,7 @@ private slots:
     void on_btnSignup_clicked();
 
 private:
-    void regenerateCaptcha();
-    bool verifyCaptcha(const QString& input) const;
-    QString hashPasswordSha256(const QString& password) const;
+    void requestCaptchaChallenge();
 
     void setError(const QString& message);
     void clearError();
@@ -44,7 +42,7 @@ private:
 private:
     Ui::login_window *ui;
 
-    QString currentCaptcha;
+    QString currentCaptchaNonce_;
     client_main_window* mainWindow_ = nullptr;
 };
 

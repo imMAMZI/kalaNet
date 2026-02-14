@@ -12,6 +12,7 @@ class AdService;
 class CartService;
 class WalletService;
 class ClientConnection;
+class CaptchaService;
 
 class RequestDispatcher
 {
@@ -20,7 +21,8 @@ public:
                                SessionService& sessionService,
                                AdService& adService,
                                CartService& cartService,
-                               WalletService& walletService);
+                               WalletService& walletService,
+                               CaptchaService& captchaService);
 
     void setNotifyUserCallback(std::function<void(const QString&, const common::Message&)> callback);
 
@@ -33,6 +35,7 @@ private:
     AdService& adService_;
     CartService& cartService_;
     WalletService& walletService_;
+    CaptchaService& captchaService_;
     std::function<void(const QString&, const common::Message&)> notifyUserCallback_;
 
     std::optional<SessionService::SessionInfo> requireSession(const common::Message& message,
@@ -49,6 +52,7 @@ private:
     void handleSessionRefresh(const common::Message& message,
                               ClientConnection& client);
 
+    void handleCaptchaChallenge(const common::Message& message, ClientConnection& client);
     void handleProfileUpdate(const common::Message& message, ClientConnection& client);
     void handleProfileHistory(const common::Message& message, ClientConnection& client);
     void handleAdminStats(const common::Message& message, ClientConnection& client);

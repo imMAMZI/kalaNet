@@ -4,9 +4,6 @@
 #include "../network/auth_client.h"
 #include "../main_window/client_main_window.h"
 
-#include <QCryptographicHash>
-#include <QRandomGenerator>
-
 #include "protocol/login_message.h"
 
 login_window::login_window(QMainWindow *parent)
@@ -23,8 +20,7 @@ login_window::login_window(QMainWindow *parent)
 
                 if (!success) {
                     setError(message);
-                    regenerateCaptcha();
-                    ui->leCaptcha->clear();
+                    requestCaptchaChallenge();
                     return;
                 }
 
@@ -42,8 +38,28 @@ login_window::login_window(QMainWindow *parent)
                 setError(message);
             });
 
-    regenerateCaptcha();
+    connect(AuthClient::instance(), &AuthClient::captchaChallengeReceived,
+            this, [this](bool success, const QString& message, const QString& scope,
+                         const QString& challengeText, const QString& nonce, const QString&) {
+                if (scope != QStringLiteral("login")) {
+                    return;
+                }
+
+                if (!success) {
+                    setError(message);
+                    ui->lblCaptchaText->setText(QStringLiteral("--"));
+                    currentCaptchaNonce_.clear();
+                    return;
+                }
+
+                clearError();
+                currentCaptchaNonce_ = nonce;
+                ui->lblCaptchaText->setText(challengeText);
+                ui->leCaptcha->clear();
+            });
+
     clearError();
+    requestCaptchaChallenge();
 }
 
 login_window::~login_window()
@@ -62,10 +78,9 @@ void login_window::on_btnLogin_clicked()
         return;
     }
 
-    if (!verifyCaptcha(captcha)) {
-        setError("Captcha is incorrect.");
-        regenerateCaptcha();
-        ui->leCaptcha->clear();
+    const int captchaAnswer = captcha.toInt();
+    if (currentCaptchaNonce_.isEmpty() || captcha.isEmpty() || QString::number(captchaAnswer) != captcha) {
+        setError("Enter the numeric captcha answer.");
         return;
     }
 
@@ -74,7 +89,9 @@ void login_window::on_btnLogin_clicked()
 
     const common::Message request = common::LoginMessage::createRequest(
         username.toStdString(),
-        password.toStdString()
+        password.toStdString(),
+        currentCaptchaNonce_,
+        captchaAnswer
     );
 
     AuthClient::instance()->sendMessage(request);
@@ -82,9 +99,8 @@ void login_window::on_btnLogin_clicked()
 
 void login_window::on_btnRefresh_clicked()
 {
-    regenerateCaptcha();
-    ui->leCaptcha->clear();
     clearError();
+    requestCaptchaChallenge();
 }
 
 void login_window::on_btnSignup_clicked()
@@ -105,30 +121,11 @@ void login_window::on_btnSignup_clicked()
     dlg->exec();
 }
 
-void login_window::regenerateCaptcha()
+void login_window::requestCaptchaChallenge()
 {
-    static constexpr char kCharset[] = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-    QString generated;
-    generated.reserve(6);
-
-    for (int i = 0; i < 6; ++i) {
-        const int idx = QRandomGenerator::global()->bounded(static_cast<int>(sizeof(kCharset) - 1));
-        generated.append(QChar(kCharset[idx]));
-    }
-
-    currentCaptcha = generated;
-    ui->lblCaptchaText->setText(currentCaptcha);
-}
-
-bool login_window::verifyCaptcha(const QString& input) const
-{
-    return input.trimmed().compare(currentCaptcha, Qt::CaseInsensitive) == 0;
-}
-
-QString login_window::hashPasswordSha256(const QString& password) const
-{
-    const QByteArray digest = QCryptographicHash::hash(password.toUtf8(), QCryptographicHash::Sha256);
-    return QString::fromUtf8(digest.toHex());
+    QJsonObject payload;
+    payload.insert(QStringLiteral("scope"), QStringLiteral("login"));
+    AuthClient::instance()->sendMessage(common::Message(common::Command::CaptchaChallenge, payload));
 }
 
 void login_window::setError(const QString& message)
