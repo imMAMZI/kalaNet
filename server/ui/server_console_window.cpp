@@ -5,6 +5,7 @@
 #include "ui_server_console_window.h"
 #include "request_log_model.h"
 #include "request_log_filter_proxy.h"
+#include "pending_ads_window.h"
 #include <QDateTime>
 #include <QFileDialog>
 #include <QMessageBox>
@@ -59,6 +60,8 @@ void ServerConsoleWindow::setupConnections() {
             this, &ServerConsoleWindow::togglePause);
     connect(ui->pushButtonQuit, &QPushButton::clicked,
             this, &QWidget::close);
+    connect(ui->pushButtonShowAdQueue, &QPushButton::clicked,
+            this, &ServerConsoleWindow::showPendingAdsWindow);
 }
 
 void ServerConsoleWindow::populateCommandFilter() {
@@ -154,6 +157,18 @@ void ServerConsoleWindow::togglePause(bool pause) {
     paused = pause;
     ui->pushButtonPause->setText(pause ? tr("Resume Stream") : tr("Pause Stream"));
     ui->statusbar->showMessage(pause ? tr("Log streaming paused") : tr("Log streaming resumed"), 3000);
+}
+
+
+void ServerConsoleWindow::showPendingAdsWindow()
+{
+    if (pendingAdsWindow == nullptr) {
+        pendingAdsWindow = new PendingAdsWindow(this);
+    }
+
+    pendingAdsWindow->show();
+    pendingAdsWindow->raise();
+    pendingAdsWindow->activateWindow();
 }
 
 void ServerConsoleWindow::updateUptime() {

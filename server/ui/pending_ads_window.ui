@@ -1,0 +1,496 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>PendingAdsWindow</class>
+ <widget class="QMainWindow" name="PendingAdsWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1280</width>
+    <height>780</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Pending Ads Review</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayoutRoot">
+    <item>
+     <widget class="QGroupBox" name="groupBoxHeader">
+      <property name="title">
+       <string>Admin Moderation Panel</string>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayoutHeader">
+       <item>
+        <widget class="QLabel" name="labelQueueStats">
+         <property name="text">
+          <string>Pending queue: 0 ads</string>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">font-weight: 600;</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="labelLastSync">
+         <property name="text">
+          <string>Last refresh: --:--:--</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="horizontalSpacerHeader">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QPushButton" name="pushButtonRefresh">
+         <property name="text">
+          <string>Refresh Queue</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
+     <widget class="QSplitter" name="splitterMain">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <widget class="QWidget" name="leftPane">
+       <layout class="QVBoxLayout" name="verticalLayoutLeft">
+        <item>
+         <widget class="QGroupBox" name="groupBoxFilters">
+          <property name="title">
+           <string>Filters</string>
+          </property>
+          <layout class="QGridLayout" name="gridLayoutFilters">
+           <item row="0" column="0">
+            <widget class="QLabel" name="labelSearch">
+             <property name="text">
+              <string>Search:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1" colspan="2">
+            <widget class="QLineEdit" name="lineEditSearch">
+             <property name="placeholderText">
+              <string>title, seller username, description ...</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="3">
+            <widget class="QPushButton" name="pushButtonClearFilters">
+             <property name="text">
+              <string>Clear</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="labelCategoryFilter">
+             <property name="text">
+              <string>Category:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QComboBox" name="comboBoxCategoryFilter">
+             <item>
+              <property name="text">
+               <string>All Categories</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item row="1" column="2">
+            <widget class="QCheckBox" name="checkBoxOnlyWithImage">
+             <property name="text">
+              <string>Only ads with image</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="3">
+            <widget class="QSpinBox" name="spinBoxMaxPrice">
+             <property name="specialValueText">
+              <string>No max price</string>
+             </property>
+             <property name="maximum">
+              <number>1000000000</number>
+             </property>
+             <property name="singleStep">
+              <number>50000</number>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QTableView" name="tableViewPendingAds">
+          <property name="alternatingRowColors">
+           <bool>true</bool>
+          </property>
+          <property name="selectionBehavior">
+           <enum>QAbstractItemView::SelectRows</enum>
+          </property>
+          <property name="selectionMode">
+           <enum>QAbstractItemView::SingleSelection</enum>
+          </property>
+          <property name="sortingEnabled">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="labelHintSelection">
+          <property name="text">
+           <string>Select a pending ad to review full details and approve/reject it.</string>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">color: rgb(90, 90, 90);</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QScrollArea" name="scrollAreaDetails">
+       <property name="widgetResizable">
+        <bool>true</bool>
+       </property>
+       <widget class="QWidget" name="scrollAreaWidgetContents">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>547</width>
+          <height>696</height>
+         </rect>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayoutDetails">
+         <item>
+          <widget class="QGroupBox" name="groupBoxAdMeta">
+           <property name="title">
+            <string>Ad Information</string>
+           </property>
+           <layout class="QFormLayout" name="formLayoutMeta">
+            <item row="0" column="0">
+             <widget class="QLabel" name="labelAdIdCaption">
+              <property name="text">
+               <string>Ad ID:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QLabel" name="labelAdIdValue">
+              <property name="text">
+               <string>-</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="labelTitleCaption">
+              <property name="text">
+               <string>Title:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QLabel" name="labelTitleValue">
+              <property name="text">
+               <string>-</string>
+              </property>
+              <property name="wordWrap">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="labelSellerCaption">
+              <property name="text">
+               <string>Seller:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <widget class="QLabel" name="labelSellerValue">
+              <property name="text">
+               <string>-</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="0">
+             <widget class="QLabel" name="labelCategoryCaption">
+              <property name="text">
+               <string>Category:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="1">
+             <widget class="QLabel" name="labelCategoryValue">
+              <property name="text">
+               <string>-</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="0">
+             <widget class="QLabel" name="labelPriceCaption">
+              <property name="text">
+               <string>Price:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="1">
+             <widget class="QLabel" name="labelPriceValue">
+              <property name="text">
+               <string>-</string>
+              </property>
+             </widget>
+            </item>
+            <item row="5" column="0">
+             <widget class="QLabel" name="labelCreatedCaption">
+              <property name="text">
+               <string>Created at:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="5" column="1">
+             <widget class="QLabel" name="labelCreatedValue">
+              <property name="text">
+               <string>-</string>
+              </property>
+             </widget>
+            </item>
+            <item row="6" column="0">
+             <widget class="QLabel" name="labelUpdatedCaption">
+              <property name="text">
+               <string>Updated at:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="6" column="1">
+             <widget class="QLabel" name="labelUpdatedValue">
+              <property name="text">
+               <string>-</string>
+              </property>
+             </widget>
+            </item>
+            <item row="7" column="0">
+             <widget class="QLabel" name="labelStatusCaption">
+              <property name="text">
+               <string>Status:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="7" column="1">
+             <widget class="QLabel" name="labelStatusValue">
+              <property name="text">
+               <string>PENDING</string>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">color: rgb(180, 120, 0); font-weight: bold;</string>
+              </property>
+             </widget>
+            </item>
+            <item row="8" column="0">
+             <widget class="QLabel" name="labelTagsCaption">
+              <property name="text">
+               <string>Tags:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="8" column="1">
+             <widget class="QLabel" name="labelTagsValue">
+              <property name="text">
+               <string>-</string>
+              </property>
+              <property name="wordWrap">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="groupBoxDescription">
+           <property name="title">
+            <string>Description</string>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayoutDescription">
+            <item>
+             <widget class="QTextBrowser" name="textBrowserDescription"/>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="groupBoxImage">
+           <property name="title">
+            <string>Image Preview</string>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayoutImage">
+            <item>
+             <widget class="QLabel" name="labelImagePreview">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>220</height>
+               </size>
+              </property>
+              <property name="frameShape">
+               <enum>QFrame::StyledPanel</enum>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+              <property name="text">
+               <string>No image selected</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="labelImagePath">
+              <property name="text">
+               <string>Path: -</string>
+              </property>
+              <property name="wordWrap">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="groupBoxHistory">
+           <property name="title">
+            <string>Status History</string>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayoutHistory">
+            <item>
+             <widget class="QTableWidget" name="tableWidgetHistory">
+              <property name="columnCount">
+               <number>3</number>
+              </property>
+              <column>
+               <property name="text">
+                <string>Time</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>Status</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>Note</string>
+               </property>
+              </column>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="groupBoxModerationDecision">
+           <property name="title">
+            <string>Moderation Decision</string>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayoutDecision">
+            <item>
+             <widget class="QLabel" name="labelDecisionHelp">
+              <property name="text">
+               <string>Approve if ad is acceptable and compliant. Reject with a clear reason if policy violations are found.</string>
+              </property>
+              <property name="wordWrap">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="labelRejectReasonCaption">
+              <property name="text">
+               <string>Rejection reason (required for reject):</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPlainTextEdit" name="plainTextEditRejectionReason">
+              <property name="placeholderText">
+               <string>Explain why this ad cannot be approved...</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayoutDecisionButtons">
+              <item>
+               <widget class="QPushButton" name="pushButtonApprove">
+                <property name="text">
+                 <string>Approve Ad</string>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">background-color: rgb(55, 145, 55); color: white; font-weight: 600; padding: 6px 12px;</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pushButtonReject">
+                <property name="text">
+                 <string>Reject Ad</string>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">background-color: rgb(175, 60, 60); color: white; font-weight: 600; padding: 6px 12px;</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacerDecision">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pushButtonSaveDraftNote">
+                <property name="text">
+                 <string>Save Internal Note</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QStatusBar" name="statusbar">
+   <property name="sizeGripEnabled">
+    <bool>false</bool>
+   </property>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
