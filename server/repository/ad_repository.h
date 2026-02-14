@@ -75,6 +75,7 @@ public:
     virtual int createPendingAd(const NewAd& ad) = 0;
     virtual QVector<AdSummaryRecord> listApprovedAds(const AdListFilters& filters) = 0;
     virtual std::optional<AdDetailRecord> findApprovedAdById(int adId) = 0;
+    virtual std::optional<AdDetailRecord> findAdById(int adId) = 0;
     virtual bool hasDuplicateActiveAdForSeller(const NewAd& ad) = 0;
     virtual bool updateStatus(int adId,
                               AdModerationStatus newStatus,

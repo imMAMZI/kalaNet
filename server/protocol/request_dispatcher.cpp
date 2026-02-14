@@ -1,12 +1,15 @@
 #include "request_dispatcher.h"
 #include "../network/client_connection.h"
 #include "../ads/ad_service.h"
+#include "../cart/cart_service.h"
 #include "protocol/commands.h"
 
 RequestDispatcher::RequestDispatcher(AuthService& authService,
-                                     AdService& adService)
+                                     AdService& adService,
+                                     CartService& cartService)
     : authService_(authService),
-      adService_(adService)
+      adService_(adService),
+      cartService_(cartService)
 {
 }
 // server/protocol/RequestDispatcher.cpp
@@ -37,6 +40,22 @@ void RequestDispatcher::dispatch(
 
     case common::Command::AdStatusUpdate:
         handleAdStatusUpdate(message, client);
+        break;
+
+    case common::Command::CartAddItem:
+        handleCartAddItem(message, client);
+        break;
+
+    case common::Command::CartRemoveItem:
+        handleCartRemoveItem(message, client);
+        break;
+
+    case common::Command::CartList:
+        handleCartList(message, client);
+        break;
+
+    case common::Command::CartClear:
+        handleCartClear(message, client);
         break;
 
     default: {
@@ -99,5 +118,41 @@ void RequestDispatcher::handleAdStatusUpdate(
     ClientConnection& client
 ) {
     common::Message response = adService_.updateStatus(message.payload());
+    client.sendResponse(message, response);
+}
+
+void RequestDispatcher::handleCartAddItem(
+    const common::Message& message,
+    ClientConnection& client
+)
+{
+    common::Message response = cartService_.addItem(message.payload());
+    client.sendResponse(message, response);
+}
+
+void RequestDispatcher::handleCartRemoveItem(
+    const common::Message& message,
+    ClientConnection& client
+)
+{
+    common::Message response = cartService_.removeItem(message.payload());
+    client.sendResponse(message, response);
+}
+
+void RequestDispatcher::handleCartList(
+    const common::Message& message,
+    ClientConnection& client
+)
+{
+    common::Message response = cartService_.list(message.payload());
+    client.sendResponse(message, response);
+}
+
+void RequestDispatcher::handleCartClear(
+    const common::Message& message,
+    ClientConnection& client
+)
+{
+    common::Message response = cartService_.clear(message.payload());
     client.sendResponse(message, response);
 }
