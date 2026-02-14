@@ -1,7 +1,3 @@
-//
-// Created by mamzi on 2/14/26.
-//
-
 #ifndef KALANET_PROFILE_PAGE_H
 #define KALANET_PROFILE_PAGE_H
 
@@ -29,23 +25,15 @@ public:
     explicit profile_page(QWidget *parent = nullptr);
     ~profile_page() override;
 
-    void setUserBasicInfo(const QString& name,
-                          const QString& username,
-                          const QString& phone,
-                          const QString& email);
-
-    void setWalletBalance(int tokens);
-    void appendPurchases(const QVector<PurchaseRow>& newPurchases);
-
-    signals:
-        void backToMenuRequested();
-
 private slots:
     void on_btnBackToMenu_clicked();
     void on_btnSaveProfile_clicked();
     void on_btnChangePassword_clicked();
     void on_btnRefreshCaptcha_clicked();
     void on_btnAddTokens_clicked();
+
+signals:
+    void backToMenuRequested();
 
 private:
     struct MyAdRow {
@@ -58,11 +46,7 @@ private:
     };
 
     void setupTables();
-    void loadDummyData();
-
-    QString generateCaptcha() const;
-    void updateCaptchaUI(const QString& captcha);
-
+    void refreshFromServer();
     void refreshPurchasesTable();
     void refreshMyAdsTable();
     void showStatus(QLabel* label, const QString& text);
@@ -71,7 +55,7 @@ private:
     Ui::profile_page *ui;
 
     int walletBalanceTokens = 0;
-    QString currentCaptcha;
+    QString walletCaptchaNonce;
 
     QVector<PurchaseRow> purchases;
     QVector<MyAdRow> myAds;

@@ -16,6 +16,7 @@ class cart_page : public QWidget {
 
 public:
     struct CartItemData {
+        int adId = -1;
         QString title;
         QString category;
         int priceTokens = 0;
@@ -27,13 +28,11 @@ public:
     ~cart_page() override;
     void setItems(const QVector<CartItemData>& newItems);
     QVector<CartItemData> itemsData() const;
+    void refreshFromServer();
 
-    signals:
-        void backToMenuRequested();
-        void purchaseRequested(const QString& discountCode);
-        void cartChanged(int itemCount, int subtotalTokens, int discountTokens, int totalTokens);
-        void cartItemsChanged(const QVector<CartItemData>& items);
-        void purchaseCompleted(const QVector<CartItemData>& purchasedItems, const QString& discountCode);
+signals:
+    void backToMenuRequested();
+    void purchaseRequested(const QString& discountCode);
 
 private slots:
     void on_btnBackToMenu_clicked();
@@ -42,25 +41,11 @@ private slots:
     void on_btnPurchase_clicked();
 
 private:
-    struct CartItem {
-        QString title;
-        QString category;
-        int priceTokens = 0;
-        QString seller;
-        QString status; // e.g., "Available" (later: sold/unavailable)
-    };
-
     void setupCartTable();
-    void loadDummyCart();         // placeholder until you connect with Shop/common
     void refreshCartTable();
     void recomputeTotals();
-
     void removeItemAt(int row);
-    void clearAll();
-    void notifyItemsChanged();
-
     int computeDiscountTokens(const QString& code, int subtotal) const;
-
     void setWalletBalanceLabel(int tokens);
     void setTotalsLabels(int subtotal, int discount, int total);
 
@@ -68,7 +53,6 @@ private:
     Ui::cart_page *ui;
 
     QVector<CartItemData> items;
-
     int walletBalanceTokens = 0;
     int subtotalTokens = 0;
     int discountTokens = 0;
