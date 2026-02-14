@@ -4,7 +4,7 @@
 #include <QMainWindow>
 #include <QVector>
 
-#include "repository/ad_repository.h"
+#include "../repository/ad_repository.h"
 
 namespace AdTableColumns {
 enum Value {
