@@ -1,7 +1,7 @@
 #include "ad_service.h"
 
 #include "protocol/ad_create_message.h"
-#include "repository/ad_repository.h"
+#include "../repository/ad_repository.h"
 
 #include <exception>
 
