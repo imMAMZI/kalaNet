@@ -2,6 +2,7 @@
 #include "protocol/commands.h"
 #include "../repository/ad_repository.h"
 #include "../repository/wallet_repository.h"
+#include "../logging_audit_logger.h"
 
 #include <QJsonArray>
 #include <stdexcept>
@@ -35,6 +36,9 @@ common::Message AuthService::login(const QJsonObject& payload)
     try {
         User user;
         if (!repo_.getUser(username, user)) {
+            AuditLogger::log(QStringLiteral("auth.login"), QStringLiteral("failed"),
+                             QJsonObject{{QStringLiteral("username"), username},
+                                         {QStringLiteral("reason"), QStringLiteral("user_not_found")}});
             return common::Message::makeFailure(common::Command::LoginResult,
                                                 common::ErrorCode::NotFound,
                                                 QStringLiteral("User not found"),
@@ -42,12 +46,18 @@ common::Message AuthService::login(const QJsonObject& payload)
         }
 
         if (!PasswordHasher::verify(password, user.passwordHash)) {
+            AuditLogger::log(QStringLiteral("auth.login"), QStringLiteral("failed"),
+                             QJsonObject{{QStringLiteral("username"), username},
+                                         {QStringLiteral("reason"), QStringLiteral("invalid_credentials")}});
             return common::Message::makeFailure(common::Command::LoginResult,
                                                 common::ErrorCode::AuthInvalidCredentials,
                                                 QStringLiteral("Invalid username or password"),
                                                 QJsonObject{{"success", false}});
         }
 
+        AuditLogger::log(QStringLiteral("auth.login"), QStringLiteral("success"),
+                         QJsonObject{{QStringLiteral("username"), username},
+                                     {QStringLiteral("role"), roleToString(user.role)}});
         return common::Message::makeSuccess(common::Command::LoginResult,
                                             QJsonObject{{"success", true},
                                                         {"fullName", user.fullName},

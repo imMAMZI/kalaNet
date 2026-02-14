@@ -2,6 +2,7 @@
 
 #include "protocol/ad_create_message.h"
 #include "../repository/ad_repository.h"
+#include "../logging_audit_logger.h"
 
 #include <exception>
 
@@ -220,6 +221,9 @@ common::Message AdService::updateStatus(const QJsonObject& payload)
     try {
         const bool updated = adRepository_.updateStatus(adId, newStatus, reason);
         if (!updated) {
+            AuditLogger::log(QStringLiteral("ads.moderation"), QStringLiteral("failed"),
+                             QJsonObject{{QStringLiteral("adId"), adId},
+                                         {QStringLiteral("reason"), QStringLiteral("not_found")}});
             return common::Message::makeFailure(
                 common::Command::AdStatusUpdate,
                 common::ErrorCode::NotFound,
@@ -233,6 +237,10 @@ common::Message AdService::updateStatus(const QJsonObject& payload)
                                    ? QStringLiteral("approved")
                                    : QStringLiteral("rejected"));
 
+        AuditLogger::log(QStringLiteral("ads.moderation"), QStringLiteral("success"),
+                         QJsonObject{{QStringLiteral("adId"), adId},
+                                     {QStringLiteral("status"), responsePayload.value(QStringLiteral("status")).toString()},
+                                     {QStringLiteral("reason"), reason}});
         return common::Message::makeSuccess(
             common::Command::AdStatusUpdate,
             responsePayload,

@@ -56,4 +56,37 @@ ErrorCode errorCodeFromString(const QString& code)
     return backwardMap().value(code.toUpper(), ErrorCode::None);
 }
 
+int errorCodeToStatusCode(ErrorCode code)
+{
+    switch (code) {
+    case ErrorCode::None:
+        return 200;
+    case ErrorCode::ValidationFailed:
+    case ErrorCode::InvalidJson:
+    case ErrorCode::InvalidPayload:
+        return 400;
+    case ErrorCode::AuthInvalidCredentials:
+    case ErrorCode::AuthSessionExpired:
+        return 401;
+    case ErrorCode::AuthUnauthorized:
+    case ErrorCode::PermissionDenied:
+        return 403;
+    case ErrorCode::NotFound:
+        return 404;
+    case ErrorCode::AlreadyExists:
+    case ErrorCode::DuplicateAd:
+        return 409;
+    case ErrorCode::InsufficientFunds:
+        return 402;
+    case ErrorCode::AdNotAvailable:
+        return 410;
+    case ErrorCode::DatabaseError:
+        return 503;
+    case ErrorCode::InternalError:
+    case ErrorCode::UnknownCommand:
+    default:
+        return 500;
+    }
+}
+
 } // namespace common
