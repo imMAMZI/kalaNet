@@ -4,8 +4,11 @@
 #include "protocol/message.h"
 #include "../auth/auth_service.h"
 
+#include <functional>
+
 class AdService;
 class CartService;
+class WalletService;
 
 class ClientConnection;
 
@@ -14,7 +17,10 @@ class RequestDispatcher
 public:
     explicit RequestDispatcher(AuthService& authService,
                                AdService& adService,
-                               CartService& cartService);
+                               CartService& cartService,
+                               WalletService& walletService);
+
+    void setNotifyUserCallback(std::function<void(const QString&, const common::Message&)> callback);
 
     void dispatch(
         const common::Message& message,
@@ -25,6 +31,8 @@ private:
     AuthService& authService_;
     AdService& adService_;
     CartService& cartService_;
+    WalletService& walletService_;
+    std::function<void(const QString&, const common::Message&)> notifyUserCallback_;
 
     void handleLogin(
         const common::Message& message,
@@ -72,6 +80,26 @@ private:
     );
 
     void handleCartClear(
+        const common::Message& message,
+        ClientConnection& client
+    );
+
+    void handleWalletBalance(
+        const common::Message& message,
+        ClientConnection& client
+    );
+
+    void handleWalletTopUp(
+        const common::Message& message,
+        ClientConnection& client
+    );
+
+    void handleBuy(
+        const common::Message& message,
+        ClientConnection& client
+    );
+
+    void handleTransactionHistory(
         const common::Message& message,
         ClientConnection& client
     );

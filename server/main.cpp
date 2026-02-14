@@ -6,9 +6,11 @@
 #include "auth/auth_service.h"
 #include "ads/ad_service.h"
 #include "cart/cart_service.h"
+#include "wallet/wallet_service.h"
 #include "repository/sqlite_user_repository.h"
 #include "repository/sqlite_ad_repository.h"
 #include "repository/sqlite_cart_repository.h"
+#include "repository/sqlite_wallet_repository.h"
 #include "ui/server_console_window.h"
 
 int main(int argc, char *argv[])
@@ -26,9 +28,14 @@ int main(int argc, char *argv[])
     AdService adService(adRepo);
     SqliteCartRepository cartRepo("kalanet.db");
     CartService cartService(cartRepo, adRepo);
-    RequestDispatcher dispatcher(authService, adService, cartService);
+    SqliteWalletRepository walletRepo("kalanet.db");
+    WalletService walletService(walletRepo);
+    RequestDispatcher dispatcher(authService, adService, cartService, walletService);
 
     TcpServer server(kDefaultServerPort, dispatcher);
+    dispatcher.setNotifyUserCallback([&server](const QString& username, const common::Message& message) {
+        server.sendToUser(username, message);
+    });
 
     QObject::connect(&server, &TcpServer::serverStarted,
                      &console, &ServerConsoleWindow::onServerStarted);

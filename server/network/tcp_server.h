@@ -4,6 +4,7 @@
 #include <QObject>
 
 #include <QObject>
+#include <QHash>
 #include <QHostAddress>
 #include <QSet>
 
@@ -25,9 +26,9 @@ public:
     void stopListening();
     bool isListening() const;
     quint16 port() const noexcept { return port_; }
+    void sendToUser(const QString& username, const common::Message& message);
 
-
-    signals:
+signals:
         void serverStarted(quint16 port);
     void serverStopped();
     void activeConnectionCountChanged(int count);
@@ -42,6 +43,7 @@ private:
     RequestDispatcher& dispatcher_;
     QTcpServer* server_;
     QSet<ClientConnection*> connections_;
+    QHash<QString, QSet<ClientConnection*>> userConnections_;
 };
 
 #endif // TCP_SERVER_H
