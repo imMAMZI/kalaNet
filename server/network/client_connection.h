@@ -3,7 +3,9 @@
 
 #include <QObject>
 #include <QTcpSocket>
-#include "../protocol/request_dispatcher.h"
+#include "protocol/message.h"
+
+class RequestDispatcher;
 
 class ClientConnection : public QObject
 {
@@ -12,10 +14,18 @@ class ClientConnection : public QObject
 signals:
     void requestProcessed(const common::Message& request,
                           const common::Message& response);
+    void authenticatedUserChanged(const QString& previousUsername,
+                                  const QString& currentUsername);
 
 public:
     QString authenticatedUsername() const { return authenticatedUsername_; }
-    void setAuthenticatedUsername(const QString& username) { authenticatedUsername_ = username.trimmed(); }
+    QString authenticatedRole() const { return authenticatedRole_; }
+    QString sessionToken() const { return sessionToken_; }
+    void bindAuthenticatedIdentity(const QString& username,
+                                   const QString& role,
+                                   const QString& sessionToken);
+    void updateAuthenticatedUsername(const QString& username);
+    void clearAuthenticatedIdentity();
 
 public:
     void sendResponse(const common::Message& request,
@@ -38,6 +48,8 @@ private:
     QByteArray buffer_;
     qint32 expectedSize_ = -1;
     QString authenticatedUsername_;
+    QString authenticatedRole_;
+    QString sessionToken_;
 };
 
 #endif // CLIENT_CONNECTION_H

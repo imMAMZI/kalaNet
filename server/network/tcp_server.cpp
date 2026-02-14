@@ -105,22 +105,17 @@ void TcpServer::handleNewConnection()
                 this, &TcpServer::onConnectionDestroyed);
         connect(connection, &ClientConnection::requestProcessed,
                 this, &TcpServer::requestProcessed);
-        connect(connection, &ClientConnection::requestProcessed, this,
-                [this, connection](const common::Message&, const common::Message& response) {
-            const common::Command cmd = response.command();
-            if ((cmd == common::Command::LoginResult || cmd == common::Command::SignupResult) && response.isSuccess()) {
-                const QString username = response.payload().value(QStringLiteral("username")).toString().trimmed();
-                if (!username.isEmpty()) {
-                    const QString previous = connection->authenticatedUsername();
-                    {
-                        QMutexLocker locker(&connectionsMutex_);
-                        if (!previous.isEmpty()) {
-                            userConnections_[previous].remove(connection);
-                        }
-                        connection->setAuthenticatedUsername(username);
-                        userConnections_[username].insert(connection);
-                    }
+        connect(connection, &ClientConnection::authenticatedUserChanged, this,
+                [this, connection](const QString& previousUsername, const QString& currentUsername) {
+            QMutexLocker locker(&connectionsMutex_);
+            if (!previousUsername.isEmpty()) {
+                userConnections_[previousUsername].remove(connection);
+                if (userConnections_[previousUsername].isEmpty()) {
+                    userConnections_.remove(previousUsername);
                 }
+            }
+            if (!currentUsername.isEmpty()) {
+                userConnections_[currentUsername].insert(connection);
             }
         });
 

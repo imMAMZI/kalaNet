@@ -26,6 +26,8 @@ add_executable(serverProject
         wallet/wallet_service.h
         auth/auth_service.cpp
         auth/auth_service.h
+        auth/session_service.cpp
+        auth/session_service.h
         network/client_connection.cpp
         network/client_connection.h
         network/tcp_server.cpp

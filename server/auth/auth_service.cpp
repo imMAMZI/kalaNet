@@ -60,6 +60,7 @@ common::Message AuthService::login(const QJsonObject& payload)
                                      {QStringLiteral("role"), roleToString(user.role)}});
         return common::Message::makeSuccess(common::Command::LoginResult,
                                             QJsonObject{{"success", true},
+                                                        {"username", user.username},
                                                         {"fullName", user.fullName},
                                                         {"role", roleToString(user.role)}},
                                             {},
@@ -133,7 +134,8 @@ common::Message AuthService::signup(const QJsonObject& payload)
     }
 
     return common::Message::makeSuccess(common::Command::SignupResult,
-                                        QJsonObject{{"success", true}},
+                                        QJsonObject{{"success", true},
+                                                    {"username", username}},
                                         {},
                                         {},
                                         QStringLiteral("Signup successful"));
