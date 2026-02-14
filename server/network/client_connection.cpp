@@ -1,4 +1,5 @@
 #include "client_connection.h"
+#include "protocol/request_dispatcher.h"
 #include "protocol/message.h"
 #include <QJsonDocument>
 #include <QJsonParseError>
