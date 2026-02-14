@@ -129,6 +129,14 @@ void AuthClient::onReadyRead()
             );
             break;
 
+        case common::Command::AdCreateResult:
+            emit adCreateResultReceived(
+                data.value("success").toBool(false),
+                data.value("message").toString(),
+                data.value("adId").toInt(-1)
+            );
+            break;
+
         case common::Command::Error:
             emit networkError(data.value("message").toString("Unknown protocol error"));
             break;

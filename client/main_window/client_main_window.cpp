@@ -5,11 +5,14 @@
 #include "../newAd/new_ad_page.h"
 #include "../profile/profile_page.h"
 #include "../shop/shop_page.h"
+#include "../network/auth_client.h"
 #include <QDate>
 #include <QDateTime>
 #include <QApplication>
 #include <QMessageBox>
 #include <QLayoutItem>
+
+#include "protocol/ad_create_message.h"
 
 namespace {
     QVector<cart_page::CartItemData> toCartItems(const QVector<shop_page::ShopItem>& items)
@@ -128,6 +131,41 @@ void client_main_window::wireNavigation()
 
     connect(shopPageWidget, &shop_page::goToCartRequested, this, [this]() { showPage(CartPage); });
     connect(cartPageWidget, &cart_page::purchaseRequested, this, [this](const QString &) { showPage(ProfilePage); });
+
+    connect(newAdPageWidget,
+            &new_ad_page::submitAdRequested,
+            this,
+            [this](const QString& title,
+                   const QString& description,
+                   const QString& category,
+                   int priceTokens,
+                   const QByteArray& imageBytes) {
+                const common::Message request = common::AdCreateMessage::createRequest(
+                    title,
+                    description,
+                    category,
+                    priceTokens,
+                    imageBytes);
+                AuthClient::instance()->sendMessage(request);
+            });
+
+    connect(AuthClient::instance(),
+            &AuthClient::adCreateResultReceived,
+            this,
+            [this](bool success, const QString& message, int adId) {
+                if (!success) {
+                    QMessageBox::warning(this,
+                                         QStringLiteral("Ad submission failed"),
+                                         message.isEmpty() ? QStringLiteral("Unknown error") : message);
+                    return;
+                }
+
+                QMessageBox::information(this,
+                                         QStringLiteral("Ad submitted"),
+                                         QStringLiteral("Ad #%1 submitted and pending review. %2")
+                                             .arg(adId)
+                                             .arg(message));
+            });
 }
 
 void client_main_window::showPage(PageIndex page)

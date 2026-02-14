@@ -18,6 +18,8 @@ find_package(Qt6 COMPONENTS
 
 add_executable(serverProject
         main.cpp
+        ads/ad_service.cpp
+        ads/ad_service.h
         auth/auth_service.cpp
         auth/auth_service.h
         network/client_connection.cpp
