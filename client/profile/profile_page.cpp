@@ -39,12 +39,27 @@ profile_page::profile_page(QWidget *parent)
                 const QJsonArray postedAds = payload.value(QStringLiteral("postedAds")).toArray();
                 for (const QJsonValue& value : postedAds) {
                     const QJsonObject ad = value.toObject();
+                    const QString status = ad.value(QStringLiteral("status")).toString().toLower();
+                    if (status == QStringLiteral("sold")) {
+                        continue;
+                    }
                     myAds.push_back({ad.value(QStringLiteral("title")).toString(),
                                      ad.value(QStringLiteral("category")).toString(),
                                      ad.value(QStringLiteral("priceTokens")).toInt(0),
-                                     QStringLiteral("posted"),
+                                     status,
                                      0,
                                      ad.value(QStringLiteral("createdAt")).toString().left(10)});
+                }
+
+                const QJsonArray soldAds = payload.value(QStringLiteral("soldAds")).toArray();
+                for (const QJsonValue& value : soldAds) {
+                    const QJsonObject ad = value.toObject();
+                    myAds.push_back({ad.value(QStringLiteral("title")).toString(),
+                                     ad.value(QStringLiteral("category")).toString(),
+                                     ad.value(QStringLiteral("priceTokens")).toInt(0),
+                                     QStringLiteral("sold"),
+                                     0,
+                                     ad.value(QStringLiteral("updatedAt")).toString().left(10)});
                 }
 
                 refreshPurchasesTable();

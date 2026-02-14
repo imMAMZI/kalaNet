@@ -1,9 +1,7 @@
-//
-// Created by mamzi on 2/14/26.
-//
-
 #include "shop_page.h"
 #include "ui_shop_page.h"
+
+#include "../network/auth_client.h"
 
 #include <QHeaderView>
 #include <QPushButton>
@@ -12,6 +10,7 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QListWidgetItem>
+#include <utility>
 
 shop_page::shop_page(QWidget *parent)
     : QWidget(parent),
@@ -20,62 +19,72 @@ shop_page::shop_page(QWidget *parent)
     ui->setupUi(this);
 
     setupAdsTable();
-    loadDummyAds();
 
-    applyFilters();
-    refreshAdsTable();
-    updateBucketUI();
+    connect(AuthClient::instance(), &AuthClient::adListReceived, this,
+            [this](bool success, const QString& message, const QJsonArray& ads) {
+                if (!success) {
+                    QMessageBox::warning(this, QStringLiteral("Shop"), message);
+                    return;
+                }
+
+                allAds.clear();
+                for (const QJsonValue& value : ads) {
+                    const QJsonObject ad = value.toObject();
+                    allAds.push_back({ad.value(QStringLiteral("id")).toInt(-1),
+                                      ad.value(QStringLiteral("title")).toString(),
+                                      ad.value(QStringLiteral("category")).toString(),
+                                      ad.value(QStringLiteral("priceTokens")).toInt(0),
+                                      ad.value(QStringLiteral("sellerUsername")).toString(),
+                                      ad.value(QStringLiteral("status")).toString()});
+                }
+
+                filteredIndices.clear();
+                for (int i = 0; i < allAds.size(); ++i) {
+                    if (passesFilters(allAds[i])) {
+                        filteredIndices.push_back(i);
+                    }
+                }
+                refreshAdsTable();
+            });
+
+    connect(AuthClient::instance(), &AuthClient::cartListReceived, this,
+            [this](bool success, const QString&, const QJsonArray& items) {
+                if (!success) {
+                    return;
+                }
+
+                cartPreviewItems.clear();
+                for (const QJsonValue& value : items) {
+                    const QJsonObject item = value.toObject();
+                    cartPreviewItems.push_back({item.value(QStringLiteral("adId")).toInt(-1),
+                                                item.value(QStringLiteral("title")).toString(),
+                                                item.value(QStringLiteral("priceTokens")).toInt(0)});
+                }
+                refreshCartPreview();
+            });
+
+    connect(AuthClient::instance(), &AuthClient::cartAddItemResultReceived, this,
+            [this](bool success, const QString& message, int, bool) {
+                if (!success) {
+                    QMessageBox::warning(this, QStringLiteral("Cart"), message);
+                    return;
+                }
+                fetchCartFromServer();
+            });
+
+    connect(AuthClient::instance(), &AuthClient::adStatusNotifyReceived, this,
+            [this](const QJsonArray&, const QString&) {
+                fetchAdsFromServer();
+                fetchCartFromServer();
+            });
+
+    fetchAdsFromServer();
+    fetchCartFromServer();
 }
 
 shop_page::~shop_page()
 {
     delete ui;
-}
-
-QVector<shop_page::ShopItem> shop_page::bucketItems() const
-{
-    QVector<ShopItem> items;
-    for (int adIdx : bucketIndices) {
-        if (adIdx >= 0 && adIdx < allAds.size()) {
-            items.push_back(allAds[adIdx]);
-        }
-    }
-    return items;
-}
-
-void shop_page::setBucketItems(const QVector<ShopItem> &items)
-{
-    bucketIndices.clear();
-
-    for (const auto& item : items) {
-        for (int i = 0; i < allAds.size(); ++i) {
-            if (sameItem(allAds[i], item)) {
-                if (!bucketIndices.contains(i)) {
-                    bucketIndices.push_back(i);
-                }
-                break;
-            }
-        }
-    }
-
-    updateBucketUI();
-}
-
-void shop_page::markItemsAsPurchased(const QVector<ShopItem> &purchasedItems)
-{
-    for (const auto& purchased : purchasedItems) {
-        for (int i = allAds.size() - 1; i >= 0; --i) {
-            if (sameItem(allAds[i], purchased)) {
-                allAds.removeAt(i);
-                break;
-            }
-        }
-    }
-
-    bucketIndices.clear();
-    applyFilters();
-    refreshAdsTable();
-    updateBucketUI();
 }
 
 void shop_page::setupAdsTable()
@@ -98,186 +107,127 @@ void shop_page::setupAdsTable()
     ui->twAds->setEditTriggers(QAbstractItemView::NoEditTriggers);
 }
 
-void shop_page::loadDummyAds()
-{
-    allAds.clear();
-    allAds.push_back({"iPhone 11", "Electronics", 120, "Ali"});
-    allAds.push_back({"Wood Chair", "Home", 35, "Sara"});
-    allAds.push_back({"Hoodie XL", "Clothing", 25, "Reza"});
-    allAds.push_back({"C++ Book", "Books", 18, "Neda"});
-    allAds.push_back({"Headphones", "Electronics", 55, "Mehdi"});
-}
-
-void shop_page::clearTable()
-{
-    ui->twAds->setRowCount(0);
-}
-
 void shop_page::refreshAdsTable()
 {
-    clearTable();
+    ui->twAds->setRowCount(filteredIndices.size());
 
-    ui->twAds->setRowCount(static_cast<int>(filteredIndices.size()));
+    for (int row = 0; row < filteredIndices.size(); ++row) {
+        const ShopItem& ad = allAds[filteredIndices[row]];
 
-    for (int row = 0; row < static_cast<int>(filteredIndices.size()); ++row) {
-        const int adIndex = filteredIndices[row];
-        const ShopItem& ad = allAds[adIndex];
-
-        auto *imgItem = new QTableWidgetItem("IMG");
+        auto *imgItem = new QTableWidgetItem(ad.adId > 0 ? QString::number(ad.adId) : QStringLiteral("-"));
         imgItem->setTextAlignment(Qt::AlignCenter);
         ui->twAds->setItem(row, 0, imgItem);
 
         ui->twAds->setItem(row, 1, new QTableWidgetItem(ad.title));
         ui->twAds->setItem(row, 2, new QTableWidgetItem(ad.category));
-        ui->twAds->setItem(row, 3, new QTableWidgetItem(QString::number(ad.priceTokens) + " token"));
+        ui->twAds->setItem(row, 3, new QTableWidgetItem(QString::number(ad.priceTokens) + QStringLiteral(" token")));
         ui->twAds->setItem(row, 4, new QTableWidgetItem(ad.seller));
 
-        auto *btn = new QPushButton("Add");
+        auto *btn = new QPushButton(QStringLiteral("Add"));
         btn->setCursor(Qt::PointingHandCursor);
         btn->setMinimumHeight(34);
-        btn->setStyleSheet(
-            "QPushButton{background:#FF3DA5;color:#0B0B0F;border:none;border-radius:12px;padding:6px 10px;font-weight:800;}"
-            "QPushButton:hover{background:#FF63B7;}"
-            "QPushButton:pressed{background:#E92A93;}"
-        );
 
-        connect(btn, &QPushButton::clicked, this, [this, adIndex]() {
-            addAdToBucket(adIndex);
+        connect(btn, &QPushButton::clicked, this, [this, ad]() {
+            if (ad.adId <= 0) {
+                QMessageBox::warning(this, QStringLiteral("Cart"), QStringLiteral("Invalid ad id."));
+                return;
+            }
+
+            AuthClient::instance()->sendMessage(
+                AuthClient::instance()->withSession(common::Command::CartAddItem,
+                                                    QJsonObject{{QStringLiteral("adId"), ad.adId}}));
         });
 
         ui->twAds->setCellWidget(row, 5, btn);
     }
 }
 
-void shop_page::applyFilters()
-{
-    filteredIndices.clear();
-    for (int i = 0; i < static_cast<int>(allAds.size()); ++i) {
-        if (passesFilters(allAds[i])) {
-            filteredIndices.push_back(i);
-        }
-    }
-}
-
-bool shop_page::passesFilters(const ShopItem& ad) const
-{
-    const QString nameQuery = ui->leSearchName->text().trimmed();
-    const QString selectedCat = ui->cbCategory->currentText().trimmed();
-
-    const int minPrice = static_cast<int>(ui->sbMinPrice->value());
-    const int maxPrice = static_cast<int>(ui->sbMaxPrice->value());
-
-    if (!nameQuery.isEmpty() && !ad.title.contains(nameQuery, Qt::CaseInsensitive)) {
-        return false;
-    }
-
-    if (!selectedCat.isEmpty() && selectedCat != "All categories" && ad.category != selectedCat) {
-        return false;
-    }
-
-    if (ad.priceTokens < minPrice) return false;
-    if (maxPrice > 0 && ad.priceTokens > maxPrice) return false;
-
-    return true;
-}
-
-bool shop_page::sameItem(const ShopItem &a, const ShopItem &b)
-{
-    return a.title == b.title &&
-           a.category == b.category &&
-           a.priceTokens == b.priceTokens &&
-           a.seller == b.seller;
-}
-
-void shop_page::addAdToBucket(int adIndex)
-{
-    if (bucketIndices.contains(adIndex)) {
-        QMessageBox::information(this, "Bucket list", "This item is already in your bucket list.");
-        return;
-    }
-
-    bucketIndices.push_back(adIndex);
-    updateBucketUI();
-}
-
-void shop_page::removeAdFromBucketByAdIndex(int adIndex)
-{
-    const int idx = bucketIndices.indexOf(adIndex);
-    if (idx >= 0) {
-        bucketIndices.removeAt(idx);
-        updateBucketUI();
-    }
-}
-
-int shop_page::bucketTotalTokens() const
-{
-    int total = 0;
-    for (int adIdx : bucketIndices) {
-        total += allAds[adIdx].priceTokens;
-    }
-    return total;
-}
-
-void shop_page::setBucketTotalLabel(int totalTokens)
-{
-    ui->lblBucketTotal->setText(QString::number(totalTokens) + " token");
-}
-
-void shop_page::updateBucketUI()
+void shop_page::refreshCartPreview()
 {
     ui->lwBucket->clear();
 
-    for (int adIndex : bucketIndices) {
-        const ShopItem& ad = allAds[adIndex];
+    int total = 0;
+    for (const CartPreviewItem& item : std::as_const(cartPreviewItems)) {
+        total += item.priceTokens;
 
-        auto *item = new QListWidgetItem(ui->lwBucket);
-
+        auto *listItem = new QListWidgetItem(ui->lwBucket);
         auto *rowWidget = new QWidget(ui->lwBucket);
         auto *rowLayout = new QHBoxLayout(rowWidget);
         rowLayout->setContentsMargins(10, 6, 10, 6);
         rowLayout->setSpacing(10);
 
-        auto *lbl = new QLabel(ad.title + " — " + QString::number(ad.priceTokens) + " token", rowWidget);
+        auto *lbl = new QLabel(item.title + QStringLiteral(" — ") + QString::number(item.priceTokens) + QStringLiteral(" token"), rowWidget);
         lbl->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-
-        auto *btnRemove = new QPushButton("Remove", rowWidget);
-        btnRemove->setCursor(Qt::PointingHandCursor);
-        btnRemove->setMinimumHeight(34);
-        btnRemove->setStyleSheet(
-            "QPushButton{background:transparent;color:#FF5C7A;border:1px solid #FF5C7A;border-radius:12px;padding:6px 10px;font-weight:900;}"
-            "QPushButton:hover{background:rgba(255,92,122,0.12);}"
-            "QPushButton:pressed{background:rgba(255,92,122,0.20);}"
-        );
-
-        connect(btnRemove, &QPushButton::clicked, this, [this, adIndex]() {
-            removeAdFromBucketByAdIndex(adIndex);
-        });
-
         rowLayout->addWidget(lbl);
-        rowLayout->addWidget(btnRemove);
 
-        item->setSizeHint(QSize(0, 46));
-        ui->lwBucket->addItem(item);
-        ui->lwBucket->setItemWidget(item, rowWidget);
+        listItem->setSizeHint(QSize(0, 40));
+        ui->lwBucket->addItem(listItem);
+        ui->lwBucket->setItemWidget(listItem, rowWidget);
     }
 
-    const int total = bucketTotalTokens();
-    setBucketTotalLabel(total);
-    const QVector<ShopItem> currentItems = bucketItems();
-    emit bucketChanged(currentItems.size(), total);
-    emit bucketItemsChanged(currentItems);
+    ui->lblBucketTotal->setText(QString::number(total) + QStringLiteral(" token"));
+}
+
+QJsonObject shop_page::buildAdListPayload() const
+{
+    QJsonObject payload;
+    payload.insert(QStringLiteral("name"), ui->leSearchName->text().trimmed());
+
+    const QString selectedCategory = ui->cbCategory->currentText().trimmed();
+    if (!selectedCategory.isEmpty() && selectedCategory != QStringLiteral("All categories")) {
+        payload.insert(QStringLiteral("category"), selectedCategory);
+    }
+
+    payload.insert(QStringLiteral("minPriceTokens"), ui->sbMinPrice->value());
+    payload.insert(QStringLiteral("maxPriceTokens"), ui->sbMaxPrice->value());
+    payload.insert(QStringLiteral("sortBy"), QStringLiteral("createdAt"));
+    payload.insert(QStringLiteral("sortOrder"), QStringLiteral("desc"));
+    return payload;
+}
+
+bool shop_page::passesFilters(const ShopItem& ad) const
+{
+    const QString nameQuery = ui->leSearchName->text().trimmed();
+    if (!nameQuery.isEmpty() && !ad.title.contains(nameQuery, Qt::CaseInsensitive)) {
+        return false;
+    }
+
+    const QString selectedCategory = ui->cbCategory->currentText().trimmed();
+    if (!selectedCategory.isEmpty() && selectedCategory != QStringLiteral("All categories") && ad.category != selectedCategory) {
+        return false;
+    }
+
+    const int minPrice = ui->sbMinPrice->value();
+    const int maxPrice = ui->sbMaxPrice->value();
+    if (ad.priceTokens < minPrice) {
+        return false;
+    }
+    if (maxPrice > 0 && ad.priceTokens > maxPrice) {
+        return false;
+    }
+
+    return true;
+}
+
+void shop_page::fetchAdsFromServer()
+{
+    AuthClient::instance()->sendMessage(
+        AuthClient::instance()->withSession(common::Command::AdList, buildAdListPayload()));
+}
+
+void shop_page::fetchCartFromServer()
+{
+    AuthClient::instance()->sendMessage(AuthClient::instance()->withSession(common::Command::CartList));
 }
 
 void shop_page::on_btnRefreshAds_clicked()
 {
-    applyFilters();
-    refreshAdsTable();
+    fetchAdsFromServer();
 }
 
 void shop_page::on_btnApplyFilter_clicked()
 {
-    applyFilters();
-    refreshAdsTable();
+    fetchAdsFromServer();
 }
 
 void shop_page::on_btnClearFilter_clicked()
@@ -286,9 +236,7 @@ void shop_page::on_btnClearFilter_clicked()
     ui->cbCategory->setCurrentIndex(0);
     ui->sbMinPrice->setValue(0);
     ui->sbMaxPrice->setValue(0);
-
-    applyFilters();
-    refreshAdsTable();
+    fetchAdsFromServer();
 }
 
 void shop_page::on_btnGoToCart_clicked()

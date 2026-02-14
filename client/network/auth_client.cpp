@@ -178,6 +178,13 @@ void AuthClient::onReadyRead()
             emit cartListReceived(success, statusMessage, payload.value(QStringLiteral("items")).toArray());
             break;
 
+        case common::Command::CartAddItemResult:
+            emit cartAddItemResultReceived(success,
+                                           statusMessage,
+                                           payload.value(QStringLiteral("adId")).toInt(-1),
+                                           payload.value(QStringLiteral("added")).toBool(false));
+            break;
+
         case common::Command::CartRemoveItemResult:
             emit cartRemoveItemResultReceived(success, statusMessage, payload.value(QStringLiteral("adId")).toInt(-1));
             break;
@@ -214,7 +221,8 @@ void AuthClient::onReadyRead()
             break;
 
         case common::Command::AdStatusNotify:
-            emit networkError(QStringLiteral("Market data changed, refresh pages."));
+            emit adStatusNotifyReceived(payload.value(QStringLiteral("soldAdIds")).toArray(),
+                                        payload.value(QStringLiteral("status")).toString());
             break;
 
         case common::Command::Error:

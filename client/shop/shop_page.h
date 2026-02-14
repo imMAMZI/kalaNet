@@ -1,13 +1,11 @@
-//
-// Created by mamzi on 2/14/26.
-//
-
 #ifndef KALANET_SHOP_PAGE_H
 #define KALANET_SHOP_PAGE_H
 
 #include <QWidget>
 #include <QString>
 #include <QVector>
+
+#include <QJsonObject>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -20,24 +18,20 @@ class shop_page : public QWidget {
 
 public:
     struct ShopItem {
+        int adId = -1;
         QString title;
         QString category;
         int priceTokens = 0;
         QString seller;
+        QString status;
     };
 
     explicit shop_page(QWidget *parent = nullptr);
     ~shop_page() override;
 
-    QVector<ShopItem> bucketItems() const;
-    void setBucketItems(const QVector<ShopItem>& items);
-    void markItemsAsPurchased(const QVector<ShopItem>& purchasedItems);
-
-    signals:
-        void goToCartRequested();
-        void backToMenuRequested();
-        void bucketChanged(int itemCount, int totalTokens);
-        void bucketItemsChanged(const QVector<ShopItem>& items);
+signals:
+    void goToCartRequested();
+    void backToMenuRequested();
 
 private slots:
     void on_btnRefreshAds_clicked();
@@ -47,35 +41,26 @@ private slots:
     void on_btnBackToMenu_clicked();
 
 private:
-    struct AdRow {
+    struct CartPreviewItem {
+        int adId = -1;
         QString title;
-        QString category;
         int priceTokens = 0;
-        QString seller;
     };
 
     void setupAdsTable();
-    void loadDummyAds();
     void refreshAdsTable();
-
-    void applyFilters();
+    void refreshCartPreview();
+    void fetchAdsFromServer();
+    void fetchCartFromServer();
+    QJsonObject buildAdListPayload() const;
     bool passesFilters(const ShopItem& ad) const;
-    static bool sameItem(const ShopItem& a, const ShopItem& b);
-
-    void addAdToBucket(int adIndex);
-    void removeAdFromBucketByAdIndex(int adIndex);
-    void updateBucketUI();
-    int bucketTotalTokens() const;
-
-    void clearTable();
-    void setBucketTotalLabel(int totalTokens);
 
 private:
     Ui::shop_page *ui;
 
     QVector<ShopItem> allAds;
     QVector<int> filteredIndices;
-    QVector<int> bucketIndices;
+    QVector<CartPreviewItem> cartPreviewItems;
 };
 
 #endif // KALANET_SHOP_PAGE_H

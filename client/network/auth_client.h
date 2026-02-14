@@ -48,6 +48,11 @@ signals:
                           const QString& message,
                           const QJsonArray& items);
 
+    void cartAddItemResultReceived(bool success,
+                                   const QString& message,
+                                   int adId,
+                                   bool added);
+
     void cartRemoveItemResultReceived(bool success,
                                       const QString& message,
                                       int adId);
@@ -82,6 +87,9 @@ signals:
                                   const QString& challengeText,
                                   const QString& nonce,
                                   const QString& expiresAt);
+
+    void adStatusNotifyReceived(const QJsonArray& soldAdIds,
+                                const QString& status);
 
     void networkError(const QString& message);
 
