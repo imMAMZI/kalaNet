@@ -27,6 +27,14 @@ void RequestDispatcher::dispatch(
         handleAdCreate(message, client);
         break;
 
+    case common::Command::AdList:
+        handleAdList(message, client);
+        break;
+
+    case common::Command::AdDetail:
+        handleAdDetail(message, client);
+        break;
+
     default: {
             common::Message response = common::Message::makeFailure(
                 common::Command::Error,
@@ -61,5 +69,22 @@ void RequestDispatcher::handleAdCreate(
     ClientConnection& client
 ) {
     common::Message response = adService_.create(message.payload());
+    client.sendResponse(message, response);
+}
+
+
+void RequestDispatcher::handleAdList(
+    const common::Message& message,
+    ClientConnection& client
+) {
+    common::Message response = adService_.list(message.payload());
+    client.sendResponse(message, response);
+}
+
+void RequestDispatcher::handleAdDetail(
+    const common::Message& message,
+    ClientConnection& client
+) {
+    common::Message response = adService_.detail(message.payload());
     client.sendResponse(message, response);
 }

@@ -246,6 +246,109 @@ int SqliteAdRepository::createPendingAd(const NewAd& ad)
     return adId;
 }
 
+
+QVector<AdRepository::AdSummaryRecord> SqliteAdRepository::listApprovedAds(
+    const AdListFilters& filters)
+{
+    QMutexLocker locker(&mutex_);
+    ensureConnection();
+
+    QString sql = QStringLiteral(
+        "SELECT id, title, category, price_tokens, seller_username, created_at, image_bytes "
+        "FROM ads WHERE status = :status");
+
+    if (!filters.nameContains.trimmed().isEmpty()) {
+        sql += QStringLiteral(" AND title LIKE :title");
+    }
+
+    if (!filters.category.trimmed().isEmpty()) {
+        sql += QStringLiteral(" AND LOWER(category) = LOWER(:category)");
+    }
+
+    if (filters.minPriceTokens > 0) {
+        sql += QStringLiteral(" AND price_tokens >= :min_price");
+    }
+
+    if (filters.maxPriceTokens > 0) {
+        sql += QStringLiteral(" AND price_tokens <= :max_price");
+    }
+
+    sql += QStringLiteral(" ORDER BY created_at DESC, id DESC;");
+
+    QSqlQuery query(db_);
+    query.prepare(sql);
+    query.bindValue(QStringLiteral(":status"), QStringLiteral("approved"));
+
+    if (!filters.nameContains.trimmed().isEmpty()) {
+        query.bindValue(QStringLiteral(":title"), QStringLiteral("%") + filters.nameContains.trimmed() + QStringLiteral("%"));
+    }
+
+    if (!filters.category.trimmed().isEmpty()) {
+        query.bindValue(QStringLiteral(":category"), filters.category.trimmed());
+    }
+
+    if (filters.minPriceTokens > 0) {
+        query.bindValue(QStringLiteral(":min_price"), filters.minPriceTokens);
+    }
+
+    if (filters.maxPriceTokens > 0) {
+        query.bindValue(QStringLiteral(":max_price"), filters.maxPriceTokens);
+    }
+
+    if (!query.exec()) {
+        throwDatabaseError(QStringLiteral("list approved ads"), query.lastError());
+    }
+
+    QVector<AdSummaryRecord> ads;
+    while (query.next()) {
+        AdSummaryRecord record;
+        record.id = query.value(0).toInt();
+        record.title = query.value(1).toString();
+        record.category = query.value(2).toString();
+        record.priceTokens = query.value(3).toInt();
+        record.sellerUsername = query.value(4).toString();
+        record.createdAt = query.value(5).toString();
+        record.hasImage = !query.value(6).toByteArray().isEmpty();
+        ads.push_back(record);
+    }
+
+    return ads;
+}
+
+std::optional<AdRepository::AdDetailRecord> SqliteAdRepository::findApprovedAdById(int adId)
+{
+    QMutexLocker locker(&mutex_);
+    ensureConnection();
+
+    QSqlQuery query(db_);
+    query.prepare(QStringLiteral(
+        "SELECT id, title, description, category, price_tokens, seller_username, image_bytes, status, created_at, updated_at "
+        "FROM ads WHERE id = :id AND status = :status LIMIT 1;"));
+    query.bindValue(QStringLiteral(":id"), adId);
+    query.bindValue(QStringLiteral(":status"), QStringLiteral("approved"));
+
+    if (!query.exec()) {
+        throwDatabaseError(QStringLiteral("find approved ad by id"), query.lastError());
+    }
+
+    if (!query.next()) {
+        return std::nullopt;
+    }
+
+    AdDetailRecord record;
+    record.id = query.value(0).toInt();
+    record.title = query.value(1).toString();
+    record.description = query.value(2).toString();
+    record.category = query.value(3).toString();
+    record.priceTokens = query.value(4).toInt();
+    record.sellerUsername = query.value(5).toString();
+    record.imageBytes = query.value(6).toByteArray();
+    record.status = query.value(7).toString();
+    record.createdAt = query.value(8).toString();
+    record.updatedAt = query.value(9).toString();
+    return record;
+}
+
 [[noreturn]] void SqliteAdRepository::throwDatabaseError(
     const QString& context,
     const QSqlError& error) const

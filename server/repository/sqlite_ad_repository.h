@@ -7,6 +7,8 @@
 #include <QSqlDatabase>
 #include <QSqlError>
 
+#include <optional>
+
 class SqliteAdRepository : public AdRepository
 {
 public:
@@ -14,6 +16,8 @@ public:
     ~SqliteAdRepository() override;
 
     int createPendingAd(const NewAd& ad) override;
+    QVector<AdSummaryRecord> listApprovedAds(const AdListFilters& filters) override;
+    std::optional<AdDetailRecord> findApprovedAdById(int adId) override;
 
 private:
     bool ensureConnection();
