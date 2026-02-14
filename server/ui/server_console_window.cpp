@@ -209,7 +209,11 @@ void ServerConsoleWindow::onRequestProcessed(const common::Message& request,
     }
 
     entry.username = extractUsername(request.payload());
-    entry.command = mapCommandToText(request.command());
+    common::Command commandForLog = response.command();
+    if (commandForLog == common::Command::Unknown) {
+        commandForLog = request.command();
+    }
+    entry.command = mapCommandToText(commandForLog);
     entry.statusCode = static_cast<int>(response.status());
 
     entry.errorCode = mapErrorCodeToText(response.errorCode());
