@@ -19,12 +19,11 @@ common::Message AuthService::login(const QJsonObject& payload)
 
     if (username.isEmpty() || password.isEmpty())
     {
-        return common::Message(
+        return common::Message::makeFailure(
             common::Command::LoginResult,
-            QJsonObject{
-                {"success", false},
-                {"message", "Missing username or password"}
-            }
+            common::ErrorCode::ValidationFailed,
+            QStringLiteral("Missing username or password"),
+            QJsonObject{{"success", false}}
         );
     }
 
@@ -34,45 +33,44 @@ common::Message AuthService::login(const QJsonObject& payload)
 
         if (!repo_.checkPassword(username, hash))
         {
-            return common::Message(
+            return common::Message::makeFailure(
                 common::Command::LoginResult,
-                QJsonObject{
-                    {"success", false},
-                    {"message", "Invalid username or password"}
-                }
+                common::ErrorCode::AuthInvalidCredentials,
+                QStringLiteral("Invalid username or password"),
+                QJsonObject{{"success", false}}
             );
         }
 
         User user;
         if (!repo_.getUser(username, user))
         {
-            return common::Message(
+            return common::Message::makeFailure(
                 common::Command::LoginResult,
-                QJsonObject{
-                    {"success", false},
-                    {"message", "User not found"}
-                }
+                common::ErrorCode::NotFound,
+                QStringLiteral("User not found"),
+                QJsonObject{{"success", false}}
             );
         }
 
-        return common::Message(
+        return common::Message::makeSuccess(
             common::Command::LoginResult,
             QJsonObject{
                 {"success", true},
-                {"message", "Login successful"},
                 {"fullName", user.fullName},
                 {"role", roleToString(user.role)}
-            }
+            },
+            {},
+            {},
+            QStringLiteral("Login successful")
         );
     }
     catch (const std::exception&)
     {
-        return common::Message(
+        return common::Message::makeFailure(
             common::Command::LoginResult,
-            QJsonObject{
-                {"success", false},
-                {"message", "Login failed due to server error"}
-            }
+            common::ErrorCode::InternalError,
+            QStringLiteral("Login failed due to server error"),
+            QJsonObject{{"success", false}}
         );
     }
 }
@@ -88,56 +86,51 @@ common::Message AuthService::signup(const QJsonObject& payload)
     if (fullName.isEmpty() || username.isEmpty() || phone.isEmpty() ||
         email.isEmpty() || password.isEmpty())
     {
-        return common::Message(
+        return common::Message::makeFailure(
             common::Command::SignupResult,
-            QJsonObject{
-                {"success", false},
-                {"message", "Missing required fields"}
-            }
+            common::ErrorCode::ValidationFailed,
+            QStringLiteral("Missing required fields"),
+            QJsonObject{{"success", false}}
         );
     }
 
     if (password.size() < 8)
     {
-        return common::Message(
+        return common::Message::makeFailure(
             common::Command::SignupResult,
-            QJsonObject{
-                {"success", false},
-                {"message", "Password must be at least 8 characters"}
-            }
+            common::ErrorCode::ValidationFailed,
+            QStringLiteral("Password must be at least 8 characters"),
+            QJsonObject{{"success", false}}
         );
     }
 
     if (!email.contains("@"))
     {
-        return common::Message(
+        return common::Message::makeFailure(
             common::Command::SignupResult,
-            QJsonObject{
-                {"success", false},
-                {"message", "Invalid email format"}
-            }
+            common::ErrorCode::ValidationFailed,
+            QStringLiteral("Invalid email format"),
+            QJsonObject{{"success", false}}
         );
     }
 
     if (repo_.userExists(username))
     {
-        return common::Message(
+        return common::Message::makeFailure(
             common::Command::SignupResult,
-            QJsonObject{
-                {"success", false},
-                {"message", "Username already exists"}
-            }
+            common::ErrorCode::AlreadyExists,
+            QStringLiteral("Username already exists"),
+            QJsonObject{{"success", false}}
         );
     }
 
     if (repo_.emailExists(email))
     {
-        return common::Message(
+        return common::Message::makeFailure(
             common::Command::SignupResult,
-            QJsonObject{
-                {"success", false},
-                {"message", "Email already exists"}
-            }
+            common::ErrorCode::AlreadyExists,
+            QStringLiteral("Email already exists"),
+            QJsonObject{{"success", false}}
         );
     }
 
@@ -152,28 +145,28 @@ common::Message AuthService::signup(const QJsonObject& payload)
     try {
         repo_.createUser(user);
     } catch (const std::runtime_error&) {
-        return common::Message(
+        return common::Message::makeFailure(
             common::Command::SignupResult,
-            QJsonObject{
-                {"success", false},
-                {"message", "Username or email already exists"}
-            }
+            common::ErrorCode::AlreadyExists,
+            QStringLiteral("Username or email already exists"),
+            QJsonObject{{"success", false}}
         );
     } catch (...) {
-        return common::Message(
+        return common::Message::makeFailure(
             common::Command::SignupResult,
-            QJsonObject{
-                {"success", false},
-                {"message", "Signup failed due to server error"}
-            }
+            common::ErrorCode::InternalError,
+            QStringLiteral("Signup failed due to server error"),
+            QJsonObject{{"success", false}}
         );
     }
 
-    return common::Message(
+    return common::Message::makeSuccess(
         common::Command::SignupResult,
         QJsonObject{
-            {"success", true},
-            {"message", "Signup successful"}
-        }
+            {"success", true}
+        },
+        {},
+        {},
+        QStringLiteral("Signup successful")
     );
 }

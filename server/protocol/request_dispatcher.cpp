@@ -21,9 +21,11 @@ void RequestDispatcher::dispatch(
         break;
 
     default: {
-            common::Message response(
+            common::Message response = common::Message::makeFailure(
                 common::Command::Error,
-                QJsonObject{{"message", "Unknown command"}}
+                common::ErrorCode::UnknownCommand,
+                QStringLiteral("Unknown command"),
+                QJsonObject{}
             );
             client.sendResponse(message, response);
             break;
@@ -46,4 +48,3 @@ void RequestDispatcher::handleSignup(
     common::Message response = authService_.signup(message.payload());
     client.sendResponse(message, response);
 }
-
