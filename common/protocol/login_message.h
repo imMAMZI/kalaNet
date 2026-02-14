@@ -15,8 +15,9 @@ namespace common {
     public:
         static Message createRequest(const std::string& username,
                                      const std::string& password,
-                                     const QString& requestId = {},
-                                     const QString& captchaToken = {});
+                                     const QString& captchaNonce = {},
+                                     int captchaAnswer = -1,
+                                     const QString& requestId = {});
 
         static Message createSuccessResponse(const QJsonObject& userPayload,
                                              const QString& sessionToken,

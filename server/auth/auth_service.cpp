@@ -1,17 +1,21 @@
 #include "auth_service.h"
 #include "protocol/commands.h"
+#include "../security/captcha_service.h"
 #include "../repository/ad_repository.h"
 #include "../repository/wallet_repository.h"
 #include "../logging_audit_logger.h"
 
 #include <QJsonArray>
 #include <stdexcept>
+#include <limits>
 
 AuthService::AuthService(UserRepository& repo,
+                         CaptchaService& captchaService,
                          AdRepository* adRepository,
                          WalletRepository* walletRepository)
     : repo_(repo),
       adRepository_(adRepository),
+      captchaService_(captchaService),
       walletRepository_(walletRepository)
 {
 }
@@ -25,11 +29,28 @@ common::Message AuthService::login(const QJsonObject& payload)
 {
     const QString username = payload.value("username").toString();
     const QString password = payload.value("password").toString();
+    const QString captchaNonce = payload.value(QStringLiteral("captchaNonce")).toString().trimmed();
+    const int captchaAnswer = payload.value(QStringLiteral("captchaAnswer")).toInt(std::numeric_limits<int>::min());
 
     if (username.isEmpty() || password.isEmpty()) {
         return common::Message::makeFailure(common::Command::LoginResult,
                                             common::ErrorCode::ValidationFailed,
                                             QStringLiteral("Missing username or password"),
+                                            QJsonObject{{"success", false}});
+    }
+
+    if (captchaNonce.isEmpty() || captchaAnswer == std::numeric_limits<int>::min()) {
+        return common::Message::makeFailure(common::Command::LoginResult,
+                                            common::ErrorCode::ValidationFailed,
+                                            QStringLiteral("CAPTCHA is required"),
+                                            QJsonObject{{"success", false}});
+    }
+
+    QString captchaFailure;
+    if (!captchaService_.verifyAndConsume(captchaNonce, captchaAnswer, QStringLiteral("login"), &captchaFailure)) {
+        return common::Message::makeFailure(common::Command::LoginResult,
+                                            common::ErrorCode::ValidationFailed,
+                                            captchaFailure,
                                             QJsonObject{{"success", false}});
     }
 

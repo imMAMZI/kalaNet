@@ -7,11 +7,13 @@
 #include <QString>
 
 class WalletRepository;
+class CaptchaService;
 
 class WalletService
 {
 public:
-    explicit WalletService(WalletRepository& walletRepository);
+    explicit WalletService(WalletRepository& walletRepository,
+                           CaptchaService& captchaService);
 
     common::Message walletBalance(const QJsonObject& payload);
     common::Message walletTopUp(const QJsonObject& payload);
@@ -22,6 +24,7 @@ public:
 
 private:
     WalletRepository& walletRepository_;
+    CaptchaService& captchaService_;
 };
 
 #endif // WALLET_SERVICE_H

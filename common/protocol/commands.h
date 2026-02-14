@@ -26,6 +26,9 @@ namespace common {
         AdminStats,
         AdminStatsResult,
 
+        CaptchaChallenge,
+        CaptchaChallengeResult,
+
         AdCreate,
         AdCreateResult,
         AdUpdate,

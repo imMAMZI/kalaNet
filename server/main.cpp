@@ -8,6 +8,7 @@
 #include "ads/ad_service.h"
 #include "cart/cart_service.h"
 #include "wallet/wallet_service.h"
+#include "security/captcha_service.h"
 #include "repository/sqlite_user_repository.h"
 #include "repository/sqlite_ad_repository.h"
 #include "repository/sqlite_cart_repository.h"
@@ -28,12 +29,13 @@ int main(int argc, char *argv[])
     SqliteCartRepository cartRepo("kalanet.db");
     SqliteWalletRepository walletRepo("kalanet.db");
 
-    AuthService authService(userRepo, &adRepo, &walletRepo);
+    CaptchaService captchaService;
+    AuthService authService(userRepo, captchaService, &adRepo, &walletRepo);
     SessionService sessionService;
     AdService adService(adRepo);
     CartService cartService(cartRepo, adRepo);
-    WalletService walletService(walletRepo);
-    RequestDispatcher dispatcher(authService, sessionService, adService, cartService, walletService);
+    WalletService walletService(walletRepo, captchaService);
+    RequestDispatcher dispatcher(authService, sessionService, adService, cartService, walletService, captchaService);
 
     TcpServer server(kDefaultServerPort, dispatcher);
     dispatcher.setNotifyUserCallback([&server](const QString& username, const common::Message& message) {

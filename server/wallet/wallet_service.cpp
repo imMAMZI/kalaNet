@@ -1,6 +1,7 @@
 #include "wallet_service.h"
 
 #include "../repository/wallet_repository.h"
+#include "../security/captcha_service.h"
 #include "../logging_audit_logger.h"
 
 #include <QJsonArray>
@@ -51,8 +52,10 @@ QVector<int> adIdsFromPayload(const QJsonObject& payload)
 
 } // namespace
 
-WalletService::WalletService(WalletRepository& walletRepository)
-    : walletRepository_(walletRepository)
+WalletService::WalletService(WalletRepository& walletRepository,
+                           CaptchaService& captchaService)
+    : walletRepository_(walletRepository),
+      captchaService_(captchaService)
 {
 }
 
@@ -86,8 +89,7 @@ common::Message WalletService::walletTopUp(const QJsonObject& payload)
 {
     const QString username = usernameFromPayload(payload);
     const int amountTokens = payload.value(QStringLiteral("amountTokens")).toInt(0);
-    const int left = payload.value(QStringLiteral("captchaLeft")).toInt();
-    const int right = payload.value(QStringLiteral("captchaRight")).toInt();
+    const QString captchaNonce = payload.value(QStringLiteral("captchaNonce")).toString().trimmed();
     const int answer = payload.value(QStringLiteral("captchaAnswer")).toInt(std::numeric_limits<int>::min());
 
     if (username.isEmpty() || amountTokens <= 0) {
@@ -96,10 +98,11 @@ common::Message WalletService::walletTopUp(const QJsonObject& payload)
                                             QStringLiteral("Valid username and amountTokens are required"));
     }
 
-    if (answer != (left + right)) {
+    QString captchaFailure;
+    if (!captchaService_.verifyAndConsume(captchaNonce, answer, QStringLiteral("wallet_top_up"), &captchaFailure)) {
         return common::Message::makeFailure(common::Command::WalletTopUpResult,
                                             common::ErrorCode::ValidationFailed,
-                                            QStringLiteral("CAPTCHA verification failed"));
+                                            captchaFailure);
     }
 
     try {

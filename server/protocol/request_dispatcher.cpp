@@ -4,6 +4,7 @@
 #include "../ads/ad_service.h"
 #include "../cart/cart_service.h"
 #include "../wallet/wallet_service.h"
+#include "../security/captcha_service.h"
 #include "protocol/commands.h"
 
 #include <QJsonArray>
@@ -13,12 +14,14 @@ RequestDispatcher::RequestDispatcher(AuthService& authService,
                                      SessionService& sessionService,
                                      AdService& adService,
                                      CartService& cartService,
-                                     WalletService& walletService)
+                                     WalletService& walletService,
+                                     CaptchaService& captchaService)
     : authService_(authService),
       sessionService_(sessionService),
       adService_(adService),
       cartService_(cartService),
-      walletService_(walletService)
+      walletService_(walletService),
+      captchaService_(captchaService)
 {
 }
 
@@ -75,6 +78,9 @@ void RequestDispatcher::dispatch(const common::Message& message,
         break;
     case common::Command::Signup:
         handleSignup(message, client);
+        break;
+    case common::Command::CaptchaChallenge:
+        handleCaptchaChallenge(message, client);
         break;
     case common::Command::Logout:
         handleLogout(message, client);
@@ -165,6 +171,29 @@ void RequestDispatcher::handleSignup(const common::Message& message,
 {
     common::Message response = authService_.signup(message.payload());
     client.sendResponse(message, response);
+}
+
+void RequestDispatcher::handleCaptchaChallenge(const common::Message& message,
+                                               ClientConnection& client)
+{
+    const QString scope = message.payload().value(QStringLiteral("scope")).toString().trimmed().toLower();
+    if (scope.isEmpty()) {
+        client.sendResponse(message, common::Message::makeFailure(common::Command::CaptchaChallengeResult,
+                                                                  common::ErrorCode::ValidationFailed,
+                                                                  QStringLiteral("CAPTCHA scope is required")));
+        return;
+    }
+
+    const auto challenge = captchaService_.createChallenge(scope);
+    const QJsonObject payload{{QStringLiteral("scope"), challenge.scope},
+                              {QStringLiteral("nonce"), challenge.nonce},
+                              {QStringLiteral("challenge"), challenge.challengeText},
+                              {QStringLiteral("expiresAt"), challenge.expiresAt.toString(Qt::ISODate)}};
+    client.sendResponse(message, common::Message::makeSuccess(common::Command::CaptchaChallengeResult,
+                                                              payload,
+                                                              {},
+                                                              {},
+                                                              QStringLiteral("CAPTCHA challenge generated")));
 }
 
 void RequestDispatcher::handleLogout(const common::Message& message,

@@ -48,6 +48,8 @@ add_executable(serverProject
         repository/sqlite_wallet_repository.cpp
         security/password_hasher.cpp
         security/password_hasher.h
+        security/captcha_service.cpp
+        security/captcha_service.h
         logging_audit_logger.cpp
         logging_audit_logger.h
         ui/request_log_model.h

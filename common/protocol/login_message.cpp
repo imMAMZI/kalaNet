@@ -7,14 +7,16 @@ namespace common {
 
     Message LoginMessage::createRequest(const std::string& username,
                                         const std::string& password,
-                                        const QString& requestId,
-                                        const QString& captchaToken)
+                                        const QString& captchaNonce,
+                                        int captchaAnswer,
+                                        const QString& requestId)
     {
         QJsonObject payload;
         payload.insert(QStringLiteral("username"), QString::fromStdString(username));
         payload.insert(QStringLiteral("password"), QString::fromStdString(password));
-        if (!captchaToken.isEmpty()) {
-            payload.insert(QStringLiteral("captchaToken"), captchaToken);
+        if (!captchaNonce.isEmpty()) {
+            payload.insert(QStringLiteral("captchaNonce"), captchaNonce);
+            payload.insert(QStringLiteral("captchaAnswer"), captchaAnswer);
         }
 
         return Message(Command::Login, payload, requestId);

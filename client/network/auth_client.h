@@ -32,6 +32,13 @@ public:
                                 const QString& message,
                                 int adId);
 
+    void captchaChallengeReceived(bool success,
+                                  const QString& message,
+                                  const QString& scope,
+                                  const QString& challengeText,
+                                  const QString& nonce,
+                                  const QString& expiresAt);
+
     void networkError(const QString& message);
 
 private:

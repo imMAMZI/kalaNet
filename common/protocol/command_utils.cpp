@@ -28,6 +28,8 @@ const QHash<Command, QString>& forwardMap()
         { Command::ProfileHistoryResult, QStringLiteral("auth/profile/history/response") },
         { Command::AdminStats, QStringLiteral("admin/stats/request") },
         { Command::AdminStatsResult, QStringLiteral("admin/stats/response") },
+        { Command::CaptchaChallenge, QStringLiteral("auth/captcha/challenge/request") },
+        { Command::CaptchaChallengeResult, QStringLiteral("auth/captcha/challenge/response") },
 
         { Command::AdCreate, QStringLiteral("ad/create/request") },
         { Command::AdCreateResult, QStringLiteral("ad/create/response") },
