@@ -5,6 +5,8 @@
 #include <QTcpSocket>
 #include <QByteArray>
 #include <QQueue>
+#include <QJsonArray>
+#include <QJsonObject>
 
 #include "protocol/message.h"
 
@@ -19,11 +21,17 @@ public:
     void connectIfNeeded();
     bool isConnected() const;
 
-    signals:
-        void loginResultReceived(bool success,
-                                 const QString& message,
-                                 const QString& fullName,
-                                 const QString& role);
+    QString sessionToken() const;
+    QString username() const;
+    QString fullName() const;
+
+    common::Message withSession(common::Command command, const QJsonObject& payload = {}, const QString& requestId = {}) const;
+
+signals:
+    void loginResultReceived(bool success,
+                             const QString& message,
+                             const QString& fullName,
+                             const QString& role);
 
     void signupResultReceived(bool success,
                               const QString& message);
@@ -31,6 +39,42 @@ public:
     void adCreateResultReceived(bool success,
                                 const QString& message,
                                 int adId);
+
+    void adListReceived(bool success,
+                        const QString& message,
+                        const QJsonArray& ads);
+
+    void cartListReceived(bool success,
+                          const QString& message,
+                          const QJsonArray& items);
+
+    void cartRemoveItemResultReceived(bool success,
+                                      const QString& message,
+                                      int adId);
+
+    void cartClearResultReceived(bool success,
+                                 const QString& message);
+
+    void walletBalanceReceived(bool success,
+                               const QString& message,
+                               int balanceTokens);
+
+    void walletTopUpResultReceived(bool success,
+                                   const QString& message,
+                                   int balanceTokens);
+
+    void buyResultReceived(bool success,
+                           const QString& message,
+                           int balanceTokens,
+                           const QJsonArray& soldAdIds);
+
+    void profileHistoryReceived(bool success,
+                                const QString& message,
+                                const QJsonObject& payload);
+
+    void profileUpdateResultReceived(bool success,
+                                     const QString& message,
+                                     const QJsonObject& payload);
 
     void captchaChallengeReceived(bool success,
                                   const QString& message,
@@ -45,6 +89,7 @@ private:
     explicit AuthClient(QObject* parent = nullptr);
 
     void sendFramed(const common::Message& message);
+    static bool messageSuccess(const common::Message& message);
 
 private slots:
     void onConnected();
@@ -55,6 +100,10 @@ private:
     QByteArray buffer_;
     qint32 expectedSize_ = -1;
     QQueue<common::Message> pendingMessages_;
+
+    QString sessionToken_;
+    QString username_;
+    QString fullName_;
 
     static constexpr quint16 kPort = 8080;
     static constexpr const char* kHost = "127.0.0.1";

@@ -6,62 +6,13 @@
 #include "../profile/profile_page.h"
 #include "../shop/shop_page.h"
 #include "../network/auth_client.h"
-#include <QDate>
+
 #include <QDateTime>
 #include <QApplication>
 #include <QMessageBox>
 #include <QLayoutItem>
 
 #include "protocol/ad_create_message.h"
-
-namespace {
-    QVector<cart_page::CartItemData> toCartItems(const QVector<shop_page::ShopItem>& items)
-    {
-        QVector<cart_page::CartItemData> cartItems;
-        for (const auto& item : items) {
-            cart_page::CartItemData cartItem;
-            cartItem.title = item.title;
-            cartItem.category = item.category;
-            cartItem.priceTokens = item.priceTokens;
-            cartItem.seller = item.seller;
-            cartItem.status = "Available";
-            cartItems.push_back(cartItem);
-        }
-        return cartItems;
-    }
-
-    QVector<shop_page::ShopItem> toShopItems(const QVector<cart_page::CartItemData>& items)
-    {
-        QVector<shop_page::ShopItem> shopItems;
-        for (const auto& item : items) {
-            shop_page::ShopItem shopItem;
-            shopItem.title = item.title;
-            shopItem.category = item.category;
-            shopItem.priceTokens = item.priceTokens;
-            shopItem.seller = item.seller;
-            shopItems.push_back(shopItem);
-        }
-        return shopItems;
-    }
-
-    QVector<profile_page::PurchaseRow> toPurchases(const QVector<cart_page::CartItemData>& items)
-    {
-        QVector<profile_page::PurchaseRow> purchases;
-        const QString today = QDate::currentDate().toString("yyyy-MM-dd");
-
-        for (const auto& item : items) {
-            profile_page::PurchaseRow purchase;
-            purchase.title = item.title;
-            purchase.category = item.category;
-            purchase.priceTokens = item.priceTokens;
-            purchase.seller = item.seller;
-            purchase.date = today;
-            purchases.push_back(purchase);
-        }
-
-        return purchases;
-    }
-}
 
 client_main_window::client_main_window(QWidget *parent)
     : QMainWindow(parent),
@@ -71,8 +22,6 @@ client_main_window::client_main_window(QWidget *parent)
     ui->setupUi(this);
 
     setupClock();
-    setupPages();
-    wireNavigation();
     setupPages();
     wireNavigation();
     updateTimeLabel();
@@ -89,6 +38,7 @@ void client_main_window::setupClock()
     connect(clockTimer, &QTimer::timeout, this, &client_main_window::updateTimeLabel);
     clockTimer->start();
 }
+
 void client_main_window::setupPages()
 {
     auto clearLayout = [](QLayout *layout) {
@@ -129,7 +79,7 @@ void client_main_window::wireNavigation()
     connect(newAdPageWidget, &new_ad_page::backToMenuRequested, this, [this]() { showPage(MenuPage); });
     connect(howItWorksPageWidget, &how_it_works_page::backToMenuRequested, this, [this]() { showPage(MenuPage); });
 
-    connect(shopPageWidget, &shop_page::goToCartRequested, this, [this]() { showPage(CartPage); });
+    connect(shopPageWidget, &shop_page::goToCartRequested, this, [this]() { showPage(CartPage); cartPageWidget->refreshFromServer(); });
     connect(cartPageWidget, &cart_page::purchaseRequested, this, [this](const QString &) { showPage(ProfilePage); });
 
     connect(newAdPageWidget,
@@ -146,7 +96,7 @@ void client_main_window::wireNavigation()
                     category,
                     priceTokens,
                     imageBytes);
-                AuthClient::instance()->sendMessage(request);
+                AuthClient::instance()->sendMessage(AuthClient::instance()->withSession(request.command(), request.payload()));
             });
 
     connect(AuthClient::instance(),
@@ -172,7 +122,6 @@ void client_main_window::showPage(PageIndex page)
 {
     ui->stackedMain->setCurrentIndex(page);
 }
-
 
 void client_main_window::updateTimeLabel()
 {
@@ -203,6 +152,9 @@ void client_main_window::on_btnCart_clicked()
 {
     emit cartRequested();
     showPage(CartPage);
+    if (cartPageWidget) {
+        cartPageWidget->refreshFromServer();
+    }
 }
 
 void client_main_window::on_btnProfile_clicked()

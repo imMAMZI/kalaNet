@@ -1,6 +1,8 @@
 #include "cart_page.h"
 #include "ui_cart_page.h"
 
+#include "../network/auth_client.h"
+
 #include <QHeaderView>
 #include <QPushButton>
 #include <QTableWidgetItem>
@@ -13,18 +15,92 @@ cart_page::cart_page(QWidget *parent)
     ui->setupUi(this);
 
     setupCartTable();
+    setWalletBalanceLabel(0);
 
-    walletBalanceTokens = 200;
-    setWalletBalanceLabel(walletBalanceTokens);
+    connect(AuthClient::instance(), &AuthClient::cartListReceived, this,
+            [this](bool success, const QString& message, const QJsonArray& data) {
+                if (!success) {
+                    QMessageBox::warning(this, "Cart", message);
+                    return;
+                }
 
-    loadDummyCart();
-    refreshCartTable();
-    recomputeTotals();
+                QVector<CartItemData> serverItems;
+                for (const QJsonValue& value : data) {
+                    const QJsonObject item = value.toObject();
+                    serverItems.push_back({item.value("adId").toInt(-1),
+                                           item.value("title").toString(),
+                                           item.value("category").toString(),
+                                           item.value("priceTokens").toInt(0),
+                                           item.value("sellerUsername").toString(),
+                                           item.value("status").toString("approved")});
+                }
+                setItems(serverItems);
+            });
+
+    connect(AuthClient::instance(), &AuthClient::walletBalanceReceived, this,
+            [this](bool success, const QString&, int balanceTokens) {
+                if (success) {
+                    walletBalanceTokens = balanceTokens;
+                    setWalletBalanceLabel(balanceTokens);
+                }
+            });
+
+    connect(AuthClient::instance(), &AuthClient::cartRemoveItemResultReceived, this,
+            [this](bool success, const QString& message, int adId) {
+                if (!success) {
+                    QMessageBox::warning(this, "Cart", message);
+                    return;
+                }
+                for (int i = 0; i < items.size(); ++i) {
+                    if (items[i].adId == adId) {
+                        items.removeAt(i);
+                        break;
+                    }
+                }
+                refreshCartTable();
+                recomputeTotals();
+            });
+
+    connect(AuthClient::instance(), &AuthClient::cartClearResultReceived, this,
+            [this](bool success, const QString& message) {
+                if (!success) {
+                    QMessageBox::warning(this, "Cart", message);
+                    return;
+                }
+                items.clear();
+                refreshCartTable();
+                recomputeTotals();
+            });
+
+    connect(AuthClient::instance(), &AuthClient::buyResultReceived, this,
+            [this](bool success, const QString& message, int balanceTokens, const QJsonArray&) {
+                if (!success) {
+                    QMessageBox::warning(this, "Purchase failed", message);
+                    return;
+                }
+
+                walletBalanceTokens = balanceTokens;
+                setWalletBalanceLabel(balanceTokens);
+                ui->leDiscountCode->clear();
+                ui->lblDiscountStatus->clear();
+                refreshFromServer();
+                QMessageBox::information(this, "Purchase", message);
+                emit purchaseRequested(QString());
+            });
+
+    refreshFromServer();
 }
 
 cart_page::~cart_page()
 {
     delete ui;
+}
+
+void cart_page::refreshFromServer()
+{
+    AuthClient* client = AuthClient::instance();
+    client->sendMessage(client->withSession(common::Command::CartList));
+    client->sendMessage(client->withSession(common::Command::WalletBalance));
 }
 
 void cart_page::setItems(const QVector<CartItemData> &newItems)
@@ -42,7 +118,6 @@ QVector<cart_page::CartItemData> cart_page::itemsData() const
 void cart_page::setupCartTable()
 {
     ui->twCart->setColumnCount(6);
-
     ui->twCart->horizontalHeader()->setStretchLastSection(true);
     ui->twCart->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
     ui->twCart->verticalHeader()->setVisible(false);
@@ -59,14 +134,6 @@ void cart_page::setupCartTable()
     ui->twCart->setEditTriggers(QAbstractItemView::NoEditTriggers);
 }
 
-void cart_page::loadDummyCart()
-{
-    items.clear();
-    items.push_back({"Headphones", "Electronics", 55, "Mehdi", "Available"});
-    items.push_back({"C++ Book", "Books", 18, "Neda", "Available"});
-    items.push_back({"Wood Chair", "Home", 35, "Sara", "Available"});
-}
-
 void cart_page::refreshCartTable()
 {
     ui->twCart->setRowCount(static_cast<int>(items.size()));
@@ -81,43 +148,20 @@ void cart_page::refreshCartTable()
         ui->twCart->setItem(row, 4, new QTableWidgetItem(it.status));
 
         auto *btnRemove = new QPushButton("Remove");
-        btnRemove->setCursor(Qt::PointingHandCursor);
-        btnRemove->setMinimumHeight(34);
-        btnRemove->setStyleSheet(
-            "QPushButton{background:transparent;color:#FF5C7A;border:1px solid #FF5C7A;border-radius:12px;padding:6px 10px;font-weight:900;}"
-            "QPushButton:hover{background:rgba(255,92,122,0.12);}"
-            "QPushButton:pressed{background:rgba(255,92,122,0.20);}"
-        );
-
-        connect(btnRemove, &QPushButton::clicked, this, [this, row]() {
-            removeItemAt(row);
-        });
-
+        connect(btnRemove, &QPushButton::clicked, this, [this, row]() { removeItemAt(row); });
         ui->twCart->setCellWidget(row, 5, btnRemove);
     }
 }
 
 void cart_page::removeItemAt(int row)
 {
-    if (row < 0 || row >= static_cast<int>(items.size())) return;
+    if (row < 0 || row >= items.size()) {
+        return;
+    }
 
-    items.removeAt(row);
-    refreshCartTable();
-    recomputeTotals();
-    notifyItemsChanged();
-}
-
-void cart_page::clearAll()
-{
-    items.clear();
-    refreshCartTable();
-    recomputeTotals();
-    notifyItemsChanged();
-}
-
-void cart_page::notifyItemsChanged()
-{
-    emit cartItemsChanged(items);
+    AuthClient::instance()->sendMessage(
+        AuthClient::instance()->withSession(common::Command::CartRemoveItem,
+                                            QJsonObject{{QStringLiteral("adId"), items[row].adId}}));
 }
 
 int cart_page::computeDiscountTokens(const QString& code, int subtotal) const
@@ -145,8 +189,6 @@ void cart_page::recomputeTotals()
     if (totalTokens < 0) totalTokens = 0;
 
     setTotalsLabels(subtotalTokens, discountTokens, totalTokens);
-
-    emit cartChanged(static_cast<int>(items.size()), subtotalTokens, discountTokens, totalTokens);
 }
 
 void cart_page::setWalletBalanceLabel(int tokens)
@@ -168,20 +210,19 @@ void cart_page::on_btnBackToMenu_clicked()
 
 void cart_page::on_btnClearAll_clicked()
 {
-    clearAll();
+    AuthClient::instance()->sendMessage(AuthClient::instance()->withSession(common::Command::CartClear));
 }
 
 void cart_page::on_btnApplyDiscount_clicked()
 {
     recomputeTotals();
-
     const QString code = ui->leDiscountCode->text().trimmed();
     if (code.isEmpty()) {
         ui->lblDiscountStatus->setText("Enter a discount code to apply.");
     } else if (discountTokens > 0) {
-        ui->lblDiscountStatus->setText("Discount applied.");
+        ui->lblDiscountStatus->setText("Discount applied locally.");
     } else {
-        ui->lblDiscountStatus->setText("Invalid or unsupported code (for now).");
+        ui->lblDiscountStatus->setText("Invalid or unsupported code.");
     }
 }
 
@@ -192,24 +233,12 @@ void cart_page::on_btnPurchase_clicked()
         return;
     }
 
-    recomputeTotals();
-
-    if (walletBalanceTokens < totalTokens) {
-        QMessageBox::warning(this, "Purchase failed", "Not enough tokens in wallet.");
-        return;
+    QJsonArray adIds;
+    for (const auto& item : items) {
+        adIds.append(item.adId);
     }
-    walletBalanceTokens -= totalTokens;
-    setWalletBalanceLabel(walletBalanceTokens);
 
-    const QVector<CartItemData> purchasedItems = items;
-    const QString discountCode = ui->leDiscountCode->text().trimmed();
-
-    QMessageBox::information(this, "Purchase", "Purchase successful (stub).");
-
-    emit purchaseCompleted(purchasedItems, discountCode);
-    emit purchaseRequested(discountCode);
-
-    clearAll();
-    ui->leDiscountCode->clear();
-    ui->lblDiscountStatus->clear();
+    AuthClient::instance()->sendMessage(
+        AuthClient::instance()->withSession(common::Command::Buy,
+                                            QJsonObject{{QStringLiteral("adIds"), adIds}}));
 }
