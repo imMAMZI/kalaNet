@@ -15,15 +15,25 @@ class cart_page : public QWidget {
     Q_OBJECT
 
 public:
+    struct CartItemData {
+        QString title;
+        QString category;
+        int priceTokens = 0;
+        QString seller;
+        QString status;
+    };
+
     explicit cart_page(QWidget *parent = nullptr);
     ~cart_page() override;
+    void setItems(const QVector<CartItemData>& newItems);
+    QVector<CartItemData> itemsData() const;
 
     signals:
         void backToMenuRequested();
-    void purchaseRequested(const QString& discountCode);
-
-    // Optional: let main window/state know changes
-    void cartChanged(int itemCount, int subtotalTokens, int discountTokens, int totalTokens);
+        void purchaseRequested(const QString& discountCode);
+        void cartChanged(int itemCount, int subtotalTokens, int discountTokens, int totalTokens);
+        void cartItemsChanged(const QVector<CartItemData>& items);
+        void purchaseCompleted(const QVector<CartItemData>& purchasedItems, const QString& discountCode);
 
 private slots:
     void on_btnBackToMenu_clicked();
@@ -42,13 +52,13 @@ private:
 
     void setupCartTable();
     void loadDummyCart();         // placeholder until you connect with Shop/common
-    void refreshCartTable();      // render rows + remove buttons
+    void refreshCartTable();
     void recomputeTotals();
 
     void removeItemAt(int row);
     void clearAll();
+    void notifyItemsChanged();
 
-    // discount logic (local preview only for now)
     int computeDiscountTokens(const QString& code, int subtotal) const;
 
     void setWalletBalanceLabel(int tokens);
@@ -57,9 +67,9 @@ private:
 private:
     Ui::cart_page *ui;
 
-    QVector<CartItem> items;
+    QVector<CartItemData> items;
 
-    int walletBalanceTokens = 0; // placeholder until profile/common ready
+    int walletBalanceTokens = 0;
     int subtotalTokens = 0;
     int discountTokens = 0;
     int totalTokens = 0;

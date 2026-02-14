@@ -18,16 +18,24 @@ class profile_page : public QWidget {
     Q_OBJECT
 
 public:
+    struct PurchaseRow {
+        QString title;
+        QString category;
+        int priceTokens = 0;
+        QString seller;
+        QString date;
+    };
+
     explicit profile_page(QWidget *parent = nullptr);
     ~profile_page() override;
 
-    // Later: you can call these from main window when user session loads
     void setUserBasicInfo(const QString& name,
                           const QString& username,
                           const QString& phone,
                           const QString& email);
 
     void setWalletBalance(int tokens);
+    void appendPurchases(const QVector<PurchaseRow>& newPurchases);
 
     signals:
         void backToMenuRequested();
@@ -40,19 +48,11 @@ private slots:
     void on_btnAddTokens_clicked();
 
 private:
-    struct PurchaseRow {
-        QString title;
-        QString category;
-        int priceTokens = 0;
-        QString seller;
-        QString date;
-    };
-
     struct MyAdRow {
         QString title;
         QString category;
         int priceTokens = 0;
-        QString status;   // Pending / Accepted / Rejected / Sold
+        QString status;
         int views = 0;
         QString created;
     };
@@ -65,8 +65,6 @@ private:
 
     void refreshPurchasesTable();
     void refreshMyAdsTable();
-
-    // local-only placeholder
     void showStatus(QLabel* label, const QString& text);
 
 private:

@@ -19,13 +19,25 @@ class shop_page : public QWidget {
     Q_OBJECT
 
 public:
+    struct ShopItem {
+        QString title;
+        QString category;
+        int priceTokens = 0;
+        QString seller;
+    };
+
     explicit shop_page(QWidget *parent = nullptr);
     ~shop_page() override;
+
+    QVector<ShopItem> bucketItems() const;
+    void setBucketItems(const QVector<ShopItem>& items);
+    void markItemsAsPurchased(const QVector<ShopItem>& purchasedItems);
 
     signals:
         void goToCartRequested();
         void backToMenuRequested();
         void bucketChanged(int itemCount, int totalTokens);
+        void bucketItemsChanged(const QVector<ShopItem>& items);
 
 private slots:
     void on_btnRefreshAds_clicked();
@@ -43,11 +55,12 @@ private:
     };
 
     void setupAdsTable();
-    void loadDummyAds();              // placeholder until server/common is ready
-    void refreshAdsTable();           // draw current ads into twAds
+    void loadDummyAds();
+    void refreshAdsTable();
 
     void applyFilters();
-    bool passesFilters(const AdRow& ad) const;
+    bool passesFilters(const ShopItem& ad) const;
+    static bool sameItem(const ShopItem& a, const ShopItem& b);
 
     void addAdToBucket(int adIndex);
     void removeAdFromBucketByAdIndex(int adIndex);
@@ -60,9 +73,9 @@ private:
 private:
     Ui::shop_page *ui;
 
-    QVector<AdRow> allAds;
-    QVector<int> filteredIndices;     // indices into allAds after filters
-    QVector<int> bucketIndices;       // indices into allAds that are in bucket
+    QVector<ShopItem> allAds;
+    QVector<int> filteredIndices;
+    QVector<int> bucketIndices;
 };
 
 #endif // KALANET_SHOP_PAGE_H

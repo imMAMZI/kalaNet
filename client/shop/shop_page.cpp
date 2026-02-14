@@ -32,6 +32,52 @@ shop_page::~shop_page()
     delete ui;
 }
 
+QVector<shop_page::ShopItem> shop_page::bucketItems() const
+{
+    QVector<ShopItem> items;
+    for (int adIdx : bucketIndices) {
+        if (adIdx >= 0 && adIdx < allAds.size()) {
+            items.push_back(allAds[adIdx]);
+        }
+    }
+    return items;
+}
+
+void shop_page::setBucketItems(const QVector<ShopItem> &items)
+{
+    bucketIndices.clear();
+
+    for (const auto& item : items) {
+        for (int i = 0; i < allAds.size(); ++i) {
+            if (sameItem(allAds[i], item)) {
+                if (!bucketIndices.contains(i)) {
+                    bucketIndices.push_back(i);
+                }
+                break;
+            }
+        }
+    }
+
+    updateBucketUI();
+}
+
+void shop_page::markItemsAsPurchased(const QVector<ShopItem> &purchasedItems)
+{
+    for (const auto& purchased : purchasedItems) {
+        for (int i = allAds.size() - 1; i >= 0; --i) {
+            if (sameItem(allAds[i], purchased)) {
+                allAds.removeAt(i);
+                break;
+            }
+        }
+    }
+
+    bucketIndices.clear();
+    applyFilters();
+    refreshAdsTable();
+    updateBucketUI();
+}
+
 void shop_page::setupAdsTable()
 {
     ui->twAds->setColumnCount(6);
@@ -40,12 +86,12 @@ void shop_page::setupAdsTable()
     ui->twAds->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
     ui->twAds->verticalHeader()->setVisible(false);
 
-    ui->twAds->setColumnWidth(0, 90);   // Image
-    ui->twAds->setColumnWidth(1, 220);  // Title
-    ui->twAds->setColumnWidth(2, 140);  // Category
-    ui->twAds->setColumnWidth(3, 90);   // Price
-    ui->twAds->setColumnWidth(4, 140);  // Seller
-    ui->twAds->setColumnWidth(5, 140);  // Action
+    ui->twAds->setColumnWidth(0, 90);
+    ui->twAds->setColumnWidth(1, 220);
+    ui->twAds->setColumnWidth(2, 140);
+    ui->twAds->setColumnWidth(3, 90);
+    ui->twAds->setColumnWidth(4, 140);
+    ui->twAds->setColumnWidth(5, 140);
 
     ui->twAds->setSelectionBehavior(QAbstractItemView::SelectRows);
     ui->twAds->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -75,9 +121,8 @@ void shop_page::refreshAdsTable()
 
     for (int row = 0; row < static_cast<int>(filteredIndices.size()); ++row) {
         const int adIndex = filteredIndices[row];
-        const AdRow& ad = allAds[adIndex];
+        const ShopItem& ad = allAds[adIndex];
 
-        // Image placeholder
         auto *imgItem = new QTableWidgetItem("IMG");
         imgItem->setTextAlignment(Qt::AlignCenter);
         ui->twAds->setItem(row, 0, imgItem);
@@ -87,7 +132,6 @@ void shop_page::refreshAdsTable()
         ui->twAds->setItem(row, 3, new QTableWidgetItem(QString::number(ad.priceTokens) + " token"));
         ui->twAds->setItem(row, 4, new QTableWidgetItem(ad.seller));
 
-        // Add button
         auto *btn = new QPushButton("Add");
         btn->setCursor(Qt::PointingHandCursor);
         btn->setMinimumHeight(34);
@@ -115,22 +159,20 @@ void shop_page::applyFilters()
     }
 }
 
-bool shop_page::passesFilters(const AdRow& ad) const
+bool shop_page::passesFilters(const ShopItem& ad) const
 {
     const QString nameQuery = ui->leSearchName->text().trimmed();
     const QString selectedCat = ui->cbCategory->currentText().trimmed();
 
     const int minPrice = static_cast<int>(ui->sbMinPrice->value());
-    const int maxPrice = static_cast<int>(ui->sbMaxPrice->value()); // 0 means "no max"
+    const int maxPrice = static_cast<int>(ui->sbMaxPrice->value());
 
     if (!nameQuery.isEmpty() && !ad.title.contains(nameQuery, Qt::CaseInsensitive)) {
         return false;
     }
 
-    if (!selectedCat.isEmpty() && selectedCat != "All categories") {
-        if (ad.category != selectedCat) {
-            return false;
-        }
+    if (!selectedCat.isEmpty() && selectedCat != "All categories" && ad.category != selectedCat) {
+        return false;
     }
 
     if (ad.priceTokens < minPrice) return false;
@@ -139,13 +181,19 @@ bool shop_page::passesFilters(const AdRow& ad) const
     return true;
 }
 
+bool shop_page::sameItem(const ShopItem &a, const ShopItem &b)
+{
+    return a.title == b.title &&
+           a.category == b.category &&
+           a.priceTokens == b.priceTokens &&
+           a.seller == b.seller;
+}
+
 void shop_page::addAdToBucket(int adIndex)
 {
-    for (int idx : bucketIndices) {
-        if (idx == adIndex) {
-            QMessageBox::information(this, "Bucket list", "This item is already in your bucket list.");
-            return;
-        }
+    if (bucketIndices.contains(adIndex)) {
+        QMessageBox::information(this, "Bucket list", "This item is already in your bucket list.");
+        return;
     }
 
     bucketIndices.push_back(adIndex);
@@ -154,12 +202,10 @@ void shop_page::addAdToBucket(int adIndex)
 
 void shop_page::removeAdFromBucketByAdIndex(int adIndex)
 {
-    for (int i = 0; i < static_cast<int>(bucketIndices.size()); ++i) {
-        if (bucketIndices[i] == adIndex) {
-            bucketIndices.removeAt(i);
-            updateBucketUI();
-            return;
-        }
+    const int idx = bucketIndices.indexOf(adIndex);
+    if (idx >= 0) {
+        bucketIndices.removeAt(idx);
+        updateBucketUI();
     }
 }
 
@@ -181,15 +227,11 @@ void shop_page::updateBucketUI()
 {
     ui->lwBucket->clear();
 
-    // Build each row as: [Title + price]   [Remove button]
-    for (int i = 0; i < static_cast<int>(bucketIndices.size()); ++i) {
-        const int adIndex = bucketIndices[i];
-        const AdRow& ad = allAds[adIndex];
+    for (int adIndex : bucketIndices) {
+        const ShopItem& ad = allAds[adIndex];
 
-        // QListWidgetItem holder
         auto *item = new QListWidgetItem(ui->lwBucket);
 
-        // Custom row widget
         auto *rowWidget = new QWidget(ui->lwBucket);
         auto *rowLayout = new QHBoxLayout(rowWidget);
         rowLayout->setContentsMargins(10, 6, 10, 6);
@@ -214,9 +256,6 @@ void shop_page::updateBucketUI()
         rowLayout->addWidget(lbl);
         rowLayout->addWidget(btnRemove);
 
-        rowWidget->setLayout(rowLayout);
-
-        // Make row height nice
         item->setSizeHint(QSize(0, 46));
         ui->lwBucket->addItem(item);
         ui->lwBucket->setItemWidget(item, rowWidget);
@@ -224,14 +263,13 @@ void shop_page::updateBucketUI()
 
     const int total = bucketTotalTokens();
     setBucketTotalLabel(total);
-    emit bucketChanged(bucketIndices.size(), total);
+    const QVector<ShopItem> currentItems = bucketItems();
+    emit bucketChanged(currentItems.size(), total);
+    emit bucketItemsChanged(currentItems);
 }
-
-// -------------------- Slots (Qt auto-connect) --------------------
 
 void shop_page::on_btnRefreshAds_clicked()
 {
-    loadDummyAds();
     applyFilters();
     refreshAdsTable();
 }

@@ -24,12 +24,11 @@ public:
     ~client_main_window() override;
 
     signals:
-        // Clean navigation signals (you can connect these to stacked pages later)
         void newAdRequested();
-    void shopRequested();
-    void cartRequested();
-    void profileRequested();
-    void howItWorksRequested();
+        void shopRequested();
+        void cartRequested();
+        void profileRequested();
+        void howItWorksRequested();
 
 private slots:
     void updateTimeLabel();

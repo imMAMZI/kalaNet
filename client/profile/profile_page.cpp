@@ -46,6 +46,14 @@ void profile_page::setWalletBalance(int tokens)
     if (ui->lblBalanceValue) ui->lblBalanceValue->setText(QString::number(tokens) + " token");
 }
 
+void profile_page::appendPurchases(const QVector<PurchaseRow> &newPurchases)
+{
+    for (const auto& purchase : newPurchases) {
+        purchases.push_back(purchase);
+    }
+    refreshPurchasesTable();
+}
+
 void profile_page::setupTables()
 {
     // Purchases table

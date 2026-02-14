@@ -5,9 +5,60 @@
 #include "../newAd/new_ad_page.h"
 #include "../profile/profile_page.h"
 #include "../shop/shop_page.h"
+#include <QDate>
 #include <QDateTime>
 #include <QApplication>
 #include <QMessageBox>
+#include <QLayoutItem>
+
+namespace {
+    QVector<cart_page::CartItemData> toCartItems(const QVector<shop_page::ShopItem>& items)
+    {
+        QVector<cart_page::CartItemData> cartItems;
+        for (const auto& item : items) {
+            cart_page::CartItemData cartItem;
+            cartItem.title = item.title;
+            cartItem.category = item.category;
+            cartItem.priceTokens = item.priceTokens;
+            cartItem.seller = item.seller;
+            cartItem.status = "Available";
+            cartItems.push_back(cartItem);
+        }
+        return cartItems;
+    }
+
+    QVector<shop_page::ShopItem> toShopItems(const QVector<cart_page::CartItemData>& items)
+    {
+        QVector<shop_page::ShopItem> shopItems;
+        for (const auto& item : items) {
+            shop_page::ShopItem shopItem;
+            shopItem.title = item.title;
+            shopItem.category = item.category;
+            shopItem.priceTokens = item.priceTokens;
+            shopItem.seller = item.seller;
+            shopItems.push_back(shopItem);
+        }
+        return shopItems;
+    }
+
+    QVector<profile_page::PurchaseRow> toPurchases(const QVector<cart_page::CartItemData>& items)
+    {
+        QVector<profile_page::PurchaseRow> purchases;
+        const QString today = QDate::currentDate().toString("yyyy-MM-dd");
+
+        for (const auto& item : items) {
+            profile_page::PurchaseRow purchase;
+            purchase.title = item.title;
+            purchase.category = item.category;
+            purchase.priceTokens = item.priceTokens;
+            purchase.seller = item.seller;
+            purchase.date = today;
+            purchases.push_back(purchase);
+        }
+
+        return purchases;
+    }
+}
 
 client_main_window::client_main_window(QWidget *parent)
     : QMainWindow(parent),
@@ -17,6 +68,8 @@ client_main_window::client_main_window(QWidget *parent)
     ui->setupUi(this);
 
     setupClock();
+    setupPages();
+    wireNavigation();
     setupPages();
     wireNavigation();
     updateTimeLabel();
@@ -29,7 +82,6 @@ client_main_window::~client_main_window()
 
 void client_main_window::setupClock()
 {
-    // Update time every second
     clockTimer->setInterval(1000);
     connect(clockTimer, &QTimer::timeout, this, &client_main_window::updateTimeLabel);
     clockTimer->start();
@@ -86,14 +138,11 @@ void client_main_window::showPage(PageIndex page)
 
 void client_main_window::updateTimeLabel()
 {
-    // Format: HH:MM:SS (24-hour)
     const QString now = QDateTime::currentDateTime().toString("HH:mm:ss");
     if (ui->lblTime) {
         ui->lblTime->setText(now);
     }
 }
-
-// ---------- Button slots ----------
 
 void client_main_window::on_btnRefreshTime_clicked()
 {
