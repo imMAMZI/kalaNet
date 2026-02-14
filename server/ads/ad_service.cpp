@@ -1,8 +1,9 @@
 #include "ad_service.h"
 
-#include <QMutexLocker>
-
 #include "protocol/ad_create_message.h"
+#include "repository/ad_repository.h"
+
+#include <exception>
 
 namespace {
 
@@ -12,6 +13,11 @@ bool isInvalidText(const QString& value, int minLength)
 }
 
 } // namespace
+
+AdService::AdService(AdRepository& adRepository)
+    : adRepository_(adRepository)
+{
+}
 
 common::Message AdService::create(const QJsonObject& payload)
 {
@@ -47,18 +53,20 @@ common::Message AdService::create(const QJsonObject& payload)
             QStringLiteral("Price must be greater than zero"));
     }
 
-    QMutexLocker lock(&mutex_);
+    try {
+        AdRepository::NewAd ad;
+        ad.title = title;
+        ad.description = description;
+        ad.category = category;
+        ad.priceTokens = priceTokens;
+        ad.sellerUsername = sellerUsername;
+        ad.imageBytes = imageBytes;
 
-    StoredAd ad;
-    ad.id = nextAdId_++;
-    ad.title = title;
-    ad.description = description;
-    ad.category = category;
-    ad.priceTokens = priceTokens;
-    ad.sellerUsername = sellerUsername;
-    ad.imageBytes = imageBytes;
-    pendingAds_.push_back(ad);
-
-    return common::AdCreateMessage::createSuccessResponse(ad.id);
+        const int adId = adRepository_.createPendingAd(ad);
+        return common::AdCreateMessage::createSuccessResponse(adId);
+    } catch (const std::exception& ex) {
+        return common::AdCreateMessage::createFailureResponse(
+            common::ErrorCode::InternalError,
+            QStringLiteral("Failed to store ad: %1").arg(QString::fromUtf8(ex.what())));
+    }
 }
-

@@ -6,6 +6,7 @@
 #include "auth/auth_service.h"
 #include "ads/ad_service.h"
 #include "repository/sqlite_user_repository.h"
+#include "repository/sqlite_ad_repository.h"
 #include "ui/server_console_window.h"
 
 int main(int argc, char *argv[])
@@ -19,7 +20,8 @@ int main(int argc, char *argv[])
 
     SqliteUserRepository userRepo("kalanet.db"); // مسیر فایل DB را مطابق پروژه تنظیم کنید
     AuthService authService(userRepo);
-    AdService adService;
+    SqliteAdRepository adRepo("kalanet.db");
+    AdService adService(adRepo);
     RequestDispatcher dispatcher(authService, adService);
 
     TcpServer server(kDefaultServerPort, dispatcher);
