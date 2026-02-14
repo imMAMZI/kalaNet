@@ -37,6 +37,16 @@ private:
         const common::Message& message,
         ClientConnection& client
     );
+
+    void handleAdList(
+        const common::Message& message,
+        ClientConnection& client
+    );
+
+    void handleAdDetail(
+        const common::Message& message,
+        ClientConnection& client
+    );
 };
 
 #endif // REQUEST_DISPATCHER_H
