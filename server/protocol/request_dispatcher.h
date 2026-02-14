@@ -44,6 +44,10 @@ private:
         ClientConnection& client
     );
 
+    void handleProfileUpdate(const common::Message& message, ClientConnection& client);
+    void handleProfileHistory(const common::Message& message, ClientConnection& client);
+    void handleAdminStats(const common::Message& message, ClientConnection& client);
+
     void handleAdCreate(
         const common::Message& message,
         ClientConnection& client

@@ -19,6 +19,12 @@ namespace common {
         LogoutResult,
         SessionRefresh,
         SessionRefreshResult,
+        ProfileUpdate,
+        ProfileUpdateResult,
+        ProfileHistory,
+        ProfileHistoryResult,
+        AdminStats,
+        AdminStatsResult,
 
         AdCreate,
         AdCreateResult,

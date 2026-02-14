@@ -531,3 +531,123 @@ bool SqliteAdRepository::updateStatus(int adId,
                                 .arg(context, error.text());
     throw std::runtime_error(message.toStdString());
 }
+
+QVector<AdRepository::AdSummaryRecord> SqliteAdRepository::listAdsBySeller(const QString& sellerUsername,
+                                                                            const QString& statusFilter)
+{
+    QMutexLocker locker(&mutex_);
+    ensureConnection();
+
+    QString sql = QStringLiteral(
+        "SELECT id, title, category, price_tokens, seller_username, created_at, image_bytes "
+        "FROM ads WHERE seller_username = :seller_username");
+    if (!statusFilter.trimmed().isEmpty()) {
+        sql += QStringLiteral(" AND status = :status");
+    }
+    sql += QStringLiteral(" ORDER BY created_at DESC, id DESC;");
+
+    QSqlQuery query(db_);
+    query.prepare(sql);
+    query.bindValue(QStringLiteral(":seller_username"), sellerUsername.trimmed());
+    if (!statusFilter.trimmed().isEmpty()) {
+        query.bindValue(QStringLiteral(":status"), statusFilter.trimmed().toLower());
+    }
+
+    if (!query.exec()) {
+        throwDatabaseError(QStringLiteral("listAdsBySeller"), query.lastError());
+    }
+
+    QVector<AdSummaryRecord> ads;
+    while (query.next()) {
+        AdSummaryRecord record;
+        record.id = query.value(0).toInt();
+        record.title = query.value(1).toString();
+        record.category = query.value(2).toString();
+        record.priceTokens = query.value(3).toInt();
+        record.sellerUsername = query.value(4).toString();
+        record.createdAt = query.value(5).toString();
+        record.hasImage = !query.value(6).toByteArray().isEmpty();
+        ads.push_back(record);
+    }
+
+    return ads;
+}
+
+QVector<AdRepository::AdSummaryRecord> SqliteAdRepository::listPurchasedAdsByBuyer(const QString& buyerUsername,
+                                                                                     int limit)
+{
+    QMutexLocker locker(&mutex_);
+    ensureConnection();
+
+    QSqlQuery query(db_);
+    query.prepare(QStringLiteral(
+        "SELECT a.id, a.title, a.category, a.price_tokens, a.seller_username, tl.created_at, a.image_bytes "
+        "FROM transaction_ledger tl "
+        "JOIN ads a ON a.id = tl.ad_id "
+        "WHERE tl.username = :username AND tl.type = 'purchase_debit' "
+        "ORDER BY tl.created_at DESC, tl.id DESC LIMIT :limit;"));
+    query.bindValue(QStringLiteral(":username"), buyerUsername.trimmed());
+    query.bindValue(QStringLiteral(":limit"), limit > 0 ? limit : 100);
+
+    if (!query.exec()) {
+        throwDatabaseError(QStringLiteral("listPurchasedAdsByBuyer"), query.lastError());
+    }
+
+    QVector<AdSummaryRecord> ads;
+    while (query.next()) {
+        AdSummaryRecord record;
+        record.id = query.value(0).toInt();
+        record.title = query.value(1).toString();
+        record.category = query.value(2).toString();
+        record.priceTokens = query.value(3).toInt();
+        record.sellerUsername = query.value(4).toString();
+        record.createdAt = query.value(5).toString();
+        record.hasImage = !query.value(6).toByteArray().isEmpty();
+        ads.push_back(record);
+    }
+
+    return ads;
+}
+
+AdRepository::AdStatusCounts SqliteAdRepository::getAdStatusCounts()
+{
+    QMutexLocker locker(&mutex_);
+    ensureConnection();
+
+    AdStatusCounts counts;
+    QSqlQuery query(db_);
+    if (!query.exec(QStringLiteral(
+            "SELECT status, COUNT(1) FROM ads GROUP BY status;"))) {
+        throwDatabaseError(QStringLiteral("getAdStatusCounts"), query.lastError());
+    }
+
+    while (query.next()) {
+        const QString status = query.value(0).toString().trimmed().toLower();
+        const int count = query.value(1).toInt();
+        if (status == QStringLiteral("pending")) counts.pending = count;
+        if (status == QStringLiteral("approved")) counts.approved = count;
+        if (status == QStringLiteral("sold")) counts.sold = count;
+    }
+
+    return counts;
+}
+
+AdRepository::SalesTotals SqliteAdRepository::getSalesTotals()
+{
+    QMutexLocker locker(&mutex_);
+    ensureConnection();
+
+    SalesTotals totals;
+    QSqlQuery query(db_);
+    if (!query.exec(QStringLiteral(
+            "SELECT COUNT(1), COALESCE(SUM(price_tokens), 0) FROM ads WHERE status = 'sold';"))) {
+        throwDatabaseError(QStringLiteral("getSalesTotals"), query.lastError());
+    }
+
+    if (query.next()) {
+        totals.soldAdsCount = query.value(0).toInt();
+        totals.totalTokens = query.value(1).toInt();
+    }
+
+    return totals;
+}

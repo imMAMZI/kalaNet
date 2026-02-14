@@ -57,6 +57,17 @@ public:
         bool hasImage = false;
     };
 
+    struct AdStatusCounts {
+        int pending = 0;
+        int approved = 0;
+        int sold = 0;
+    };
+
+    struct SalesTotals {
+        int soldAdsCount = 0;
+        int totalTokens = 0;
+    };
+
     struct AdDetailRecord {
         int id = -1;
         QString title;
@@ -80,6 +91,10 @@ public:
     virtual bool updateStatus(int adId,
                               AdModerationStatus newStatus,
                               const QString& reason) = 0;
+    virtual QVector<AdSummaryRecord> listAdsBySeller(const QString& sellerUsername, const QString& statusFilter) = 0;
+    virtual QVector<AdSummaryRecord> listPurchasedAdsByBuyer(const QString& buyerUsername, int limit) = 0;
+    virtual AdStatusCounts getAdStatusCounts() = 0;
+    virtual SalesTotals getSalesTotals() = 0;
 };
 
 #endif // AD_REPOSITORY_H

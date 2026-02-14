@@ -22,13 +22,14 @@ int main(int argc, char *argv[])
 
     static constexpr quint16 kDefaultServerPort = 8080;
 
-    SqliteUserRepository userRepo("kalanet.db"); // مسیر فایل DB را مطابق پروژه تنظیم کنید
-    AuthService authService(userRepo);
+    SqliteUserRepository userRepo("kalanet.db");
     SqliteAdRepository adRepo("kalanet.db");
-    AdService adService(adRepo);
     SqliteCartRepository cartRepo("kalanet.db");
-    CartService cartService(cartRepo, adRepo);
     SqliteWalletRepository walletRepo("kalanet.db");
+
+    AuthService authService(userRepo, &adRepo, &walletRepo);
+    AdService adService(adRepo);
+    CartService cartService(cartRepo, adRepo);
     WalletService walletService(walletRepo);
     RequestDispatcher dispatcher(authService, adService, cartService, walletService);
 

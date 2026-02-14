@@ -17,6 +17,9 @@ public:
     bool emailExists(const QString& email) override;
     bool getUser(const QString& username, User& outUser) override;
     void createUser(const User& user) override;
+    bool updateUser(const QString& currentUsername, const User& updatedUser) override;
+    int countAllUsers() override;
+    int countUsersByRole(const QString& role) override;
 
 private:
     bool ensureConnection();
