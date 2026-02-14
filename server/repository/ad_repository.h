@@ -53,8 +53,17 @@ public:
         QString category;
         int priceTokens = 0;
         QString sellerUsername;
+        QString status;
         QString createdAt;
+        QString updatedAt;
         bool hasImage = false;
+    };
+
+    struct AdStatusHistoryRecord {
+        QString previousStatus;
+        QString newStatus;
+        QString reason;
+        QString changedAt;
     };
 
     struct AdStatusCounts {
@@ -91,6 +100,12 @@ public:
     virtual bool updateStatus(int adId,
                               AdModerationStatus newStatus,
                               const QString& reason) = 0;
+    virtual QVector<AdSummaryRecord> listAdsForModeration(const AdListFilters& filters,
+                                                           const QString& statusFilter,
+                                                           bool onlyWithImage,
+                                                           const QString& sellerContains,
+                                                           const QString& fullTextContains) = 0;
+    virtual QVector<AdStatusHistoryRecord> getStatusHistory(int adId) = 0;
     virtual QVector<AdSummaryRecord> listAdsBySeller(const QString& sellerUsername, const QString& statusFilter) = 0;
     virtual QVector<AdSummaryRecord> listPurchasedAdsByBuyer(const QString& buyerUsername, int limit) = 0;
     virtual AdStatusCounts getAdStatusCounts() = 0;
