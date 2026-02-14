@@ -31,6 +31,9 @@ add_executable(serverProject
         repository/sqlite_user_repository.cpp
         repository/sqlite_user_repository.h
         repository/user_repository.h
+        repository/ad_repository.h
+        repository/sqlite_ad_repository.h
+        repository/sqlite_ad_repository.cpp
         security/password_hasher.cpp
         security/password_hasher.h
         ui/request_log_model.h
