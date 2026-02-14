@@ -29,18 +29,6 @@ common::Message AuthService::login(const QJsonObject& payload)
 
     try
     {
-        const QString hash = PasswordHasher::hash(password);
-
-        if (!repo_.checkPassword(username, hash))
-        {
-            return common::Message::makeFailure(
-                common::Command::LoginResult,
-                common::ErrorCode::AuthInvalidCredentials,
-                QStringLiteral("Invalid username or password"),
-                QJsonObject{{"success", false}}
-            );
-        }
-
         User user;
         if (!repo_.getUser(username, user))
         {
@@ -48,6 +36,16 @@ common::Message AuthService::login(const QJsonObject& payload)
                 common::Command::LoginResult,
                 common::ErrorCode::NotFound,
                 QStringLiteral("User not found"),
+                QJsonObject{{"success", false}}
+            );
+        }
+
+        if (!PasswordHasher::verify(password, user.passwordHash))
+        {
+            return common::Message::makeFailure(
+                common::Command::LoginResult,
+                common::ErrorCode::AuthInvalidCredentials,
+                QStringLiteral("Invalid username or password"),
                 QJsonObject{{"success", false}}
             );
         }
