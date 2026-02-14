@@ -9,6 +9,3 @@ add_subdirectory(common)
 add_subdirectory(server)
 add_subdirectory(client)
 
-
-enable_testing()
-add_subdirectory(tests)

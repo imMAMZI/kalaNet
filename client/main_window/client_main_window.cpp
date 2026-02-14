@@ -135,11 +135,11 @@ void client_main_window::wireNavigation()
     connect(newAdPageWidget,
             &new_ad_page::submitAdRequested,
             this,
-            [this](const QString& title,
-                   const QString& description,
-                   const QString& category,
-                   int priceTokens,
-                   const QByteArray& imageBytes) {
+            [](const QString& title,
+               const QString& description,
+               const QString& category,
+               int priceTokens,
+               const QByteArray& imageBytes) {
                 const common::Message request = common::AdCreateMessage::createRequest(
                     title,
                     description,
