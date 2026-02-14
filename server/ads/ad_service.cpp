@@ -1,4 +1,4 @@
-#include "ads/ad_service.h"
+#include "ad_service.h"
 
 #include <QMutexLocker>
 
