@@ -180,7 +180,12 @@ Message Message::makeFailure(Command command,
                              QString requestId,
                              QString sessionToken)
 {
-    Message message(command, payload, std::move(requestId), std::move(sessionToken));
+    QJsonObject enrichedPayload = payload;
+    if (!enrichedPayload.contains(QStringLiteral("statusCode"))) {
+        enrichedPayload.insert(QStringLiteral("statusCode"), errorCodeToStatusCode(errorCode));
+    }
+
+    Message message(command, enrichedPayload, std::move(requestId), std::move(sessionToken));
     message.status_ = MessageStatus::Failure;
     message.errorCode_ = errorCode;
     message.statusMessage_ = std::move(statusMessage);

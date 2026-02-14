@@ -7,6 +7,7 @@
 #include <QHash>
 #include <QHostAddress>
 #include <QSet>
+#include <QMutex>
 
 #include "protocol/message.h"
 
@@ -44,6 +45,7 @@ private:
     QTcpServer* server_;
     QSet<ClientConnection*> connections_;
     QHash<QString, QSet<ClientConnection*>> userConnections_;
+    mutable QMutex connectionsMutex_;
 };
 
 #endif // TCP_SERVER_H

@@ -1,6 +1,7 @@
 #include <QTcpServer>
 #include <QTcpSocket>
 #include <QDebug>
+#include <QMutexLocker>
 #include "tcp_server.h"
 
 #include "client_connection.h"
@@ -47,8 +48,13 @@ void TcpServer::stopListening()
     server_->close();
     emit serverStopped();
 
-    const auto activeConnections = connections_;
-    connections_.clear();
+    QSet<ClientConnection*> activeConnections;
+    {
+        QMutexLocker locker(&connectionsMutex_);
+        activeConnections = connections_;
+        connections_.clear();
+        userConnections_.clear();
+    }
     for (ClientConnection* connection : activeConnections) {
         if (connection) {
             connection->deleteLater();
@@ -70,7 +76,11 @@ void TcpServer::sendToUser(const QString& username, const common::Message& messa
         return;
     }
 
-    const auto connections = userConnections_.value(normalized);
+    QSet<ClientConnection*> connections;
+    {
+        QMutexLocker locker(&connectionsMutex_);
+        connections = userConnections_.value(normalized);
+    }
     for (ClientConnection* connection : connections) {
         if (connection) {
             connection->send(message);
@@ -83,8 +93,13 @@ void TcpServer::handleNewConnection()
     while (server_->hasPendingConnections()) {
         QTcpSocket* socket = server_->nextPendingConnection();
         auto* connection = new ClientConnection(socket, dispatcher_, this);
-        connections_.insert(connection);
-        emit activeConnectionCountChanged(connections_.size());
+        int connectionCount = 0;
+        {
+            QMutexLocker locker(&connectionsMutex_);
+            connections_.insert(connection);
+            connectionCount = connections_.size();
+        }
+        emit activeConnectionCountChanged(connectionCount);
 
         connect(connection, &QObject::destroyed,
                 this, &TcpServer::onConnectionDestroyed);
@@ -97,11 +112,14 @@ void TcpServer::handleNewConnection()
                 const QString username = response.payload().value(QStringLiteral("username")).toString().trimmed();
                 if (!username.isEmpty()) {
                     const QString previous = connection->authenticatedUsername();
-                    if (!previous.isEmpty()) {
-                        userConnections_[previous].remove(connection);
+                    {
+                        QMutexLocker locker(&connectionsMutex_);
+                        if (!previous.isEmpty()) {
+                            userConnections_[previous].remove(connection);
+                        }
+                        connection->setAuthenticatedUsername(username);
+                        userConnections_[username].insert(connection);
                     }
-                    connection->setAuthenticatedUsername(username);
-                    userConnections_[username].insert(connection);
                 }
             }
         });
@@ -112,13 +130,21 @@ void TcpServer::handleNewConnection()
 void TcpServer::onConnectionDestroyed(QObject* connection)
 {
     auto* clientConnection = static_cast<ClientConnection*>(connection);
-    if (clientConnection) {
-        for (auto it = userConnections_.begin(); it != userConnections_.end(); ++it) {
-            it.value().remove(clientConnection);
+    int connectionCount = 0;
+    bool removed = false;
+    {
+        QMutexLocker locker(&connectionsMutex_);
+        if (clientConnection) {
+            for (auto it = userConnections_.begin(); it != userConnections_.end(); ++it) {
+                it.value().remove(clientConnection);
+            }
         }
+
+        removed = connections_.remove(clientConnection) > 0;
+        connectionCount = connections_.size();
     }
 
-    if (connections_.remove(clientConnection) > 0) {
-        emit activeConnectionCountChanged(connections_.size());
+    if (removed) {
+        emit activeConnectionCountChanged(connectionCount);
     }
 }

@@ -26,6 +26,7 @@ namespace common {
 
     QString errorCodeToString(ErrorCode code);
     ErrorCode errorCodeFromString(const QString& code);
+    int errorCodeToStatusCode(ErrorCode code);
 
 } // namespace common
 

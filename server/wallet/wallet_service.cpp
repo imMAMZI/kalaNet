@@ -1,6 +1,7 @@
 #include "wallet_service.h"
 
 #include "../repository/wallet_repository.h"
+#include "../logging_audit_logger.h"
 
 #include <QJsonArray>
 
@@ -12,6 +13,24 @@ namespace {
 QString usernameFromPayload(const QJsonObject& payload)
 {
     return payload.value(QStringLiteral("username")).toString().trimmed();
+}
+
+common::ErrorCode mapCheckoutFailureCode(const QString& error)
+{
+    const QString normalized = error.toLower();
+    if (normalized.contains(QStringLiteral("insufficient"))) {
+        return common::ErrorCode::InsufficientFunds;
+    }
+    if (normalized.contains(QStringLiteral("not found"))) {
+        return common::ErrorCode::NotFound;
+    }
+    if (normalized.contains(QStringLiteral("own advertisement"))) {
+        return common::ErrorCode::PermissionDenied;
+    }
+    if (normalized.contains(QStringLiteral("not available")) || normalized.contains(QStringLiteral("no longer available"))) {
+        return common::ErrorCode::AdNotAvailable;
+    }
+    return common::ErrorCode::InternalError;
 }
 
 QVector<int> adIdsFromPayload(const QJsonObject& payload)
@@ -120,14 +139,16 @@ common::Message WalletService::buy(const QJsonObject& payload,
         const bool success = walletRepository_.checkout(username, adIds, checkoutResult, &checkoutError);
 
         if (!success) {
-            const bool insufficientFunds = checkoutError.contains(QStringLiteral("insufficient"), Qt::CaseInsensitive);
+            const QString message = checkoutError.isEmpty() ? QStringLiteral("Checkout failed") : checkoutError;
+            const common::ErrorCode code = mapCheckoutFailureCode(message);
+            AuditLogger::log(QStringLiteral("purchase.checkout"), QStringLiteral("failed"),
+                             QJsonObject{{QStringLiteral("buyer"), username},
+                                         {QStringLiteral("adCount"), adIds.size()},
+                                         {QStringLiteral("error"), message},
+                                         {QStringLiteral("errorCode"), common::errorCodeToString(code)}});
             return common::Message::makeFailure(common::Command::BuyResult,
-                                                insufficientFunds
-                                                    ? common::ErrorCode::InsufficientFunds
-                                                    : common::ErrorCode::AdNotAvailable,
-                                                checkoutError.isEmpty()
-                                                    ? QStringLiteral("Checkout failed")
-                                                    : checkoutError);
+                                                code,
+                                                message);
         }
 
         if (affectedUsernames) {
@@ -157,6 +178,10 @@ common::Message WalletService::buy(const QJsonObject& payload,
         responsePayload.insert(QStringLiteral("purchasedItems"), purchasedArray);
         responsePayload.insert(QStringLiteral("soldAdIds"), soldIds);
 
+        AuditLogger::log(QStringLiteral("purchase.checkout"), QStringLiteral("success"),
+                         QJsonObject{{QStringLiteral("buyer"), username},
+                                     {QStringLiteral("itemCount"), checkoutResult.purchasedItems.size()},
+                                     {QStringLiteral("remainingBalance"), checkoutResult.buyerBalance}});
         return common::Message::makeSuccess(common::Command::BuyResult,
                                             responsePayload,
                                             {},
