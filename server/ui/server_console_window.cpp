@@ -209,12 +209,19 @@ void ServerConsoleWindow::onRequestProcessed(const common::Message& request,
     }
 
     entry.username = extractUsername(request.payload());
-    common::Command commandForLog = response.command();
-    if (commandForLog == common::Command::Unknown) {
-        commandForLog = request.command();
-    }
+    const common::Command commandForLog =
+        (response.command() == common::Command::Error)
+            ? common::Command::Error
+            : request.command();
     entry.command = mapCommandToText(commandForLog);
-    entry.statusCode = static_cast<int>(response.status());
+
+    if (response.status() == common::MessageStatus::Success) {
+        entry.statusCode = 200;
+    } else if (response.status() == common::MessageStatus::Failure) {
+        entry.statusCode = 400;
+    } else {
+        entry.statusCode = 0;
+    }
 
     entry.errorCode = mapErrorCodeToText(response.errorCode());
     entry.message = response.statusMessage();

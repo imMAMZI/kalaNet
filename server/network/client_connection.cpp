@@ -64,26 +64,29 @@ void ClientConnection::onReadyRead()
         QJsonParseError err;
         QJsonDocument doc = QJsonDocument::fromJson(payload, &err);
         if (err.error != QJsonParseError::NoError || !doc.isObject()) {
-            common::Message response(
+            common::Message response = common::Message::makeFailure(
                 common::Command::Error,
-                QJsonObject{{"message", "Invalid JSON format"}}
+                common::ErrorCode::InvalidJson,
+                QStringLiteral("Invalid JSON format"),
+                QJsonObject{}
             );
-            send(response);
+            sendResponse(common::Message(common::Command::Error), response);
             continue;
         }
 
         QString parseError;
         auto maybeMessage = common::Message::fromJson(doc.object(), &parseError);
         if (!maybeMessage) {
-            common::Message response(
+            const QString errorText = parseError.isEmpty()
+                ? QStringLiteral("Malformed message envelope")
+                : parseError;
+            common::Message response = common::Message::makeFailure(
                 common::Command::Error,
-                QJsonObject{
-                    {"message", parseError.isEmpty()
-                        ? QStringLiteral("Malformed message envelope")
-                        : parseError}
-                }
+                common::ErrorCode::InvalidPayload,
+                errorText,
+                QJsonObject{}
             );
-            send(response);
+            sendResponse(common::Message(common::Command::Error), response);
             continue;
         }
         dispatcher_.dispatch(*maybeMessage, *this);
