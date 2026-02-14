@@ -1,0 +1,687 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+    <class>new_ad_page</class>
+    <widget class="QWidget" name="new_ad_page">
+        <property name="geometry">
+            <rect>
+                <x>0</x>
+                <y>0</y>
+                <width>1100</width>
+                <height>700</height>
+            </rect>
+        </property>
+        <property name="minimumSize">
+            <size>
+                <width>900</width>
+                <height>560</height>
+            </size>
+        </property>
+        <property name="styleSheet">
+            <string notr="true">
+                /* ===== Global theme: Pink + Black ===== */
+                QWidget{
+                background:#0B0B0F;
+                color:#F4F4F6;
+                font-family:"Segoe UI";
+                font-size:12pt;
+                }
+
+                QLabel#lblTitle{
+                color:#FF3DA5;
+                font-size:24pt;
+                font-weight:900;
+                }
+
+                QLabel#lblSubtitle{
+                color:#CFCFDB;
+                font-size:11pt;
+                }
+
+                QFrame#cardLeft, QFrame#cardRight, QFrame#cardBottom {
+                background:#111118;
+                border:1px solid #242431;
+                border-radius:18px;
+                }
+
+                QFrame#previewBox{
+                background:#0E0E14;
+                border:1px solid #2A2A39;
+                border-radius:16px;
+                }
+
+                QLabel#lblSectionTitle{
+                color:#FF3DA5;
+                font-size:16pt;
+                font-weight:900;
+                }
+
+                QLabel#lblFieldCaption{
+                color:#9B9BB0;
+                font-size:10.5pt;
+                }
+
+                QLineEdit, QPlainTextEdit, QComboBox, QSpinBox, QDoubleSpinBox{
+                background:#0E0E14;
+                border:1px solid #2A2A39;
+                border-radius:12px;
+                padding:10px 12px;
+                selection-background-color:#FF3DA5;
+                }
+
+                QLineEdit:focus, QPlainTextEdit:focus, QComboBox:focus, QSpinBox:focus, QDoubleSpinBox:focus{
+                border:2px solid #FF3DA5;
+                }
+
+                QComboBox::drop-down{
+                border:0px;
+                width:28px;
+                }
+                QComboBox QAbstractItemView{
+                background:#0E0E14;
+                color:#F4F4F6;
+                selection-background-color: rgba(255,61,165,0.22);
+                border:1px solid #2A2A39;
+                }
+
+                QPushButton{
+                border-radius:12px;
+                padding:10px 12px;
+                font-weight:800;
+                }
+
+                QPushButton#btnBackToMenu{
+                background:transparent;
+                color:#FF3DA5;
+                border:1px solid #FF3DA5;
+                }
+                QPushButton#btnBackToMenu:hover{ background:rgba(255,61,165,0.12); }
+                QPushButton#btnBackToMenu:pressed{ background:rgba(255,61,165,0.22); }
+
+                QPushButton#btnChooseImage, QPushButton#btnRemoveImage {
+                background: transparent;
+                color: #FF3DA5;
+                border: 1px solid #FF3DA5;
+                }
+                QPushButton#btnChooseImage:hover, QPushButton#btnRemoveImage:hover { background: rgba(255,61,165,0.12); }
+                QPushButton#btnChooseImage:pressed, QPushButton#btnRemoveImage:pressed { background: rgba(255,61,165,0.22); }
+
+                QPushButton#btnSubmitAd{
+                background:#FF3DA5;
+                color:#0B0B0F;
+                border:none;
+                border-radius:14px;
+                padding:12px;
+                font-weight:900;
+                }
+                QPushButton#btnSubmitAd:hover{ background:#FF63B7; }
+                QPushButton#btnSubmitAd:pressed{ background:#E92A93; }
+
+                QPushButton#btnClearForm{
+                background:transparent;
+                color:#FF5C7A;
+                border:1px solid #FF5C7A;
+                font-weight:900;
+                }
+                QPushButton#btnClearForm:hover{ background:rgba(255,92,122,0.12); }
+                QPushButton#btnClearForm:pressed{ background:rgba(255,92,122,0.20); }
+
+                QLabel#lblStatus{
+                color:#9B9BB0;
+                font-size:10pt;
+                }
+
+                QLabel#lblImageHint{
+                color:#9B9BB0;
+                font-size:10pt;
+                }
+
+                QLabel#lblPreviewTitle{
+                color:#FF3DA5;
+                font-weight:900;
+                font-size:14pt;
+                }
+
+                QLabel#lblPreviewPrice{
+                color:#F4F4F6;
+                font-weight:900;
+                font-size:13pt;
+                }
+
+                QLabel#lblPreviewCategory{
+                color:#CFCFDB;
+                font-size:10.5pt;
+                }
+
+                QLabel#lblPreviewDesc{
+                color:#CFCFDB;
+                font-size:10.5pt;
+                }
+
+                QLabel#lblImagePreview{
+                background:#0B0B0F;
+                border:1px dashed #FF3DA5;
+                border-radius:16px;
+                }
+            </string>
+        </property>
+
+        <layout class="QVBoxLayout" name="rootLayout">
+            <property name="leftMargin">
+                <number>20</number>
+            </property>
+            <property name="topMargin">
+                <number>20</number>
+            </property>
+            <property name="rightMargin">
+                <number>20</number>
+            </property>
+            <property name="bottomMargin">
+                <number>20</number>
+            </property>
+            <property name="spacing">
+                <number>14</number>
+            </property>
+
+            <!-- Header -->
+            <item>
+                <layout class="QHBoxLayout" name="headerRow">
+                    <property name="spacing">
+                        <number>10</number>
+                    </property>
+
+                    <item>
+                        <layout class="QVBoxLayout" name="titleCol">
+                            <property name="spacing">
+                                <number>2</number>
+                            </property>
+                            <item>
+                                <widget class="QLabel" name="lblTitle">
+                                    <property name="text">
+                                        <string>New Ad</string>
+                                    </property>
+                                </widget>
+                            </item>
+                            <item>
+                                <widget class="QLabel" name="lblSubtitle">
+                                    <property name="text">
+                                        <string>Create a new advertisement (it will be pending until admin approval)</string>
+                                    </property>
+                                </widget>
+                            </item>
+                        </layout>
+                    </item>
+
+                    <item>
+                        <spacer name="spacerHeader">
+                            <property name="orientation">
+                                <enum>Qt::Horizontal</enum>
+                            </property>
+                            <property name="sizeHint" stdset="0">
+                                <size>
+                                    <width>40</width>
+                                    <height>20</height>
+                                </size>
+                            </property>
+                        </spacer>
+                    </item>
+
+                    <item>
+                        <widget class="QPushButton" name="btnBackToMenu">
+                            <property name="text">
+                                <string>Back</string>
+                            </property>
+                            <property name="cursor">
+                                <cursorShape>PointingHandCursor</cursorShape>
+                            </property>
+                        </widget>
+                    </item>
+
+                </layout>
+            </item>
+
+            <!-- Body -->
+            <item>
+                <layout class="QHBoxLayout" name="bodyRow">
+                    <property name="spacing">
+                        <number>14</number>
+                    </property>
+
+                    <!-- Left: Form -->
+                    <item>
+                        <widget class="QFrame" name="cardLeft">
+                            <property name="sizePolicy">
+                                <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                                    <horstretch>3</horstretch>
+                                    <verstretch>0</verstretch>
+                                </sizepolicy>
+                            </property>
+                            <layout class="QVBoxLayout" name="leftLayout">
+                                <property name="leftMargin">
+                                    <number>16</number>
+                                </property>
+                                <property name="topMargin">
+                                    <number>16</number>
+                                </property>
+                                <property name="rightMargin">
+                                    <number>16</number>
+                                </property>
+                                <property name="bottomMargin">
+                                    <number>16</number>
+                                </property>
+                                <property name="spacing">
+                                    <number>12</number>
+                                </property>
+
+                                <item>
+                                    <widget class="QLabel" name="lblSectionTitle">
+                                        <property name="text">
+                                            <string>Ad details</string>
+                                        </property>
+                                    </widget>
+                                </item>
+
+                                <item>
+                                    <layout class="QGridLayout" name="formGrid">
+                                        <property name="horizontalSpacing">
+                                            <number>12</number>
+                                        </property>
+                                        <property name="verticalSpacing">
+                                            <number>10</number>
+                                        </property>
+
+                                        <item row="0" column="0">
+                                            <widget class="QLabel" name="lblTitleCaption">
+                                                <property name="objectName">
+                                                    <string>lblFieldCaption</string>
+                                                </property>
+                                                <property name="text">
+                                                    <string>Title</string>
+                                                </property>
+                                            </widget>
+                                        </item>
+                                        <item row="0" column="1">
+                                            <widget class="QLineEdit" name="leAdTitle">
+                                                <property name="placeholderText">
+                                                    <string>Short title (e.g. iPhone 11 64GB)</string>
+                                                </property>
+                                                <property name="clearButtonEnabled">
+                                                    <bool>true</bool>
+                                                </property>
+                                            </widget>
+                                        </item>
+
+                                        <item row="1" column="0">
+                                            <widget class="QLabel" name="lblCategoryCaption">
+                                                <property name="objectName">
+                                                    <string>lblFieldCaption</string>
+                                                </property>
+                                                <property name="text">
+                                                    <string>Category</string>
+                                                </property>
+                                            </widget>
+                                        </item>
+                                        <item row="1" column="1">
+                                            <widget class="QComboBox" name="cbCategory">
+                                                <property name="editable">
+                                                    <bool>false</bool>
+                                                </property>
+                                                <item>
+                                                    <property name="text">
+                                                        <string>Electronics</string>
+                                                    </property>
+                                                </item>
+                                                <item>
+                                                    <property name="text">
+                                                        <string>Books</string>
+                                                    </property>
+                                                </item>
+                                                <item>
+                                                    <property name="text">
+                                                        <string>Home</string>
+                                                    </property>
+                                                </item>
+                                                <item>
+                                                    <property name="text">
+                                                        <string>Clothing</string>
+                                                    </property>
+                                                </item>
+                                                <item>
+                                                    <property name="text">
+                                                        <string>Sports</string>
+                                                    </property>
+                                                </item>
+                                                <item>
+                                                    <property name="text">
+                                                        <string>Other</string>
+                                                    </property>
+                                                </item>
+                                            </widget>
+                                        </item>
+
+                                        <item row="2" column="0">
+                                            <widget class="QLabel" name="lblPriceCaption">
+                                                <property name="objectName">
+                                                    <string>lblFieldCaption</string>
+                                                </property>
+                                                <property name="text">
+                                                    <string>Price (token)</string>
+                                                </property>
+                                            </widget>
+                                        </item>
+                                        <item row="2" column="1">
+                                            <widget class="QSpinBox" name="sbPrice">
+                                                <property name="minimum">
+                                                    <number>1</number>
+                                                </property>
+                                                <property name="maximum">
+                                                    <number>100000000</number>
+                                                </property>
+                                                <property name="value">
+                                                    <number>10</number>
+                                                </property>
+                                            </widget>
+                                        </item>
+
+                                        <item row="3" column="0">
+                                            <widget class="QLabel" name="lblDescCaption">
+                                                <property name="objectName">
+                                                    <string>lblFieldCaption</string>
+                                                </property>
+                                                <property name="text">
+                                                    <string>Description</string>
+                                                </property>
+                                            </widget>
+                                        </item>
+                                        <item row="3" column="1">
+                                            <widget class="QPlainTextEdit" name="pteDescription">
+                                                <property name="placeholderText">
+                                                    <string>Describe your item (condition, details, etc.)</string>
+                                                </property>
+                                            </widget>
+                                        </item>
+
+                                        <item row="4" column="0">
+                                            <widget class="QLabel" name="lblImageCaption">
+                                                <property name="objectName">
+                                                    <string>lblFieldCaption</string>
+                                                </property>
+                                                <property name="text">
+                                                    <string>Picture</string>
+                                                </property>
+                                            </widget>
+                                        </item>
+                                        <item row="4" column="1">
+                                            <layout class="QHBoxLayout" name="imageButtonsRow">
+                                                <property name="spacing">
+                                                    <number>10</number>
+                                                </property>
+                                                <item>
+                                                    <widget class="QPushButton" name="btnChooseImage">
+                                                        <property name="text">
+                                                            <string>Choose image…</string>
+                                                        </property>
+                                                        <property name="cursor">
+                                                            <cursorShape>PointingHandCursor</cursorShape>
+                                                        </property>
+                                                    </widget>
+                                                </item>
+                                                <item>
+                                                    <widget class="QPushButton" name="btnRemoveImage">
+                                                        <property name="text">
+                                                            <string>Remove</string>
+                                                        </property>
+                                                        <property name="cursor">
+                                                            <cursorShape>PointingHandCursor</cursorShape>
+                                                        </property>
+                                                    </widget>
+                                                </item>
+                                            </layout>
+                                        </item>
+
+                                        <item row="5" column="1">
+                                            <widget class="QLabel" name="lblImageHint">
+                                                <property name="text">
+                                                    <string>Accepted formats: PNG/JPG. Use a clear picture for better sales.</string>
+                                                </property>
+                                                <property name="wordWrap">
+                                                    <bool>true</bool>
+                                                </property>
+                                            </widget>
+                                        </item>
+
+                                    </layout>
+                                </item>
+
+                                <item>
+                                    <spacer name="spacerForm">
+                                        <property name="orientation">
+                                            <enum>Qt::Vertical</enum>
+                                        </property>
+                                        <property name="sizeHint" stdset="0">
+                                            <size>
+                                                <width>20</width>
+                                                <height>40</height>
+                                            </size>
+                                        </property>
+                                    </spacer>
+                                </item>
+
+                            </layout>
+                        </widget>
+                    </item>
+
+                    <!-- Right: Live preview -->
+                    <item>
+                        <widget class="QFrame" name="cardRight">
+                            <property name="sizePolicy">
+                                <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                                    <horstretch>2</horstretch>
+                                    <verstretch>0</verstretch>
+                                </sizepolicy>
+                            </property>
+                            <property name="minimumWidth">
+                                <number>360</number>
+                            </property>
+                            <layout class="QVBoxLayout" name="rightLayout">
+                                <property name="leftMargin">
+                                    <number>16</number>
+                                </property>
+                                <property name="topMargin">
+                                    <number>16</number>
+                                </property>
+                                <property name="rightMargin">
+                                    <number>16</number>
+                                </property>
+                                <property name="bottomMargin">
+                                    <number>16</number>
+                                </property>
+                                <property name="spacing">
+                                    <number>12</number>
+                                </property>
+
+                                <item>
+                                    <widget class="QLabel" name="lblSectionTitlePreview">
+                                        <property name="objectName">
+                                            <string>lblSectionTitle</string>
+                                        </property>
+                                        <property name="text">
+                                            <string>Preview</string>
+                                        </property>
+                                    </widget>
+                                </item>
+
+                                <item>
+                                    <widget class="QFrame" name="previewBox">
+                                        <layout class="QVBoxLayout" name="previewLayout">
+                                            <property name="leftMargin">
+                                                <number>14</number>
+                                            </property>
+                                            <property name="topMargin">
+                                                <number>14</number>
+                                            </property>
+                                            <property name="rightMargin">
+                                                <number>14</number>
+                                            </property>
+                                            <property name="bottomMargin">
+                                                <number>14</number>
+                                            </property>
+                                            <property name="spacing">
+                                                <number>10</number>
+                                            </property>
+
+                                            <item>
+                                                <widget class="QLabel" name="lblImagePreview">
+                                                    <property name="minimumSize">
+                                                        <size>
+                                                            <width>0</width>
+                                                            <height>220</height>
+                                                        </size>
+                                                    </property>
+                                                    <property name="text">
+                                                        <string>Image preview</string>
+                                                    </property>
+                                                    <property name="alignment">
+                                                        <set>Qt::AlignCenter</set>
+                                                    </property>
+                                                    <property name="scaledContents">
+                                                        <bool>true</bool>
+                                                    </property>
+                                                </widget>
+                                            </item>
+
+                                            <item>
+                                                <widget class="QLabel" name="lblPreviewTitle">
+                                                    <property name="text">
+                                                        <string>Title will appear here</string>
+                                                    </property>
+                                                </widget>
+                                            </item>
+
+                                            <item>
+                                                <widget class="QLabel" name="lblPreviewCategory">
+                                                    <property name="text">
+                                                        <string>Category: -</string>
+                                                    </property>
+                                                </widget>
+                                            </item>
+
+                                            <item>
+                                                <widget class="QLabel" name="lblPreviewPrice">
+                                                    <property name="text">
+                                                        <string>Price: 0 token</string>
+                                                    </property>
+                                                </widget>
+                                            </item>
+
+                                            <item>
+                                                <widget class="QLabel" name="lblPreviewDesc">
+                                                    <property name="text">
+                                                        <string>Description will appear here…</string>
+                                                    </property>
+                                                    <property name="wordWrap">
+                                                        <bool>true</bool>
+                                                    </property>
+                                                </widget>
+                                            </item>
+
+                                        </layout>
+                                    </widget>
+                                </item>
+
+                                <item>
+                                    <spacer name="spacerPreviewBottom">
+                                        <property name="orientation">
+                                            <enum>Qt::Vertical</enum>
+                                        </property>
+                                        <property name="sizeHint" stdset="0">
+                                            <size>
+                                                <width>20</width>
+                                                <height>40</height>
+                                            </size>
+                                        </property>
+                                    </spacer>
+                                </item>
+
+                            </layout>
+                        </widget>
+                    </item>
+
+                </layout>
+            </item>
+
+            <!-- Bottom actions -->
+            <item>
+                <widget class="QFrame" name="cardBottom">
+                    <layout class="QHBoxLayout" name="bottomRow">
+                        <property name="leftMargin">
+                            <number>16</number>
+                        </property>
+                        <property name="topMargin">
+                            <number>14</number>
+                        </property>
+                        <property name="rightMargin">
+                            <number>16</number>
+                        </property>
+                        <property name="bottomMargin">
+                            <number>14</number>
+                        </property>
+                        <property name="spacing">
+                            <number>12</number>
+                        </property>
+
+                        <item>
+                            <widget class="QLabel" name="lblStatus">
+                                <property name="text">
+                                    <string/>
+                                </property>
+                                <property name="wordWrap">
+                                    <bool>true</bool>
+                                </property>
+                            </widget>
+                        </item>
+
+                        <item>
+                            <spacer name="spacerBottomActions">
+                                <property name="orientation">
+                                    <enum>Qt::Horizontal</enum>
+                                </property>
+                                <property name="sizeHint" stdset="0">
+                                    <size>
+                                        <width>40</width>
+                                        <height>20</height>
+                                    </size>
+                                </property>
+                            </spacer>
+                        </item>
+
+                        <item>
+                            <widget class="QPushButton" name="btnClearForm">
+                                <property name="text">
+                                    <string>Clear</string>
+                                </property>
+                                <property name="cursor">
+                                    <cursorShape>PointingHandCursor</cursorShape>
+                                </property>
+                            </widget>
+                        </item>
+
+                        <item>
+                            <widget class="QPushButton" name="btnSubmitAd">
+                                <property name="text">
+                                    <string>Submit ad</string>
+                                </property>
+                                <property name="cursor">
+                                    <cursorShape>PointingHandCursor</cursorShape>
+                                </property>
+                            </widget>
+                        </item>
+
+                    </layout>
+                </widget>
+            </item>
+
+        </layout>
+    </widget>
+    <resources/>
+    <connections/>
+</ui>

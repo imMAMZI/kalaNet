@@ -1,0 +1,605 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+    <class>cart_page</class>
+    <widget class="QWidget" name="cart_page">
+        <property name="geometry">
+            <rect>
+                <x>0</x>
+                <y>0</y>
+                <width>1100</width>
+                <height>700</height>
+            </rect>
+        </property>
+        <property name="minimumSize">
+            <size>
+                <width>900</width>
+                <height>560</height>
+            </size>
+        </property>
+        <property name="styleSheet">
+            <string notr="true">
+                /* ===== Global theme: Pink + Black ===== */
+                QWidget {
+                background: #0B0B0F;
+                color: #F4F4F6;
+                font-family: "Segoe UI";
+                font-size: 12pt;
+                }
+
+                QLabel#lblTitle {
+                color: #FF3DA5;
+                font-size: 24pt;
+                font-weight: 900;
+                }
+
+                QLabel#lblSubtitle {
+                color: #CFCFDB;
+                font-size: 11pt;
+                }
+
+                QFrame#cardLeft, QFrame#cardRight, QFrame#summaryBox, QFrame#discountBox, QFrame#totalsBox {
+                background: #111118;
+                border: 1px solid #242431;
+                border-radius: 18px;
+                }
+
+                QLineEdit {
+                background: #0E0E14;
+                border: 1px solid #2A2A39;
+                border-radius: 12px;
+                padding: 10px 12px;
+                selection-background-color: #FF3DA5;
+                }
+
+                QLineEdit:focus {
+                border: 2px solid #FF3DA5;
+                }
+
+                QPushButton {
+                border-radius: 12px;
+                padding: 10px 12px;
+                font-weight: 800;
+                }
+
+                QPushButton#btnBackToMenu {
+                background: transparent;
+                color: #FF3DA5;
+                border: 1px solid #FF3DA5;
+                }
+                QPushButton#btnBackToMenu:hover { background: rgba(255,61,165,0.12); }
+                QPushButton#btnBackToMenu:pressed { background: rgba(255,61,165,0.22); }
+
+                QPushButton#btnApplyDiscount {
+                background: transparent;
+                color: #FF3DA5;
+                border: 1px solid #FF3DA5;
+                }
+                QPushButton#btnApplyDiscount:hover { background: rgba(255,61,165,0.12); }
+                QPushButton#btnApplyDiscount:pressed { background: rgba(255,61,165,0.22); }
+
+                QPushButton#btnClearAll {
+                background: transparent;
+                color: #FF5C7A;
+                border: 1px solid #FF5C7A;
+                font-weight: 900;
+                }
+                QPushButton#btnClearAll:hover { background: rgba(255,92,122,0.12); }
+                QPushButton#btnClearAll:pressed { background: rgba(255,92,122,0.20); }
+
+                QPushButton#btnPurchase {
+                background: #FF3DA5;
+                color: #0B0B0F;
+                border: none;
+                border-radius: 14px;
+                padding: 12px;
+                font-weight: 900;
+                }
+                QPushButton#btnPurchase:hover { background: #FF63B7; }
+                QPushButton#btnPurchase:pressed { background: #E92A93; }
+
+                QTableWidget {
+                background: #0E0E14;
+                border: 1px solid #2A2A39;
+                border-radius: 14px;
+                gridline-color: #2A2A39;
+                }
+
+                QHeaderView::section {
+                background: #111118;
+                color: #F4F4F6;
+                border: 1px solid #2A2A39;
+                padding: 8px;
+                font-weight: 900;
+                }
+
+                QTableWidget::item:selected {
+                background: rgba(255,61,165,0.22);
+                }
+
+                QLabel#lblWalletCaption, QLabel#lblSubtotalCaption, QLabel#lblDiscountCaption, QLabel#lblTotalCaption {
+                color: #9B9BB0;
+                font-size: 10.5pt;
+                }
+
+                QLabel#lblWalletBalance, QLabel#lblTotalValue {
+                color: #FF3DA5;
+                font-weight: 900;
+                font-size: 13pt;
+                }
+
+                QLabel#lblSubtotalValue, QLabel#lblDiscountValue {
+                color: #F4F4F6;
+                font-weight: 800;
+                }
+
+                QLabel#lblNote {
+                color: #9B9BB0;
+                font-size: 10pt;
+                }
+
+                QLabel#lblDiscountStatus {
+                color: #9B9BB0;
+                font-size: 10pt;
+                }
+            </string>
+        </property>
+
+        <layout class="QVBoxLayout" name="rootLayout">
+            <property name="leftMargin">
+                <number>20</number>
+            </property>
+            <property name="topMargin">
+                <number>20</number>
+            </property>
+            <property name="rightMargin">
+                <number>20</number>
+            </property>
+            <property name="bottomMargin">
+                <number>20</number>
+            </property>
+            <property name="spacing">
+                <number>14</number>
+            </property>
+
+            <!-- Header -->
+            <item>
+                <layout class="QHBoxLayout" name="headerRow">
+                    <property name="spacing">
+                        <number>10</number>
+                    </property>
+
+                    <item>
+                        <layout class="QVBoxLayout" name="titleCol">
+                            <property name="spacing">
+                                <number>2</number>
+                            </property>
+                            <item>
+                                <widget class="QLabel" name="lblTitle">
+                                    <property name="text">
+                                        <string>Cart</string>
+                                    </property>
+                                </widget>
+                            </item>
+                            <item>
+                                <widget class="QLabel" name="lblSubtitle">
+                                    <property name="text">
+                                        <string>Review your bucket list and complete the purchase</string>
+                                    </property>
+                                </widget>
+                            </item>
+                        </layout>
+                    </item>
+
+                    <item>
+                        <spacer name="spacerHeader">
+                            <property name="orientation">
+                                <enum>Qt::Horizontal</enum>
+                            </property>
+                            <property name="sizeHint" stdset="0">
+                                <size>
+                                    <width>40</width>
+                                    <height>20</height>
+                                </size>
+                            </property>
+                        </spacer>
+                    </item>
+
+                    <item>
+                        <layout class="QHBoxLayout" name="headerButtonsRow">
+                            <property name="spacing">
+                                <number>10</number>
+                            </property>
+                            <item>
+                                <widget class="QPushButton" name="btnBackToMenu">
+                                    <property name="text">
+                                        <string>Back</string>
+                                    </property>
+                                    <property name="cursor">
+                                        <cursorShape>PointingHandCursor</cursorShape>
+                                    </property>
+                                </widget>
+                            </item>
+                            <item>
+                                <widget class="QPushButton" name="btnClearAll">
+                                    <property name="text">
+                                        <string>Remove all</string>
+                                    </property>
+                                    <property name="cursor">
+                                        <cursorShape>PointingHandCursor</cursorShape>
+                                    </property>
+                                </widget>
+                            </item>
+                        </layout>
+                    </item>
+
+                </layout>
+            </item>
+
+            <!-- Main content -->
+            <item>
+                <layout class="QHBoxLayout" name="contentRow">
+                    <property name="spacing">
+                        <number>14</number>
+                    </property>
+
+                    <!-- Left: Cart table -->
+                    <item>
+                        <widget class="QFrame" name="cardLeft">
+                            <property name="sizePolicy">
+                                <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                                    <horstretch>3</horstretch>
+                                    <verstretch>0</verstretch>
+                                </sizepolicy>
+                            </property>
+                            <layout class="QVBoxLayout" name="leftLayout">
+                                <property name="leftMargin">
+                                    <number>16</number>
+                                </property>
+                                <property name="topMargin">
+                                    <number>16</number>
+                                </property>
+                                <property name="rightMargin">
+                                    <number>16</number>
+                                </property>
+                                <property name="bottomMargin">
+                                    <number>16</number>
+                                </property>
+                                <property name="spacing">
+                                    <number>12</number>
+                                </property>
+
+                                <item>
+                                    <widget class="QTableWidget" name="twCart">
+                                        <property name="editTriggers">
+                                            <set>QAbstractItemView::NoEditTriggers</set>
+                                        </property>
+                                        <property name="selectionBehavior">
+                                            <enum>QAbstractItemView::SelectRows</enum>
+                                        </property>
+                                        <property name="selectionMode">
+                                            <enum>QAbstractItemView::SingleSelection</enum>
+                                        </property>
+                                        <property name="showGrid">
+                                            <bool>true</bool>
+                                        </property>
+                                        <property name="alternatingRowColors">
+                                            <bool>true</bool>
+                                        </property>
+                                        <property name="sortingEnabled">
+                                            <bool>true</bool>
+                                        </property>
+                                        <property name="rowCount">
+                                            <number>0</number>
+                                        </property>
+                                        <property name="columnCount">
+                                            <number>6</number>
+                                        </property>
+                                        <column>
+                                            <property name="text">
+                                                <string>Title</string>
+                                            </property>
+                                        </column>
+                                        <column>
+                                            <property name="text">
+                                                <string>Category</string>
+                                            </property>
+                                        </column>
+                                        <column>
+                                            <property name="text">
+                                                <string>Price</string>
+                                            </property>
+                                        </column>
+                                        <column>
+                                            <property name="text">
+                                                <string>Seller</string>
+                                            </property>
+                                        </column>
+                                        <column>
+                                            <property name="text">
+                                                <string>Status</string>
+                                            </property>
+                                        </column>
+                                        <column>
+                                            <property name="text">
+                                                <string>Action</string>
+                                            </property>
+                                        </column>
+                                    </widget>
+                                </item>
+
+                                <item>
+                                    <widget class="QLabel" name="lblNote">
+                                        <property name="text">
+                                            <string>Note: Purchase will fail if your wallet balance is insufficient or an item becomes sold.</string>
+                                        </property>
+                                        <property name="wordWrap">
+                                            <bool>true</bool>
+                                        </property>
+                                    </widget>
+                                </item>
+
+                            </layout>
+                        </widget>
+                    </item>
+
+                    <!-- Right: wallet + discount + totals + purchase -->
+                    <item>
+                        <widget class="QFrame" name="cardRight">
+                            <property name="sizePolicy">
+                                <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                                    <horstretch>1</horstretch>
+                                    <verstretch>0</verstretch>
+                                </sizepolicy>
+                            </property>
+                            <property name="minimumWidth">
+                                <number>330</number>
+                            </property>
+                            <layout class="QVBoxLayout" name="rightLayout">
+                                <property name="leftMargin">
+                                    <number>16</number>
+                                </property>
+                                <property name="topMargin">
+                                    <number>16</number>
+                                </property>
+                                <property name="rightMargin">
+                                    <number>16</number>
+                                </property>
+                                <property name="bottomMargin">
+                                    <number>16</number>
+                                </property>
+                                <property name="spacing">
+                                    <number>12</number>
+                                </property>
+
+                                <!-- Wallet -->
+                                <item>
+                                    <widget class="QFrame" name="summaryBox">
+                                        <layout class="QVBoxLayout" name="walletBoxLayout">
+                                            <property name="leftMargin">
+                                                <number>14</number>
+                                            </property>
+                                            <property name="topMargin">
+                                                <number>14</number>
+                                            </property>
+                                            <property name="rightMargin">
+                                                <number>14</number>
+                                            </property>
+                                            <property name="bottomMargin">
+                                                <number>14</number>
+                                            </property>
+                                            <property name="spacing">
+                                                <number>8</number>
+                                            </property>
+
+                                            <item>
+                                                <widget class="QLabel" name="lblWalletCaption">
+                                                    <property name="text">
+                                                        <string>Wallet balance</string>
+                                                    </property>
+                                                </widget>
+                                            </item>
+                                            <item>
+                                                <widget class="QLabel" name="lblWalletBalance">
+                                                    <property name="text">
+                                                        <string>0 token</string>
+                                                    </property>
+                                                </widget>
+                                            </item>
+
+                                        </layout>
+                                    </widget>
+                                </item>
+
+                                <!-- Discount code -->
+                                <item>
+                                    <widget class="QFrame" name="discountBox">
+                                        <layout class="QVBoxLayout" name="discountLayout">
+                                            <property name="leftMargin">
+                                                <number>14</number>
+                                            </property>
+                                            <property name="topMargin">
+                                                <number>14</number>
+                                            </property>
+                                            <property name="rightMargin">
+                                                <number>14</number>
+                                            </property>
+                                            <property name="bottomMargin">
+                                                <number>14</number>
+                                            </property>
+                                            <property name="spacing">
+                                                <number>10</number>
+                                            </property>
+
+                                            <item>
+                                                <widget class="QLabel" name="lblDiscountTitle">
+                                                    <property name="text">
+                                                        <string>Discount code</string>
+                                                    </property>
+                                                    <property name="styleSheet">
+                                                        <string notr="true">QLabel{color:#FF3DA5;font-weight:900;font-size:13pt;}</string>
+                                                    </property>
+                                                </widget>
+                                            </item>
+
+                                            <item>
+                                                <layout class="QHBoxLayout" name="discountRow">
+                                                    <property name="spacing">
+                                                        <number>10</number>
+                                                    </property>
+                                                    <item>
+                                                        <widget class="QLineEdit" name="leDiscountCode">
+                                                            <property name="placeholderText">
+                                                                <string>Enter code (e.g. OFF10)</string>
+                                                            </property>
+                                                            <property name="clearButtonEnabled">
+                                                                <bool>true</bool>
+                                                            </property>
+                                                        </widget>
+                                                    </item>
+                                                    <item>
+                                                        <widget class="QPushButton" name="btnApplyDiscount">
+                                                            <property name="text">
+                                                                <string>Apply</string>
+                                                            </property>
+                                                            <property name="cursor">
+                                                                <cursorShape>PointingHandCursor</cursorShape>
+                                                            </property>
+                                                        </widget>
+                                                    </item>
+                                                </layout>
+                                            </item>
+
+                                            <item>
+                                                <widget class="QLabel" name="lblDiscountStatus">
+                                                    <property name="text">
+                                                        <string/>
+                                                    </property>
+                                                    <property name="wordWrap">
+                                                        <bool>true</bool>
+                                                    </property>
+                                                </widget>
+                                            </item>
+
+                                        </layout>
+                                    </widget>
+                                </item>
+
+                                <!-- Totals -->
+                                <item>
+                                    <widget class="QFrame" name="totalsBox">
+                                        <layout class="QGridLayout" name="totalsGrid">
+                                            <property name="leftMargin">
+                                                <number>14</number>
+                                            </property>
+                                            <property name="topMargin">
+                                                <number>14</number>
+                                            </property>
+                                            <property name="rightMargin">
+                                                <number>14</number>
+                                            </property>
+                                            <property name="bottomMargin">
+                                                <number>14</number>
+                                            </property>
+                                            <property name="horizontalSpacing">
+                                                <number>10</number>
+                                            </property>
+                                            <property name="verticalSpacing">
+                                                <number>10</number>
+                                            </property>
+
+                                            <item row="0" column="0">
+                                                <widget class="QLabel" name="lblSubtotalCaption">
+                                                    <property name="text">
+                                                        <string>Subtotal</string>
+                                                    </property>
+                                                </widget>
+                                            </item>
+                                            <item row="0" column="1">
+                                                <widget class="QLabel" name="lblSubtotalValue">
+                                                    <property name="text">
+                                                        <string>0 token</string>
+                                                    </property>
+                                                    <property name="alignment">
+                                                        <set>Qt::AlignRight|Qt::AlignVCenter</set>
+                                                    </property>
+                                                </widget>
+                                            </item>
+
+                                            <item row="1" column="0">
+                                                <widget class="QLabel" name="lblDiscountCaption">
+                                                    <property name="text">
+                                                        <string>Discount</string>
+                                                    </property>
+                                                </widget>
+                                            </item>
+                                            <item row="1" column="1">
+                                                <widget class="QLabel" name="lblDiscountValue">
+                                                    <property name="text">
+                                                        <string>0 token</string>
+                                                    </property>
+                                                    <property name="alignment">
+                                                        <set>Qt::AlignRight|Qt::AlignVCenter</set>
+                                                    </property>
+                                                </widget>
+                                            </item>
+
+                                            <item row="2" column="0">
+                                                <widget class="QLabel" name="lblTotalCaption">
+                                                    <property name="text">
+                                                        <string>Total</string>
+                                                    </property>
+                                                </widget>
+                                            </item>
+                                            <item row="2" column="1">
+                                                <widget class="QLabel" name="lblTotalValue">
+                                                    <property name="text">
+                                                        <string>0 token</string>
+                                                    </property>
+                                                    <property name="alignment">
+                                                        <set>Qt::AlignRight|Qt::AlignVCenter</set>
+                                                    </property>
+                                                </widget>
+                                            </item>
+
+                                        </layout>
+                                    </widget>
+                                </item>
+
+                                <!-- Purchase -->
+                                <item>
+                                    <widget class="QPushButton" name="btnPurchase">
+                                        <property name="text">
+                                            <string>Purchase</string>
+                                        </property>
+                                        <property name="cursor">
+                                            <cursorShape>PointingHandCursor</cursorShape>
+                                        </property>
+                                    </widget>
+                                </item>
+
+                                <item>
+                                    <spacer name="spacerRightBottom">
+                                        <property name="orientation">
+                                            <enum>Qt::Vertical</enum>
+                                        </property>
+                                        <property name="sizeHint" stdset="0">
+                                            <size>
+                                                <width>20</width>
+                                                <height>40</height>
+                                            </size>
+                                        </property>
+                                    </spacer>
+                                </item>
+
+                            </layout>
+                        </widget>
+                    </item>
+
+                </layout>
+            </item>
+
+        </layout>
+    </widget>
+    <resources/>
+    <connections/>
+</ui>

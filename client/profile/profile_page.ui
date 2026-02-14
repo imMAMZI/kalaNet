@@ -1,0 +1,1076 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+    <class>profile_page</class>
+    <widget class="QWidget" name="profile_page">
+        <property name="geometry">
+            <rect>
+                <x>0</x>
+                <y>0</y>
+                <width>1100</width>
+                <height>700</height>
+            </rect>
+        </property>
+        <property name="minimumSize">
+            <size>
+                <width>900</width>
+                <height>560</height>
+            </size>
+        </property>
+        <property name="styleSheet">
+            <string notr="true">
+                /* ===== Global theme: Pink + Black ===== */
+                QWidget{
+                background:#0B0B0F;
+                color:#F4F4F6;
+                font-family:"Segoe UI";
+                font-size:12pt;
+                }
+
+                QLabel#lblTitle{
+                color:#FF3DA5;
+                font-size:24pt;
+                font-weight:900;
+                }
+
+                QLabel#lblSubtitle{
+                color:#CFCFDB;
+                font-size:11pt;
+                }
+
+                QFrame#card{
+                background:#111118;
+                border:1px solid #242431;
+                border-radius:18px;
+                }
+
+                QFrame#panel{
+                background:#0E0E14;
+                border:1px solid #2A2A39;
+                border-radius:16px;
+                }
+
+                QTabWidget::pane{
+                border:1px solid #242431;
+                border-radius:16px;
+                background:#111118;
+                }
+
+                QTabBar::tab{
+                background:#0E0E14;
+                color:#CFCFDB;
+                border:1px solid #2A2A39;
+                border-bottom:none;
+                padding:10px 14px;
+                border-top-left-radius:12px;
+                border-top-right-radius:12px;
+                font-weight:800;
+                margin-right:6px;
+                }
+                QTabBar::tab:selected{
+                color:#0B0B0F;
+                background:#FF3DA5;
+                border:1px solid #FF3DA5;
+                }
+                QTabBar::tab:hover{
+                border:2px solid #FF3DA5;
+                }
+
+                QLineEdit, QPlainTextEdit, QSpinBox{
+                background:#0E0E14;
+                border:1px solid #2A2A39;
+                border-radius:12px;
+                padding:10px 12px;
+                selection-background-color:#FF3DA5;
+                }
+                QLineEdit:focus, QPlainTextEdit:focus, QSpinBox:focus{
+                border:2px solid #FF3DA5;
+                }
+
+                QLabel#lblSectionTitle{
+                color:#FF3DA5;
+                font-size:16pt;
+                font-weight:900;
+                }
+
+                QLabel#lblFieldCaption{
+                color:#9B9BB0;
+                font-size:10.5pt;
+                }
+
+                QPushButton{
+                border-radius:12px;
+                padding:10px 12px;
+                font-weight:800;
+                }
+
+                QPushButton#btnBackToMenu{
+                background:transparent;
+                color:#FF3DA5;
+                border:1px solid #FF3DA5;
+                }
+                QPushButton#btnBackToMenu:hover{ background:rgba(255,61,165,0.12); }
+                QPushButton#btnBackToMenu:pressed{ background:rgba(255,61,165,0.22); }
+
+                QPushButton#btnSaveProfile{
+                background:#FF3DA5;
+                color:#0B0B0F;
+                border:none;
+                border-radius:14px;
+                padding:12px;
+                font-weight:900;
+                }
+                QPushButton#btnSaveProfile:hover{ background:#FF63B7; }
+                QPushButton#btnSaveProfile:pressed{ background:#E92A93; }
+
+                QPushButton#btnChangePassword{
+                background:transparent;
+                color:#FF3DA5;
+                border:1px solid #FF3DA5;
+                }
+                QPushButton#btnChangePassword:hover{ background:rgba(255,61,165,0.12); }
+                QPushButton#btnChangePassword:pressed{ background:rgba(255,61,165,0.22); }
+
+                QPushButton#btnRefreshCaptcha{
+                background:transparent;
+                color:#CFCFDB;
+                border:1px solid #2A2A39;
+                }
+                QPushButton#btnRefreshCaptcha:hover{ border:2px solid #FF3DA5; color:#FF3DA5; }
+                QPushButton#btnRefreshCaptcha:pressed{ background:rgba(255,61,165,0.12); }
+
+                QPushButton#btnAddTokens{
+                background:#FF3DA5;
+                color:#0B0B0F;
+                border:none;
+                border-radius:14px;
+                padding:12px;
+                font-weight:900;
+                }
+                QPushButton#btnAddTokens:hover{ background:#FF63B7; }
+                QPushButton#btnAddTokens:pressed{ background:#E92A93; }
+
+                QTableWidget{
+                background:#0E0E14;
+                border:1px solid #2A2A39;
+                border-radius:14px;
+                gridline-color:#2A2A39;
+                }
+                QHeaderView::section{
+                background:#111118;
+                color:#F4F4F6;
+                border:1px solid #2A2A39;
+                padding:8px;
+                font-weight:900;
+                }
+                QTableWidget::item:selected{
+                background:rgba(255,61,165,0.22);
+                }
+
+                QLabel#lblStatus{
+                color:#9B9BB0;
+                font-size:10pt;
+                }
+                QLabel#lblBalanceValue{
+                color:#FF3DA5;
+                font-weight:900;
+                font-size:16pt;
+                }
+            </string>
+        </property>
+
+        <layout class="QVBoxLayout" name="rootLayout">
+            <property name="leftMargin">
+                <number>20</number>
+            </property>
+            <property name="topMargin">
+                <number>20</number>
+            </property>
+            <property name="rightMargin">
+                <number>20</number>
+            </property>
+            <property name="bottomMargin">
+                <number>20</number>
+            </property>
+            <property name="spacing">
+                <number>14</number>
+            </property>
+
+            <!-- Header -->
+            <item>
+                <layout class="QHBoxLayout" name="headerRow">
+                    <property name="spacing">
+                        <number>10</number>
+                    </property>
+
+                    <item>
+                        <layout class="QVBoxLayout" name="titleCol">
+                            <property name="spacing">
+                                <number>2</number>
+                            </property>
+                            <item>
+                                <widget class="QLabel" name="lblTitle">
+                                    <property name="text">
+                                        <string>Profile</string>
+                                    </property>
+                                </widget>
+                            </item>
+                            <item>
+                                <widget class="QLabel" name="lblSubtitle">
+                                    <property name="text">
+                                        <string>Manage your account, wallet, purchases and your ads</string>
+                                    </property>
+                                </widget>
+                            </item>
+                        </layout>
+                    </item>
+
+                    <item>
+                        <spacer name="spacerHeader">
+                            <property name="orientation">
+                                <enum>Qt::Horizontal</enum>
+                            </property>
+                            <property name="sizeHint" stdset="0">
+                                <size>
+                                    <width>40</width>
+                                    <height>20</height>
+                                </size>
+                            </property>
+                        </spacer>
+                    </item>
+
+                    <item>
+                        <widget class="QPushButton" name="btnBackToMenu">
+                            <property name="text">
+                                <string>Back</string>
+                            </property>
+                            <property name="cursor">
+                                <cursorShape>PointingHandCursor</cursorShape>
+                            </property>
+                        </widget>
+                    </item>
+
+                </layout>
+            </item>
+
+            <!-- Main card -->
+            <item>
+                <widget class="QFrame" name="card">
+                    <layout class="QVBoxLayout" name="cardLayout">
+                        <property name="leftMargin">
+                            <number>16</number>
+                        </property>
+                        <property name="topMargin">
+                            <number>16</number>
+                        </property>
+                        <property name="rightMargin">
+                            <number>16</number>
+                        </property>
+                        <property name="bottomMargin">
+                            <number>16</number>
+                        </property>
+                        <property name="spacing">
+                            <number>12</number>
+                        </property>
+
+                        <item>
+                            <widget class="QTabWidget" name="tabsProfile">
+                                <property name="documentMode">
+                                    <bool>true</bool>
+                                </property>
+                                <property name="movable">
+                                    <bool>false</bool>
+                                </property>
+                                <property name="tabsClosable">
+                                    <bool>false</bool>
+                                </property>
+
+                                <!-- ================= TAB 1: ACCOUNT ================= -->
+                                <widget class="QWidget" name="tabAccount">
+                                    <attribute name="title">
+                                        <string>Account</string>
+                                    </attribute>
+                                    <layout class="QHBoxLayout" name="accountRow">
+                                        <property name="leftMargin">
+                                            <number>16</number>
+                                        </property>
+                                        <property name="topMargin">
+                                            <number>16</number>
+                                        </property>
+                                        <property name="rightMargin">
+                                            <number>16</number>
+                                        </property>
+                                        <property name="bottomMargin">
+                                            <number>16</number>
+                                        </property>
+                                        <property name="spacing">
+                                            <number>14</number>
+                                        </property>
+
+                                        <!-- Left: Profile fields -->
+                                        <item>
+                                            <widget class="QFrame" name="panelAccount">
+                                                <property name="objectName">
+                                                    <string>panel</string>
+                                                </property>
+                                                <layout class="QGridLayout" name="gridAccount">
+                                                    <property name="leftMargin">
+                                                        <number>14</number>
+                                                    </property>
+                                                    <property name="topMargin">
+                                                        <number>14</number>
+                                                    </property>
+                                                    <property name="rightMargin">
+                                                        <number>14</number>
+                                                    </property>
+                                                    <property name="bottomMargin">
+                                                        <number>14</number>
+                                                    </property>
+                                                    <property name="horizontalSpacing">
+                                                        <number>12</number>
+                                                    </property>
+                                                    <property name="verticalSpacing">
+                                                        <number>10</number>
+                                                    </property>
+
+                                                    <item row="0" column="0" colspan="2">
+                                                        <widget class="QLabel" name="lblSectionTitle">
+                                                            <property name="text">
+                                                                <string>Account information</string>
+                                                            </property>
+                                                        </widget>
+                                                    </item>
+
+                                                    <item row="1" column="0">
+                                                        <widget class="QLabel" name="lblNameCaption">
+                                                            <property name="objectName">
+                                                                <string>lblFieldCaption</string>
+                                                            </property>
+                                                            <property name="text">
+                                                                <string>Name</string>
+                                                            </property>
+                                                        </widget>
+                                                    </item>
+                                                    <item row="1" column="1">
+                                                        <widget class="QLineEdit" name="leName">
+                                                            <property name="placeholderText">
+                                                                <string>Your full name</string>
+                                                            </property>
+                                                        </widget>
+                                                    </item>
+
+                                                    <item row="2" column="0">
+                                                        <widget class="QLabel" name="lblUsernameCaption">
+                                                            <property name="objectName">
+                                                                <string>lblFieldCaption</string>
+                                                            </property>
+                                                            <property name="text">
+                                                                <string>Username</string>
+                                                            </property>
+                                                        </widget>
+                                                    </item>
+                                                    <item row="2" column="1">
+                                                        <widget class="QLineEdit" name="leUsername">
+                                                            <property name="placeholderText">
+                                                                <string>@username</string>
+                                                            </property>
+                                                        </widget>
+                                                    </item>
+
+                                                    <item row="3" column="0">
+                                                        <widget class="QLabel" name="lblPhoneCaption">
+                                                            <property name="objectName">
+                                                                <string>lblFieldCaption</string>
+                                                            </property>
+                                                            <property name="text">
+                                                                <string>Phone</string>
+                                                            </property>
+                                                        </widget>
+                                                    </item>
+                                                    <item row="3" column="1">
+                                                        <widget class="QLineEdit" name="lePhone">
+                                                            <property name="placeholderText">
+                                                                <string>09xxxxxxxxx</string>
+                                                            </property>
+                                                        </widget>
+                                                    </item>
+
+                                                    <item row="4" column="0">
+                                                        <widget class="QLabel" name="lblEmailCaption">
+                                                            <property name="objectName">
+                                                                <string>lblFieldCaption</string>
+                                                            </property>
+                                                            <property name="text">
+                                                                <string>Email</string>
+                                                            </property>
+                                                        </widget>
+                                                    </item>
+                                                    <item row="4" column="1">
+                                                        <widget class="QLineEdit" name="leEmail">
+                                                            <property name="placeholderText">
+                                                                <string>name@example.com</string>
+                                                            </property>
+                                                        </widget>
+                                                    </item>
+
+                                                    <item row="5" column="0" colspan="2">
+                                                        <layout class="QHBoxLayout" name="accountButtonsRow">
+                                                            <property name="spacing">
+                                                                <number>10</number>
+                                                            </property>
+                                                            <item>
+                                                                <widget class="QPushButton" name="btnSaveProfile">
+                                                                    <property name="text">
+                                                                        <string>Save changes</string>
+                                                                    </property>
+                                                                    <property name="cursor">
+                                                                        <cursorShape>PointingHandCursor</cursorShape>
+                                                                    </property>
+                                                                </widget>
+                                                            </item>
+                                                            <item>
+                                                                <widget class="QPushButton" name="btnChangePassword">
+                                                                    <property name="text">
+                                                                        <string>Change password…</string>
+                                                                    </property>
+                                                                    <property name="cursor">
+                                                                        <cursorShape>PointingHandCursor</cursorShape>
+                                                                    </property>
+                                                                </widget>
+                                                            </item>
+                                                        </layout>
+                                                    </item>
+
+                                                    <item row="6" column="0" colspan="2">
+                                                        <widget class="QLabel" name="lblProfileStatus">
+                                                            <property name="objectName">
+                                                                <string>lblStatus</string>
+                                                            </property>
+                                                            <property name="text">
+                                                                <string/>
+                                                            </property>
+                                                            <property name="wordWrap">
+                                                                <bool>true</bool>
+                                                            </property>
+                                                        </widget>
+                                                    </item>
+
+                                                </layout>
+                                            </widget>
+                                        </item>
+
+                                        <!-- Right: Password panel -->
+                                        <item>
+                                            <widget class="QFrame" name="panelPassword">
+                                                <property name="objectName">
+                                                    <string>panel</string>
+                                                </property>
+                                                <property name="minimumWidth">
+                                                    <number>340</number>
+                                                </property>
+                                                <layout class="QGridLayout" name="gridPassword">
+                                                    <property name="leftMargin">
+                                                        <number>14</number>
+                                                    </property>
+                                                    <property name="topMargin">
+                                                        <number>14</number>
+                                                    </property>
+                                                    <property name="rightMargin">
+                                                        <number>14</number>
+                                                    </property>
+                                                    <property name="bottomMargin">
+                                                        <number>14</number>
+                                                    </property>
+                                                    <property name="horizontalSpacing">
+                                                        <number>12</number>
+                                                    </property>
+                                                    <property name="verticalSpacing">
+                                                        <number>10</number>
+                                                    </property>
+
+                                                    <item row="0" column="0" colspan="2">
+                                                        <widget class="QLabel" name="lblSectionTitlePwd">
+                                                            <property name="objectName">
+                                                                <string>lblSectionTitle</string>
+                                                            </property>
+                                                            <property name="text">
+                                                                <string>Password</string>
+                                                            </property>
+                                                        </widget>
+                                                    </item>
+
+                                                    <item row="1" column="0">
+                                                        <widget class="QLabel" name="lblOldPassCaption">
+                                                            <property name="objectName">
+                                                                <string>lblFieldCaption</string>
+                                                            </property>
+                                                            <property name="text">
+                                                                <string>Old password</string>
+                                                            </property>
+                                                        </widget>
+                                                    </item>
+                                                    <item row="1" column="1">
+                                                        <widget class="QLineEdit" name="leOldPassword">
+                                                            <property name="echoMode">
+                                                                <enum>QLineEdit::Password</enum>
+                                                            </property>
+                                                            <property name="placeholderText">
+                                                                <string>••••••••</string>
+                                                            </property>
+                                                        </widget>
+                                                    </item>
+
+                                                    <item row="2" column="0">
+                                                        <widget class="QLabel" name="lblNewPassCaption">
+                                                            <property name="objectName">
+                                                                <string>lblFieldCaption</string>
+                                                            </property>
+                                                            <property name="text">
+                                                                <string>New password</string>
+                                                            </property>
+                                                        </widget>
+                                                    </item>
+                                                    <item row="2" column="1">
+                                                        <widget class="QLineEdit" name="leNewPassword">
+                                                            <property name="echoMode">
+                                                                <enum>QLineEdit::Password</enum>
+                                                            </property>
+                                                            <property name="placeholderText">
+                                                                <string>••••••••</string>
+                                                            </property>
+                                                        </widget>
+                                                    </item>
+
+                                                    <item row="3" column="0">
+                                                        <widget class="QLabel" name="lblConfirmPassCaption">
+                                                            <property name="objectName">
+                                                                <string>lblFieldCaption</string>
+                                                            </property>
+                                                            <property name="text">
+                                                                <string>Confirm</string>
+                                                            </property>
+                                                        </widget>
+                                                    </item>
+                                                    <item row="3" column="1">
+                                                        <widget class="QLineEdit" name="leConfirmPassword">
+                                                            <property name="echoMode">
+                                                                <enum>QLineEdit::Password</enum>
+                                                            </property>
+                                                            <property name="placeholderText">
+                                                                <string>••••••••</string>
+                                                            </property>
+                                                        </widget>
+                                                    </item>
+
+                                                    <item row="4" column="0" colspan="2">
+                                                        <widget class="QLabel" name="lblPasswordStatus">
+                                                            <property name="objectName">
+                                                                <string>lblStatus</string>
+                                                            </property>
+                                                            <property name="text">
+                                                                <string>Tip: Password change will be validated by server later.</string>
+                                                            </property>
+                                                            <property name="wordWrap">
+                                                                <bool>true</bool>
+                                                            </property>
+                                                        </widget>
+                                                    </item>
+
+                                                </layout>
+                                            </widget>
+                                        </item>
+
+                                    </layout>
+                                </widget>
+
+                                <!-- ================= TAB 2: WALLET ================= -->
+                                <widget class="QWidget" name="tabWallet">
+                                    <attribute name="title">
+                                        <string>Wallet</string>
+                                    </attribute>
+                                    <layout class="QHBoxLayout" name="walletRow">
+                                        <property name="leftMargin">
+                                            <number>16</number>
+                                        </property>
+                                        <property name="topMargin">
+                                            <number>16</number>
+                                        </property>
+                                        <property name="rightMargin">
+                                            <number>16</number>
+                                        </property>
+                                        <property name="bottomMargin">
+                                            <number>16</number>
+                                        </property>
+                                        <property name="spacing">
+                                            <number>14</number>
+                                        </property>
+
+                                        <item>
+                                            <widget class="QFrame" name="panelBalance">
+                                                <property name="objectName">
+                                                    <string>panel</string>
+                                                </property>
+                                                <layout class="QVBoxLayout" name="balanceLayout">
+                                                    <property name="leftMargin">
+                                                        <number>14</number>
+                                                    </property>
+                                                    <property name="topMargin">
+                                                        <number>14</number>
+                                                    </property>
+                                                    <property name="rightMargin">
+                                                        <number>14</number>
+                                                    </property>
+                                                    <property name="bottomMargin">
+                                                        <number>14</number>
+                                                    </property>
+                                                    <property name="spacing">
+                                                        <number>10</number>
+                                                    </property>
+
+                                                    <item>
+                                                        <widget class="QLabel" name="lblSectionTitleWallet">
+                                                            <property name="objectName">
+                                                                <string>lblSectionTitle</string>
+                                                            </property>
+                                                            <property name="text">
+                                                                <string>Wallet</string>
+                                                            </property>
+                                                        </widget>
+                                                    </item>
+
+                                                    <item>
+                                                        <widget class="QLabel" name="lblBalanceCaption">
+                                                            <property name="objectName">
+                                                                <string>lblFieldCaption</string>
+                                                            </property>
+                                                            <property name="text">
+                                                                <string>Current balance</string>
+                                                            </property>
+                                                        </widget>
+                                                    </item>
+
+                                                    <item>
+                                                        <widget class="QLabel" name="lblBalanceValue">
+                                                            <property name="text">
+                                                                <string>0 token</string>
+                                                            </property>
+                                                        </widget>
+                                                    </item>
+
+                                                    <item>
+                                                        <widget class="QLabel" name="lblWalletNote">
+                                                            <property name="objectName">
+                                                                <string>lblStatus</string>
+                                                            </property>
+                                                            <property name="text">
+                                                                <string>You can increase tokens by solving a captcha (server validation later).</string>
+                                                            </property>
+                                                            <property name="wordWrap">
+                                                                <bool>true</bool>
+                                                            </property>
+                                                        </widget>
+                                                    </item>
+
+                                                    <item>
+                                                        <spacer name="spacerWallet">
+                                                            <property name="orientation">
+                                                                <enum>Qt::Vertical</enum>
+                                                            </property>
+                                                            <property name="sizeHint" stdset="0">
+                                                                <size>
+                                                                    <width>20</width>
+                                                                    <height>40</height>
+                                                                </size>
+                                                            </property>
+                                                        </spacer>
+                                                    </item>
+
+                                                </layout>
+                                            </widget>
+                                        </item>
+
+                                        <item>
+                                            <widget class="QFrame" name="panelTopUp">
+                                                <property name="objectName">
+                                                    <string>panel</string>
+                                                </property>
+                                                <property name="minimumWidth">
+                                                    <number>420</number>
+                                                </property>
+                                                <layout class="QGridLayout" name="gridTopUp">
+                                                    <property name="leftMargin">
+                                                        <number>14</number>
+                                                    </property>
+                                                    <property name="topMargin">
+                                                        <number>14</number>
+                                                    </property>
+                                                    <property name="rightMargin">
+                                                        <number>14</number>
+                                                    </property>
+                                                    <property name="bottomMargin">
+                                                        <number>14</number>
+                                                    </property>
+                                                    <property name="horizontalSpacing">
+                                                        <number>12</number>
+                                                    </property>
+                                                    <property name="verticalSpacing">
+                                                        <number>10</number>
+                                                    </property>
+
+                                                    <item row="0" column="0" colspan="3">
+                                                        <widget class="QLabel" name="lblSectionTitleTopUp">
+                                                            <property name="objectName">
+                                                                <string>lblSectionTitle</string>
+                                                            </property>
+                                                            <property name="text">
+                                                                <string>Increase tokens</string>
+                                                            </property>
+                                                        </widget>
+                                                    </item>
+
+                                                    <item row="1" column="0">
+                                                        <widget class="QLabel" name="lblAmountCaption">
+                                                            <property name="objectName">
+                                                                <string>lblFieldCaption</string>
+                                                            </property>
+                                                            <property name="text">
+                                                                <string>Amount</string>
+                                                            </property>
+                                                        </widget>
+                                                    </item>
+                                                    <item row="1" column="1">
+                                                        <widget class="QSpinBox" name="sbTokenAmount">
+                                                            <property name="minimum">
+                                                                <number>1</number>
+                                                            </property>
+                                                            <property name="maximum">
+                                                                <number>1000000</number>
+                                                            </property>
+                                                            <property name="value">
+                                                                <number>10</number>
+                                                            </property>
+                                                        </widget>
+                                                    </item>
+                                                    <item row="1" column="2">
+                                                        <widget class="QLabel" name="lblAmountUnit">
+                                                            <property name="objectName">
+                                                                <string>lblFieldCaption</string>
+                                                            </property>
+                                                            <property name="text">
+                                                                <string>token</string>
+                                                            </property>
+                                                        </widget>
+                                                    </item>
+
+                                                    <item row="2" column="0">
+                                                        <widget class="QLabel" name="lblCaptchaCaption">
+                                                            <property name="objectName">
+                                                                <string>lblFieldCaption</string>
+                                                            </property>
+                                                            <property name="text">
+                                                                <string>Captcha</string>
+                                                            </property>
+                                                        </widget>
+                                                    </item>
+
+                                                    <item row="2" column="1">
+                                                        <widget class="QLabel" name="lblCaptchaText">
+                                                            <property name="text">
+                                                                <string>AB12C</string>
+                                                            </property>
+                                                            <property name="alignment">
+                                                                <set>Qt::AlignCenter</set>
+                                                            </property>
+                                                            <property name="styleSheet">
+                                                                <string notr="true">
+                                                                    QLabel{
+                                                                    background:#0B0B0F;
+                                                                    border:1px dashed #FF3DA5;
+                                                                    border-radius:12px;
+                                                                    padding:10px 12px;
+                                                                    font-weight:900;
+                                                                    color:#FF3DA5;
+                                                                    letter-spacing:3px;
+                                                                    }
+                                                                </string>
+                                                            </property>
+                                                        </widget>
+                                                    </item>
+
+                                                    <item row="2" column="2">
+                                                        <widget class="QPushButton" name="btnRefreshCaptcha">
+                                                            <property name="text">
+                                                                <string>Refresh</string>
+                                                            </property>
+                                                            <property name="cursor">
+                                                                <cursorShape>PointingHandCursor</cursorShape>
+                                                            </property>
+                                                        </widget>
+                                                    </item>
+
+                                                    <item row="3" column="0">
+                                                        <widget class="QLabel" name="lblCaptchaInputCaption">
+                                                            <property name="objectName">
+                                                                <string>lblFieldCaption</string>
+                                                            </property>
+                                                            <property name="text">
+                                                                <string>Type it</string>
+                                                            </property>
+                                                        </widget>
+                                                    </item>
+
+                                                    <item row="3" column="1" colspan="2">
+                                                        <widget class="QLineEdit" name="leCaptchaInput">
+                                                            <property name="placeholderText">
+                                                                <string>Enter captcha here</string>
+                                                            </property>
+                                                            <property name="clearButtonEnabled">
+                                                                <bool>true</bool>
+                                                            </property>
+                                                        </widget>
+                                                    </item>
+
+                                                    <item row="4" column="0" colspan="3">
+                                                        <widget class="QPushButton" name="btnAddTokens">
+                                                            <property name="text">
+                                                                <string>Add tokens</string>
+                                                            </property>
+                                                            <property name="cursor">
+                                                                <cursorShape>PointingHandCursor</cursorShape>
+                                                            </property>
+                                                        </widget>
+                                                    </item>
+
+                                                    <item row="5" column="0" colspan="3">
+                                                        <widget class="QLabel" name="lblWalletStatus">
+                                                            <property name="objectName">
+                                                                <string>lblStatus</string>
+                                                            </property>
+                                                            <property name="text">
+                                                                <string/>
+                                                            </property>
+                                                            <property name="wordWrap">
+                                                                <bool>true</bool>
+                                                            </property>
+                                                        </widget>
+                                                    </item>
+
+                                                </layout>
+                                            </widget>
+                                        </item>
+
+                                    </layout>
+                                </widget>
+
+                                <!-- ================= TAB 3: PURCHASES ================= -->
+                                <widget class="QWidget" name="tabPurchases">
+                                    <attribute name="title">
+                                        <string>Purchases</string>
+                                    </attribute>
+                                    <layout class="QVBoxLayout" name="purchasesLayout">
+                                        <property name="leftMargin">
+                                            <number>16</number>
+                                        </property>
+                                        <property name="topMargin">
+                                            <number>16</number>
+                                        </property>
+                                        <property name="rightMargin">
+                                            <number>16</number>
+                                        </property>
+                                        <property name="bottomMargin">
+                                            <number>16</number>
+                                        </property>
+                                        <property name="spacing">
+                                            <number>12</number>
+                                        </property>
+
+                                        <item>
+                                            <widget class="QLabel" name="lblPurchasesTitle">
+                                                <property name="objectName">
+                                                    <string>lblSectionTitle</string>
+                                                </property>
+                                                <property name="text">
+                                                    <string>My purchases</string>
+                                                </property>
+                                            </widget>
+                                        </item>
+
+                                        <item>
+                                            <widget class="QTableWidget" name="twPurchases">
+                                                <property name="editTriggers">
+                                                    <set>QAbstractItemView::NoEditTriggers</set>
+                                                </property>
+                                                <property name="selectionBehavior">
+                                                    <enum>QAbstractItemView::SelectRows</enum>
+                                                </property>
+                                                <property name="selectionMode">
+                                                    <enum>QAbstractItemView::SingleSelection</enum>
+                                                </property>
+                                                <property name="alternatingRowColors">
+                                                    <bool>true</bool>
+                                                </property>
+                                                <property name="rowCount">
+                                                    <number>0</number>
+                                                </property>
+                                                <property name="columnCount">
+                                                    <number>5</number>
+                                                </property>
+                                                <column>
+                                                    <property name="text">
+                                                        <string>Title</string>
+                                                    </property>
+                                                </column>
+                                                <column>
+                                                    <property name="text">
+                                                        <string>Category</string>
+                                                    </property>
+                                                </column>
+                                                <column>
+                                                    <property name="text">
+                                                        <string>Price</string>
+                                                    </property>
+                                                </column>
+                                                <column>
+                                                    <property name="text">
+                                                        <string>Seller</string>
+                                                    </property>
+                                                </column>
+                                                <column>
+                                                    <property name="text">
+                                                        <string>Date</string>
+                                                    </property>
+                                                </column>
+                                            </widget>
+                                        </item>
+
+                                        <item>
+                                            <widget class="QLabel" name="lblPurchasesHint">
+                                                <property name="objectName">
+                                                    <string>lblStatus</string>
+                                                </property>
+                                                <property name="text">
+                                                    <string>Purchases will appear here after a successful checkout.</string>
+                                                </property>
+                                                <property name="wordWrap">
+                                                    <bool>true</bool>
+                                                </property>
+                                            </widget>
+                                        </item>
+
+                                    </layout>
+                                </widget>
+
+                                <!-- ================= TAB 4: MY ADS ================= -->
+                                <widget class="QWidget" name="tabMyAds">
+                                    <attribute name="title">
+                                        <string>My Ads</string>
+                                    </attribute>
+                                    <layout class="QVBoxLayout" name="myAdsLayout">
+                                        <property name="leftMargin">
+                                            <number>16</number>
+                                        </property>
+                                        <property name="topMargin">
+                                            <number>16</number>
+                                        </property>
+                                        <property name="rightMargin">
+                                            <number>16</number>
+                                        </property>
+                                        <property name="bottomMargin">
+                                            <number>16</number>
+                                        </property>
+                                        <property name="spacing">
+                                            <number>12</number>
+                                        </property>
+
+                                        <item>
+                                            <widget class="QLabel" name="lblMyAdsTitle">
+                                                <property name="objectName">
+                                                    <string>lblSectionTitle</string>
+                                                </property>
+                                                <property name="text">
+                                                    <string>My ads</string>
+                                                </property>
+                                            </widget>
+                                        </item>
+
+                                        <item>
+                                            <widget class="QTableWidget" name="twMyAds">
+                                                <property name="editTriggers">
+                                                    <set>QAbstractItemView::NoEditTriggers</set>
+                                                </property>
+                                                <property name="selectionBehavior">
+                                                    <enum>QAbstractItemView::SelectRows</enum>
+                                                </property>
+                                                <property name="selectionMode">
+                                                    <enum>QAbstractItemView::SingleSelection</enum>
+                                                </property>
+                                                <property name="alternatingRowColors">
+                                                    <bool>true</bool>
+                                                </property>
+                                                <property name="rowCount">
+                                                    <number>0</number>
+                                                </property>
+                                                <property name="columnCount">
+                                                    <number>6</number>
+                                                </property>
+                                                <column>
+                                                    <property name="text">
+                                                        <string>Title</string>
+                                                    </property>
+                                                </column>
+                                                <column>
+                                                    <property name="text">
+                                                        <string>Category</string>
+                                                    </property>
+                                                </column>
+                                                <column>
+                                                    <property name="text">
+                                                        <string>Price</string>
+                                                    </property>
+                                                </column>
+                                                <column>
+                                                    <property name="text">
+                                                        <string>Status</string>
+                                                    </property>
+                                                </column>
+                                                <column>
+                                                    <property name="text">
+                                                        <string>Views</string>
+                                                    </property>
+                                                </column>
+                                                <column>
+                                                    <property name="text">
+                                                        <string>Created</string>
+                                                    </property>
+                                                </column>
+                                            </widget>
+                                        </item>
+
+                                        <item>
+                                            <widget class="QLabel" name="lblMyAdsHint">
+                                                <property name="objectName">
+                                                    <string>lblStatus</string>
+                                                </property>
+                                                <property name="text">
+                                                    <string>New ads start as pending until admin approves them.</string>
+                                                </property>
+                                                <property name="wordWrap">
+                                                    <bool>true</bool>
+                                                </property>
+                                            </widget>
+                                        </item>
+
+                                    </layout>
+                                </widget>
+
+                            </widget>
+                        </item>
+
+                    </layout>
+                </widget>
+            </item>
+
+        </layout>
+    </widget>
+    <resources/>
+    <connections/>
+</ui>

@@ -1,0 +1,356 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+    <class>how_it_works_page</class>
+    <widget class="QWidget" name="how_it_works_page">
+        <property name="geometry">
+            <rect>
+                <x>0</x>
+                <y>0</y>
+                <width>1100</width>
+                <height>700</height>
+            </rect>
+        </property>
+        <property name="minimumSize">
+            <size>
+                <width>900</width>
+                <height>560</height>
+            </size>
+        </property>
+        <property name="styleSheet">
+            <string notr="true">
+                /* ===== Global theme: Pink + Black ===== */
+                QWidget{
+                background:#0B0B0F;
+                color:#F4F4F6;
+                font-family:"Segoe UI";
+                font-size:12pt;
+                }
+
+                QLabel#lblTitle{
+                color:#FF3DA5;
+                font-size:24pt;
+                font-weight:900;
+                }
+
+                QLabel#lblSubtitle{
+                color:#CFCFDB;
+                font-size:11pt;
+                }
+
+                QFrame#card{
+                background:#111118;
+                border:1px solid #242431;
+                border-radius:18px;
+                }
+
+                QLabel#lblSectionTitle{
+                color:#FF3DA5;
+                font-size:16pt;
+                font-weight:900;
+                }
+
+                QTextBrowser{
+                background:#0E0E14;
+                border:1px solid #2A2A39;
+                border-radius:14px;
+                padding:12px;
+                selection-background-color:#FF3DA5;
+                }
+
+                QScrollBar:vertical{
+                background:#111118;
+                width:12px;
+                margin:0px;
+                border-radius:6px;
+                }
+                QScrollBar::handle:vertical{
+                background:#2A2A39;
+                min-height:24px;
+                border-radius:6px;
+                }
+                QScrollBar::handle:vertical:hover{
+                background:#FF3DA5;
+                }
+                QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical{
+                height:0px;
+                }
+
+                QPushButton{
+                border-radius:12px;
+                padding:10px 12px;
+                font-weight:800;
+                }
+
+                QPushButton#btnBackToMenu{
+                background:transparent;
+                color:#FF3DA5;
+                border:1px solid #FF3DA5;
+                }
+                QPushButton#btnBackToMenu:hover{ background:rgba(255,61,165,0.12); }
+                QPushButton#btnBackToMenu:pressed{ background:rgba(255,61,165,0.22); }
+
+                QPushButton#btnCopy{
+                background:transparent;
+                color:#FF3DA5;
+                border:1px solid #FF3DA5;
+                }
+                QPushButton#btnCopy:hover{ background:rgba(255,61,165,0.12); }
+                QPushButton#btnCopy:pressed{ background:rgba(255,61,165,0.22); }
+
+                QPushButton#btnExportTxt{
+                background:#0E0E14;
+                color:#F4F4F6;
+                border:1px solid #2A2A39;
+                }
+                QPushButton#btnExportTxt:hover{ border:2px solid #FF3DA5; }
+                QPushButton#btnExportTxt:pressed{ background:rgba(255,61,165,0.12); }
+
+                QPushButton#btnPrint{
+                background:#FF3DA5;
+                color:#0B0B0F;
+                border:none;
+                border-radius:14px;
+                padding:12px;
+                font-weight:900;
+                }
+                QPushButton#btnPrint:hover{ background:#FF63B7; }
+                QPushButton#btnPrint:pressed{ background:#E92A93; }
+
+                QLabel#lblStatus{
+                color:#9B9BB0;
+                font-size:10pt;
+                }
+            </string>
+        </property>
+
+        <layout class="QVBoxLayout" name="rootLayout">
+            <property name="leftMargin">
+                <number>20</number>
+            </property>
+            <property name="topMargin">
+                <number>20</number>
+            </property>
+            <property name="rightMargin">
+                <number>20</number>
+            </property>
+            <property name="bottomMargin">
+                <number>20</number>
+            </property>
+            <property name="spacing">
+                <number>14</number>
+            </property>
+
+            <!-- Header -->
+            <item>
+                <layout class="QHBoxLayout" name="headerRow">
+                    <property name="spacing">
+                        <number>10</number>
+                    </property>
+
+                    <item>
+                        <layout class="QVBoxLayout" name="titleCol">
+                            <property name="spacing">
+                                <number>2</number>
+                            </property>
+                            <item>
+                                <widget class="QLabel" name="lblTitle">
+                                    <property name="text">
+                                        <string>How does it work?</string>
+                                    </property>
+                                </widget>
+                            </item>
+                            <item>
+                                <widget class="QLabel" name="lblSubtitle">
+                                    <property name="text">
+                                        <string>A quick guide to posting ads, shopping, and purchasing safely</string>
+                                    </property>
+                                </widget>
+                            </item>
+                        </layout>
+                    </item>
+
+                    <item>
+                        <spacer name="spacerHeader">
+                            <property name="orientation">
+                                <enum>Qt::Horizontal</enum>
+                            </property>
+                            <property name="sizeHint" stdset="0">
+                                <size>
+                                    <width>40</width>
+                                    <height>20</height>
+                                </size>
+                            </property>
+                        </spacer>
+                    </item>
+
+                    <item>
+                        <widget class="QPushButton" name="btnBackToMenu">
+                            <property name="text">
+                                <string>Back</string>
+                            </property>
+                            <property name="cursor">
+                                <cursorShape>PointingHandCursor</cursorShape>
+                            </property>
+                        </widget>
+                    </item>
+
+                </layout>
+            </item>
+
+            <!-- Main card -->
+            <item>
+                <widget class="QFrame" name="card">
+                    <layout class="QVBoxLayout" name="cardLayout">
+                        <property name="leftMargin">
+                            <number>16</number>
+                        </property>
+                        <property name="topMargin">
+                            <number>16</number>
+                        </property>
+                        <property name="rightMargin">
+                            <number>16</number>
+                        </property>
+                        <property name="bottomMargin">
+                            <number>16</number>
+                        </property>
+                        <property name="spacing">
+                            <number>12</number>
+                        </property>
+
+                        <item>
+                            <layout class="QHBoxLayout" name="topRow">
+                                <property name="spacing">
+                                    <number>10</number>
+                                </property>
+
+                                <item>
+                                    <widget class="QLabel" name="lblSectionTitle">
+                                        <property name="text">
+                                            <string>PinkMart User Guide</string>
+                                        </property>
+                                    </widget>
+                                </item>
+
+                                <item>
+                                    <spacer name="spacerTopRow">
+                                        <property name="orientation">
+                                            <enum>Qt::Horizontal</enum>
+                                        </property>
+                                        <property name="sizeHint" stdset="0">
+                                            <size>
+                                                <width>40</width>
+                                                <height>20</height>
+                                            </size>
+                                        </property>
+                                    </spacer>
+                                </item>
+
+                                <item>
+                                    <widget class="QPushButton" name="btnCopy">
+                                        <property name="text">
+                                            <string>Copy</string>
+                                        </property>
+                                        <property name="cursor">
+                                            <cursorShape>PointingHandCursor</cursorShape>
+                                        </property>
+                                    </widget>
+                                </item>
+
+                                <item>
+                                    <widget class="QPushButton" name="btnExportTxt">
+                                        <property name="text">
+                                            <string>Export .txt</string>
+                                        </property>
+                                        <property name="cursor">
+                                            <cursorShape>PointingHandCursor</cursorShape>
+                                        </property>
+                                    </widget>
+                                </item>
+
+                                <item>
+                                    <widget class="QPushButton" name="btnPrint">
+                                        <property name="text">
+                                            <string>Print</string>
+                                        </property>
+                                        <property name="cursor">
+                                            <cursorShape>PointingHandCursor</cursorShape>
+                                        </property>
+                                    </widget>
+                                </item>
+
+                            </layout>
+                        </item>
+
+                        <item>
+                            <widget class="QTextBrowser" name="tbGuide">
+                                <property name="openExternalLinks">
+                                    <bool>false</bool>
+                                </property>
+                                <property name="html">
+                                    <string notr="true"><![CDATA[
+<h2 style="color:#FF3DA5; margin-top:0;">Welcome</h2>
+<p style="color:#CFCFDB;">
+PinkMart is a simple marketplace. Users can create ads, browse approved ads, add items to cart, and purchase with tokens.
+</p>
+
+<h3 style="color:#FF3DA5;">1) Create a New Ad</h3>
+<ul style="color:#CFCFDB;">
+  <li>Go to <b>New Ad</b> from the Main Menu.</li>
+  <li>Fill in: <b>Title, Category, Price, Description</b>, and optionally choose an image.</li>
+  <li>Click <b>Submit ad</b>. Your ad becomes <b>Pending</b> until the admin approves it.</li>
+</ul>
+
+<h3 style="color:#FF3DA5;">2) Shop</h3>
+<ul style="color:#CFCFDB;">
+  <li>Go to <b>Shop</b> to view ads that are approved by admin.</li>
+  <li>Use filters (name/category/price) to find items faster.</li>
+  <li>Click <b>Add to bucket</b> on an item to add it to your bucket list.</li>
+  <li>You can remove items from your bucket list using the <b>Remove</b> button.</li>
+</ul>
+
+<h3 style="color:#FF3DA5;">3) Cart &amp; Purchase</h3>
+<ul style="color:#CFCFDB;">
+  <li>Go to <b>Cart</b> to see all items you plan to buy.</li>
+  <li>Remove an item with the <b>Remove</b> button, or click <b>Remove all</b>.</li>
+  <li>Enter a <b>discount code</b> (if you have one) and click <b>Apply</b>.</li>
+  <li>Click <b>Purchase</b> to finalize. Items move to your <b>Profile → Purchases</b>.</li>
+</ul>
+
+<h3 style="color:#FF3DA5;">4) Profile</h3>
+<ul style="color:#CFCFDB;">
+  <li>Update your account info (name, username, phone, email).</li>
+  <li>Check wallet balance and add tokens (captcha verification may apply).</li>
+  <li>See your <b>Purchases</b> and <b>My Ads</b> lists.</li>
+</ul>
+
+<h3 style="color:#FF3DA5;">Notes</h3>
+<ul style="color:#CFCFDB;">
+  <li>Only <b>approved ads</b> appear in Shop.</li>
+  <li>Closing a page should return to Main Menu (use the <b>Back</b> button).</li>
+  <li>Some actions will be validated by server later (login, purchase, discount).</li>
+</ul>
+         ]]></string>
+                                </property>
+                            </widget>
+                        </item>
+
+                        <item>
+                            <widget class="QLabel" name="lblStatus">
+                                <property name="text">
+                                    <string/>
+                                </property>
+                                <property name="wordWrap">
+                                    <bool>true</bool>
+                                </property>
+                            </widget>
+                        </item>
+
+                    </layout>
+                </widget>
+            </item>
+
+        </layout>
+    </widget>
+    <resources/>
+    <connections/>
+</ui>
