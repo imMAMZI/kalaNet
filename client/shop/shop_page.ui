@@ -1,0 +1,645 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+    <class>shop_page</class>
+    <widget class="QWidget" name="shop_page">
+        <property name="geometry">
+            <rect>
+                <x>0</x>
+                <y>0</y>
+                <width>1100</width>
+                <height>700</height>
+            </rect>
+        </property>
+        <property name="minimumSize">
+            <size>
+                <width>900</width>
+                <height>560</height>
+            </size>
+        </property>
+        <property name="styleSheet">
+            <string notr="true">
+                /* ===== Global theme: Pink + Black ===== */
+                QWidget {
+                background: #0B0B0F;
+                color: #F4F4F6;
+                font-family: "Segoe UI";
+                font-size: 12pt;
+                }
+
+                QLabel#lblTitle {
+                color: #FF3DA5;
+                font-size: 24pt;
+                font-weight: 900;
+                }
+
+                QLabel#lblSubtitle, QLabel#lblBucketHint {
+                color: #CFCFDB;
+                font-size: 11pt;
+                }
+
+                QFrame#cardLeft, QFrame#cardRight, QFrame#filterBar {
+                background: #111118;
+                border: 1px solid #242431;
+                border-radius: 18px;
+                }
+
+                QLineEdit, QComboBox, QDoubleSpinBox {
+                background: #0E0E14;
+                border: 1px solid #2A2A39;
+                border-radius: 12px;
+                padding: 8px 10px;
+                selection-background-color: #FF3DA5;
+                }
+
+                QLineEdit:focus, QComboBox:focus, QDoubleSpinBox:focus {
+                border: 2px solid #FF3DA5;
+                }
+
+                QComboBox QAbstractItemView {
+                background: #111118;
+                color: #F4F4F6;
+                selection-background-color: #FF3DA5;
+                border: 1px solid #2A2A39;
+                }
+
+                QPushButton {
+                border-radius: 12px;
+                padding: 10px 12px;
+                font-weight: 800;
+                }
+
+                QPushButton#btnApplyFilter {
+                background: #FF3DA5;
+                color: #0B0B0F;
+                border: none;
+                }
+                QPushButton#btnApplyFilter:hover { background: #FF63B7; }
+                QPushButton#btnApplyFilter:pressed { background: #E92A93; }
+
+                QPushButton#btnClearFilter {
+                background: transparent;
+                color: #FF3DA5;
+                border: 1px solid #FF3DA5;
+                }
+                QPushButton#btnClearFilter:hover { background: rgba(255,61,165,0.12); }
+                QPushButton#btnClearFilter:pressed { background: rgba(255,61,165,0.22); }
+
+                QPushButton#btnGoToCart {
+                background: #FF3DA5;
+                color: #0B0B0F;
+                border: none;
+                border-radius: 14px;
+                padding: 12px;
+                font-weight: 900;
+                }
+                QPushButton#btnGoToCart:hover { background: #FF63B7; }
+                QPushButton#btnGoToCart:pressed { background: #E92A93; }
+
+                QPushButton#btnRefreshAds {
+                background: transparent;
+                color: #CFCFDB;
+                border: 1px solid #2A2A39;
+                }
+                QPushButton#btnRefreshAds:hover { border: 2px solid #FF3DA5; color: #FF3DA5; }
+                QPushButton#btnRefreshAds:pressed { background: rgba(255,61,165,0.12); }
+
+                QTableWidget {
+                background: #0E0E14;
+                border: 1px solid #2A2A39;
+                border-radius: 14px;
+                gridline-color: #2A2A39;
+                }
+
+                QHeaderView::section {
+                background: #111118;
+                color: #F4F4F6;
+                border: 1px solid #2A2A39;
+                padding: 8px;
+                font-weight: 900;
+                }
+
+                QTableWidget::item:selected {
+                background: rgba(255,61,165,0.22);
+                }
+
+                QListWidget {
+                background: #0E0E14;
+                border: 1px solid #2A2A39;
+                border-radius: 14px;
+                padding: 6px;
+                }
+
+                QLabel#lblSummary {
+                color: #9B9BB0;
+                font-size: 10.5pt;
+                }
+
+                QLabel#lblBucketTotal {
+                color: #FF3DA5;
+                font-weight: 900;
+                font-size: 13pt;
+                }
+            </string>
+        </property>
+
+        <layout class="QVBoxLayout" name="rootLayout">
+            <property name="leftMargin">
+                <number>20</number>
+            </property>
+            <property name="topMargin">
+                <number>20</number>
+            </property>
+            <property name="rightMargin">
+                <number>20</number>
+            </property>
+            <property name="bottomMargin">
+                <number>20</number>
+            </property>
+            <property name="spacing">
+                <number>14</number>
+            </property>
+
+            <!-- Header -->
+            <item>
+                <layout class="QHBoxLayout" name="headerRow">
+                    <property name="spacing">
+                        <number>10</number>
+                    </property>
+                    <item>
+                        <layout class="QVBoxLayout" name="titleCol">
+                            <property name="spacing">
+                                <number>2</number>
+                            </property>
+                            <item>
+                                <widget class="QLabel" name="lblTitle">
+                                    <property name="text">
+                                        <string>Shop</string>
+                                    </property>
+                                </widget>
+                            </item>
+                            <item>
+                                <widget class="QLabel" name="lblSubtitle">
+                                    <property name="text">
+                                        <string>Browse approved ads and add them to your bucket list</string>
+                                    </property>
+                                </widget>
+                            </item>
+                        </layout>
+                    </item>
+                    <item>
+                        <spacer name="spacerHeader">
+                            <property name="orientation">
+                                <enum>Qt::Horizontal</enum>
+                            </property>
+                            <property name="sizeHint" stdset="0">
+                                <size>
+                                    <width>40</width>
+                                    <height>20</height>
+                                </size>
+                            </property>
+                        </spacer>
+                    </item>
+                    <item>
+                        <layout class="QHBoxLayout" name="headerButtonsRow">
+                            <property name="spacing">
+                                <number>10</number>
+                            </property>
+
+                            <item>
+                                <widget class="QPushButton" name="btnBackToMenu">
+                                    <property name="text">
+                                        <string>Back</string>
+                                    </property>
+                                    <property name="cursor">
+                                        <cursorShape>PointingHandCursor</cursorShape>
+                                    </property>
+                                    <property name="styleSheet">
+                                        <string notr="true">
+                                            QPushButton#btnBackToMenu{
+                                            background:transparent;
+                                            color:#FF3DA5;
+                                            border:1px solid #FF3DA5;
+                                            border-radius:12px;
+                                            padding:10px 12px;
+                                            font-weight:800;
+                                            }
+                                            QPushButton#btnBackToMenu:hover{ background:rgba(255,61,165,0.12); }
+                                            QPushButton#btnBackToMenu:pressed{ background:rgba(255,61,165,0.22); }
+                                        </string>
+                                    </property>
+                                </widget>
+                            </item>
+
+                            <item>
+                                <widget class="QPushButton" name="btnRefreshAds">
+                                    <property name="text">
+                                        <string>Refresh</string>
+                                    </property>
+                                    <property name="cursor">
+                                        <cursorShape>PointingHandCursor</cursorShape>
+                                    </property>
+                                </widget>
+                            </item>
+
+                        </layout>
+                    </item>
+                </layout>
+            </item>
+
+            <!-- Main content split -->
+            <item>
+                <layout class="QHBoxLayout" name="contentRow">
+                    <property name="spacing">
+                        <number>14</number>
+                    </property>
+
+                    <!-- Left side: filters + ads table -->
+                    <item>
+                        <widget class="QFrame" name="cardLeft">
+                            <property name="sizePolicy">
+                                <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                                    <horstretch>3</horstretch>
+                                    <verstretch>0</verstretch>
+                                </sizepolicy>
+                            </property>
+                            <layout class="QVBoxLayout" name="leftLayout">
+                                <property name="leftMargin">
+                                    <number>16</number>
+                                </property>
+                                <property name="topMargin">
+                                    <number>16</number>
+                                </property>
+                                <property name="rightMargin">
+                                    <number>16</number>
+                                </property>
+                                <property name="bottomMargin">
+                                    <number>16</number>
+                                </property>
+                                <property name="spacing">
+                                    <number>12</number>
+                                </property>
+
+                                <!-- Filter bar -->
+                                <item>
+                                    <widget class="QFrame" name="filterBar">
+                                        <layout class="QGridLayout" name="filterGrid">
+                                            <property name="leftMargin">
+                                                <number>14</number>
+                                            </property>
+                                            <property name="topMargin">
+                                                <number>14</number>
+                                            </property>
+                                            <property name="rightMargin">
+                                                <number>14</number>
+                                            </property>
+                                            <property name="bottomMargin">
+                                                <number>14</number>
+                                            </property>
+                                            <property name="horizontalSpacing">
+                                                <number>10</number>
+                                            </property>
+                                            <property name="verticalSpacing">
+                                                <number>10</number>
+                                            </property>
+
+                                            <item row="0" column="0">
+                                                <widget class="QLineEdit" name="leSearchName">
+                                                    <property name="placeholderText">
+                                                        <string>Search by name/title...</string>
+                                                    </property>
+                                                    <property name="clearButtonEnabled">
+                                                        <bool>true</bool>
+                                                    </property>
+                                                </widget>
+                                            </item>
+
+                                            <item row="0" column="1">
+                                                <widget class="QComboBox" name="cbCategory">
+                                                    <property name="editable">
+                                                        <bool>false</bool>
+                                                    </property>
+                                                    <property name="currentText">
+                                                        <string>All categories</string>
+                                                    </property>
+                                                    <item>
+                                                        <property name="text">
+                                                            <string>All categories</string>
+                                                        </property>
+                                                    </item>
+                                                    <item>
+                                                        <property name="text">
+                                                            <string>Electronics</string>
+                                                        </property>
+                                                    </item>
+                                                    <item>
+                                                        <property name="text">
+                                                            <string>Home</string>
+                                                        </property>
+                                                    </item>
+                                                    <item>
+                                                        <property name="text">
+                                                            <string>Clothing</string>
+                                                        </property>
+                                                    </item>
+                                                    <item>
+                                                        <property name="text">
+                                                            <string>Books</string>
+                                                        </property>
+                                                    </item>
+                                                    <item>
+                                                        <property name="text">
+                                                            <string>Other</string>
+                                                        </property>
+                                                    </item>
+                                                </widget>
+                                            </item>
+
+                                            <item row="0" column="2">
+                                                <widget class="QDoubleSpinBox" name="sbMinPrice">
+                                                    <property name="prefix">
+                                                        <string>Min </string>
+                                                    </property>
+                                                    <property name="suffix">
+                                                        <string> token</string>
+                                                    </property>
+                                                    <property name="decimals">
+                                                        <number>0</number>
+                                                    </property>
+                                                    <property name="maximum">
+                                                        <double>999999.000000000000000</double>
+                                                    </property>
+                                                    <property name="singleStep">
+                                                        <double>1.000000000000000</double>
+                                                    </property>
+                                                </widget>
+                                            </item>
+
+                                            <item row="0" column="3">
+                                                <widget class="QDoubleSpinBox" name="sbMaxPrice">
+                                                    <property name="prefix">
+                                                        <string>Max </string>
+                                                    </property>
+                                                    <property name="suffix">
+                                                        <string> token</string>
+                                                    </property>
+                                                    <property name="decimals">
+                                                        <number>0</number>
+                                                    </property>
+                                                    <property name="maximum">
+                                                        <double>999999.000000000000000</double>
+                                                    </property>
+                                                    <property name="singleStep">
+                                                        <double>1.000000000000000</double>
+                                                    </property>
+                                                    <property name="value">
+                                                        <double>0.000000000000000</double>
+                                                    </property>
+                                                    <property name="specialValueText">
+                                                        <string>Max token</string>
+                                                    </property>
+                                                </widget>
+                                            </item>
+
+                                            <item row="1" column="2">
+                                                <widget class="QPushButton" name="btnClearFilter">
+                                                    <property name="text">
+                                                        <string>Clear</string>
+                                                    </property>
+                                                    <property name="cursor">
+                                                        <cursorShape>PointingHandCursor</cursorShape>
+                                                    </property>
+                                                </widget>
+                                            </item>
+
+                                            <item row="1" column="3">
+                                                <widget class="QPushButton" name="btnApplyFilter">
+                                                    <property name="text">
+                                                        <string>Apply</string>
+                                                    </property>
+                                                    <property name="cursor">
+                                                        <cursorShape>PointingHandCursor</cursorShape>
+                                                    </property>
+                                                </widget>
+                                            </item>
+
+                                            <item row="1" column="0" colspan="2">
+                                                <widget class="QLabel" name="lblSummary">
+                                                    <property name="text">
+                                                        <string>Tip: click a row and press “Add to bucket” (we’ll implement the button in backend later).</string>
+                                                    </property>
+                                                    <property name="wordWrap">
+                                                        <bool>true</bool>
+                                                    </property>
+                                                </widget>
+                                            </item>
+
+                                        </layout>
+                                    </widget>
+                                </item>
+
+                                <!-- Ads table -->
+                                <item>
+                                    <widget class="QTableWidget" name="twAds">
+                                        <property name="sizePolicy">
+                                            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                                                <horstretch>0</horstretch>
+                                                <verstretch>0</verstretch>
+                                            </sizepolicy>
+                                        </property>
+                                        <property name="editTriggers">
+                                            <set>QAbstractItemView::NoEditTriggers</set>
+                                        </property>
+                                        <property name="selectionBehavior">
+                                            <enum>QAbstractItemView::SelectRows</enum>
+                                        </property>
+                                        <property name="selectionMode">
+                                            <enum>QAbstractItemView::SingleSelection</enum>
+                                        </property>
+                                        <property name="showGrid">
+                                            <bool>true</bool>
+                                        </property>
+                                        <property name="alternatingRowColors">
+                                            <bool>true</bool>
+                                        </property>
+                                        <property name="sortingEnabled">
+                                            <bool>true</bool>
+                                        </property>
+                                        <property name="rowCount">
+                                            <number>0</number>
+                                        </property>
+                                        <property name="columnCount">
+                                            <number>6</number>
+                                        </property>
+                                        <column>
+                                            <property name="text">
+                                                <string>Image</string>
+                                            </property>
+                                        </column>
+                                        <column>
+                                            <property name="text">
+                                                <string>Title</string>
+                                            </property>
+                                        </column>
+                                        <column>
+                                            <property name="text">
+                                                <string>Category</string>
+                                            </property>
+                                        </column>
+                                        <column>
+                                            <property name="text">
+                                                <string>Price</string>
+                                            </property>
+                                        </column>
+                                        <column>
+                                            <property name="text">
+                                                <string>Seller</string>
+                                            </property>
+                                        </column>
+                                        <column>
+                                            <property name="text">
+                                                <string>Action</string>
+                                            </property>
+                                        </column>
+                                    </widget>
+                                </item>
+
+                            </layout>
+                        </widget>
+                    </item>
+
+                    <!-- Right side: bucket list -->
+                    <item>
+                        <widget class="QFrame" name="cardRight">
+                            <property name="sizePolicy">
+                                <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                                    <horstretch>1</horstretch>
+                                    <verstretch>0</verstretch>
+                                </sizepolicy>
+                            </property>
+                            <property name="minimumWidth">
+                                <number>300</number>
+                            </property>
+                            <layout class="QVBoxLayout" name="rightLayout">
+                                <property name="leftMargin">
+                                    <number>16</number>
+                                </property>
+                                <property name="topMargin">
+                                    <number>16</number>
+                                </property>
+                                <property name="rightMargin">
+                                    <number>16</number>
+                                </property>
+                                <property name="bottomMargin">
+                                    <number>16</number>
+                                </property>
+                                <property name="spacing">
+                                    <number>12</number>
+                                </property>
+
+                                <item>
+                                    <widget class="QLabel" name="lblBucketTitle">
+                                        <property name="text">
+                                            <string>Bucket list</string>
+                                        </property>
+                                        <property name="styleSheet">
+                                            <string notr="true">
+                                                QLabel#lblBucketTitle { color: #FF3DA5; font-weight: 900; font-size: 16pt; }
+                                            </string>
+                                        </property>
+                                    </widget>
+                                </item>
+
+                                <item>
+                                    <widget class="QLabel" name="lblBucketHint">
+                                        <property name="text">
+                                            <string>Items you plan to buy. You can remove them here.</string>
+                                        </property>
+                                        <property name="wordWrap">
+                                            <bool>true</bool>
+                                        </property>
+                                    </widget>
+                                </item>
+
+                                <item>
+                                    <widget class="QListWidget" name="lwBucket">
+                                        <property name="selectionMode">
+                                            <enum>QAbstractItemView::SingleSelection</enum>
+                                        </property>
+                                    </widget>
+                                </item>
+
+                                <item>
+                                    <layout class="QHBoxLayout" name="bucketBottomRow">
+                                        <property name="spacing">
+                                            <number>10</number>
+                                        </property>
+                                        <item>
+                                            <widget class="QLabel" name="lblBucketTotalCaption">
+                                                <property name="text">
+                                                    <string>Total:</string>
+                                                </property>
+                                                <property name="styleSheet">
+                                                    <string notr="true">QLabel{color:#9B9BB0; font-size: 10.5pt;}</string>
+                                                </property>
+                                            </widget>
+                                        </item>
+                                        <item>
+                                            <widget class="QLabel" name="lblBucketTotal">
+                                                <property name="text">
+                                                    <string>0 token</string>
+                                                </property>
+                                            </widget>
+                                        </item>
+                                        <item>
+                                            <spacer name="spacerBucketBottom">
+                                                <property name="orientation">
+                                                    <enum>Qt::Horizontal</enum>
+                                                </property>
+                                                <property name="sizeHint" stdset="0">
+                                                    <size>
+                                                        <width>40</width>
+                                                        <height>20</height>
+                                                    </size>
+                                                </property>
+                                            </spacer>
+                                        </item>
+                                    </layout>
+                                </item>
+
+                                <item>
+                                    <widget class="QPushButton" name="btnGoToCart">
+                                        <property name="text">
+                                            <string>Go to Cart</string>
+                                        </property>
+                                        <property name="cursor">
+                                            <cursorShape>PointingHandCursor</cursorShape>
+                                        </property>
+                                    </widget>
+                                </item>
+
+                                <item>
+                                    <spacer name="spacerRightBottom">
+                                        <property name="orientation">
+                                            <enum>Qt::Vertical</enum>
+                                        </property>
+                                        <property name="sizeHint" stdset="0">
+                                            <size>
+                                                <width>20</width>
+                                                <height>40</height>
+                                            </size>
+                                        </property>
+                                    </spacer>
+                                </item>
+
+                            </layout>
+                        </widget>
+                    </item>
+
+                </layout>
+            </item>
+
+        </layout>
+    </widget>
+    <resources/>
+    <connections/>
+</ui>
