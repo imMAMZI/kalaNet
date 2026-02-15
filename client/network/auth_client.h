@@ -77,6 +77,13 @@ signals:
                            int balanceTokens,
                            const QJsonArray& soldAdIds);
 
+    void discountCodeValidationReceived(bool success,
+                                        const QString& message,
+                                        bool valid,
+                                        int discountTokens,
+                                        int totalTokens,
+                                        const QString& code);
+
     void profileHistoryReceived(bool success,
                                 const QString& message,
                                 const QJsonObject& payload);

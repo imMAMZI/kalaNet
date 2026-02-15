@@ -68,6 +68,26 @@ CREATE TABLE IF NOT EXISTS transaction_ledger (
 CREATE INDEX IF NOT EXISTS idx_transaction_ledger_user_created
 ON transaction_ledger(username, created_at DESC);
 
+CREATE TABLE IF NOT EXISTS discount_codes (
+    code TEXT PRIMARY KEY,
+    type TEXT NOT NULL CHECK(type IN ('percent','fixed')),
+    value_tokens INTEGER NOT NULL CHECK(value_tokens > 0),
+    max_discount_tokens INTEGER NOT NULL DEFAULT 0,
+    min_subtotal_tokens INTEGER NOT NULL DEFAULT 0,
+    usage_limit INTEGER,
+    used_count INTEGER NOT NULL DEFAULT 0,
+    is_active INTEGER NOT NULL DEFAULT 1,
+    expires_at TEXT,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_discount_codes_active ON discount_codes(is_active, code);
+
+INSERT OR IGNORE INTO discount_codes(code, type, value_tokens, max_discount_tokens, min_subtotal_tokens, usage_limit, is_active)
+VALUES ('OFF10', 'percent', 10, 50, 0, NULL, 1),
+       ('OFF20', 'percent', 20, 100, 0, NULL, 1);
+
 INSERT OR IGNORE INTO schema_migrations(version) VALUES (1);
 INSERT OR IGNORE INTO schema_migrations(version) VALUES (2);
 INSERT OR IGNORE INTO schema_migrations(version) VALUES (3);

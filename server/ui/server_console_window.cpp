@@ -7,6 +7,7 @@
 #include "request_log_filter_proxy.h"
 
 #include "pending_ads_window.h"
+#include "discount_code_manager_window.h"
 #include "protocol/error_codes.h"
 #include <QDateTime>
 #include <QFileDialog>
@@ -15,12 +16,13 @@
 #include <QStandardPaths>
 #include <QTextStream>
 
-ServerConsoleWindow::ServerConsoleWindow(AdRepository& adRepository, QWidget* parent)
+ServerConsoleWindow::ServerConsoleWindow(AdRepository& adRepository, WalletRepository& walletRepository, QWidget* parent)
     : QMainWindow(parent),
       ui(new Ui::ServerConsoleWindow),
       logModel(new RequestLogModel(this)),
       proxyModel(new RequestLogFilterProxy(this)),
-      adRepository_(adRepository)
+      adRepository_(adRepository),
+      walletRepository_(walletRepository)
 {
     ui->setupUi(this);
 
@@ -75,6 +77,8 @@ void ServerConsoleWindow::setupConnections() {
             this, &QWidget::close);
     connect(ui->pushButtonShowAdQueue, &QPushButton::clicked,
             this, &ServerConsoleWindow::showPendingAdsWindow);
+    connect(ui->pushButtonShowStats, &QPushButton::clicked,
+            this, &ServerConsoleWindow::showDiscountCodeManager);
 }
 
 void ServerConsoleWindow::populateCommandFilter() {
@@ -131,6 +135,14 @@ void ServerConsoleWindow::populateCommandFilter() {
         tr("Wallet TopUp"),
         tr("Wallet TopUp Result"),
         tr("Wallet Adjust Notify"),
+        tr("Discount Code Validate"),
+        tr("Discount Code Validate Result"),
+        tr("Discount Code List"),
+        tr("Discount Code List Result"),
+        tr("Discount Code Upsert"),
+        tr("Discount Code Upsert Result"),
+        tr("Discount Code Delete"),
+        tr("Discount Code Delete Result"),
         tr("System Notification"),
         tr("Error")
     };
@@ -231,6 +243,18 @@ void ServerConsoleWindow::showPendingAdsWindow()
     pendingAdsWindow->show();
     pendingAdsWindow->raise();
     pendingAdsWindow->activateWindow();
+}
+
+
+void ServerConsoleWindow::showDiscountCodeManager()
+{
+    if (discountCodeManagerWindow_ == nullptr) {
+        discountCodeManagerWindow_ = new DiscountCodeManagerWindow(walletRepository_, this);
+    }
+
+    discountCodeManagerWindow_->show();
+    discountCodeManagerWindow_->raise();
+    discountCodeManagerWindow_->activateWindow();
 }
 
 void ServerConsoleWindow::updateUptime() {
@@ -372,6 +396,14 @@ QString ServerConsoleWindow::mapCommandToText(common::Command command) const
     case common::Command::WalletTopUp:          return tr("Wallet TopUp");
     case common::Command::WalletTopUpResult:    return tr("Wallet TopUp Result");
     case common::Command::WalletAdjustNotify:   return tr("Wallet Adjust Notify");
+    case common::Command::DiscountCodeValidate: return tr("Discount Code Validate");
+    case common::Command::DiscountCodeValidateResult:return tr("Discount Code Validate Result");
+    case common::Command::DiscountCodeList:     return tr("Discount Code List");
+    case common::Command::DiscountCodeListResult:return tr("Discount Code List Result");
+    case common::Command::DiscountCodeUpsert:   return tr("Discount Code Upsert");
+    case common::Command::DiscountCodeUpsertResult:return tr("Discount Code Upsert Result");
+    case common::Command::DiscountCodeDelete:   return tr("Discount Code Delete");
+    case common::Command::DiscountCodeDeleteResult:return tr("Discount Code Delete Result");
     case common::Command::SystemNotification:   return tr("System Notification");
     }
     return tr("Unknown (%1)").arg(static_cast<int>(command));

@@ -45,7 +45,6 @@ private:
     void refreshCartTable();
     void recomputeTotals();
     void removeItemAt(int row);
-    int computeDiscountTokens(const QString& code, int subtotal) const;
     void setWalletBalanceLabel(int tokens);
     void setTotalsLabels(int subtotal, int discount, int total);
 
@@ -57,6 +56,8 @@ private:
     int subtotalTokens = 0;
     int discountTokens = 0;
     int totalTokens = 0;
+    bool discountValid = false;
+    QString appliedDiscountCode;
 };
 
 #endif // KALANET_CART_PAGE_H

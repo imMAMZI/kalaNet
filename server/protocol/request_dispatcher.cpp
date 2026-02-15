@@ -130,6 +130,18 @@ void RequestDispatcher::dispatch(const common::Message& message,
     case common::Command::Buy:
         handleBuy(message, client);
         break;
+    case common::Command::DiscountCodeValidate:
+        handleDiscountCodeValidate(message, client);
+        break;
+    case common::Command::DiscountCodeList:
+        handleDiscountCodeList(message, client);
+        break;
+    case common::Command::DiscountCodeUpsert:
+        handleDiscountCodeUpsert(message, client);
+        break;
+    case common::Command::DiscountCodeDelete:
+        handleDiscountCodeDelete(message, client);
+        break;
     case common::Command::TransactionHistory:
         handleTransactionHistory(message, client);
         break;
@@ -461,6 +473,49 @@ void RequestDispatcher::handleBuy(const common::Message& message,
             }
         }
     }
+}
+
+void RequestDispatcher::handleDiscountCodeValidate(const common::Message& message,
+                                                   ClientConnection& client)
+{
+    const auto session = requireSession(message, client, common::Command::DiscountCodeValidateResult);
+    if (!session.has_value()) {
+        return;
+    }
+
+    QJsonObject payload = message.payload();
+    payload.insert(QStringLiteral("username"), session->username);
+    client.sendResponse(message, walletService_.validateDiscountCode(payload));
+}
+
+void RequestDispatcher::handleDiscountCodeList(const common::Message& message,
+                                               ClientConnection& client)
+{
+    if (!requireSession(message, client, common::Command::DiscountCodeListResult, QStringLiteral("Admin")).has_value()) {
+        return;
+    }
+
+    client.sendResponse(message, walletService_.listDiscountCodes());
+}
+
+void RequestDispatcher::handleDiscountCodeUpsert(const common::Message& message,
+                                                 ClientConnection& client)
+{
+    if (!requireSession(message, client, common::Command::DiscountCodeUpsertResult, QStringLiteral("Admin")).has_value()) {
+        return;
+    }
+
+    client.sendResponse(message, walletService_.upsertDiscountCode(message.payload()));
+}
+
+void RequestDispatcher::handleDiscountCodeDelete(const common::Message& message,
+                                                 ClientConnection& client)
+{
+    if (!requireSession(message, client, common::Command::DiscountCodeDeleteResult, QStringLiteral("Admin")).has_value()) {
+        return;
+    }
+
+    client.sendResponse(message, walletService_.deleteDiscountCode(message.payload()));
 }
 
 void RequestDispatcher::handleTransactionHistory(const common::Message& message,

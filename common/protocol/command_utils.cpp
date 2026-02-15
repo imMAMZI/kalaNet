@@ -67,6 +67,15 @@ const QHash<Command, QString>& forwardMap()
         { Command::WalletTopUpResult, QStringLiteral("wallet/topup/response") },
         { Command::WalletAdjustNotify, QStringLiteral("wallet/adjust/notify") },
 
+        { Command::DiscountCodeValidate, QStringLiteral("discount/validate/request") },
+        { Command::DiscountCodeValidateResult, QStringLiteral("discount/validate/response") },
+        { Command::DiscountCodeList, QStringLiteral("discount/list/request") },
+        { Command::DiscountCodeListResult, QStringLiteral("discount/list/response") },
+        { Command::DiscountCodeUpsert, QStringLiteral("discount/upsert/request") },
+        { Command::DiscountCodeUpsertResult, QStringLiteral("discount/upsert/response") },
+        { Command::DiscountCodeDelete, QStringLiteral("discount/delete/request") },
+        { Command::DiscountCodeDeleteResult, QStringLiteral("discount/delete/response") },
+
         { Command::SystemNotification, QStringLiteral("system/notify") }
     };
 
