@@ -267,7 +267,9 @@ common::Message AuthService::profileHistory(const QJsonObject& payload)
                                {QStringLiteral("category"), ad.category},
                                {QStringLiteral("priceTokens"), ad.priceTokens},
                                {QStringLiteral("sellerUsername"), ad.sellerUsername},
+                               {QStringLiteral("status"), ad.status},
                                {QStringLiteral("createdAt"), ad.createdAt},
+                               {QStringLiteral("updatedAt"), ad.updatedAt},
                                {QStringLiteral("hasImage"), ad.hasImage}};
         };
 
