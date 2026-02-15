@@ -118,6 +118,11 @@ profile_page::profile_page(QWidget *parent)
                 }
             });
 
+    connect(AuthClient::instance(), &AuthClient::adStatusNotifyReceived, this,
+            [this](const QJsonArray&, const QString&) {
+                refreshFromServer();
+            });
+
     refreshFromServer();
     on_btnRefreshCaptcha_clicked();
 }
