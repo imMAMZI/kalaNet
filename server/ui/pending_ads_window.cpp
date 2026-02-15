@@ -144,6 +144,8 @@ void PendingAdsWindow::bindConnections()
             this, &PendingAdsWindow::loadPendingAds);
     connect(ui->comboBoxCategoryFilter, &QComboBox::currentTextChanged,
             this, &PendingAdsWindow::loadPendingAds);
+    connect(ui->comboBoxStatusFilter, &QComboBox::currentTextChanged,
+            this, &PendingAdsWindow::loadPendingAds);
     connect(ui->checkBoxOnlyWithImage, qOverload<int>(&QCheckBox::stateChanged),
             this, [this](int) { loadPendingAds(); });
     connect(ui->spinBoxMaxPrice, qOverload<int>(&QSpinBox::valueChanged),
@@ -204,6 +206,7 @@ void PendingAdsWindow::clearFilters()
 {
     ui->lineEditSearch->clear();
     ui->comboBoxCategoryFilter->setCurrentIndex(0);
+    ui->comboBoxStatusFilter->setCurrentIndex(0);
     ui->checkBoxOnlyWithImage->setChecked(false);
     ui->spinBoxMaxPrice->setValue(0);
     loadPendingAds();
@@ -226,15 +229,20 @@ void PendingAdsWindow::loadPendingAds()
     filters.sortField = AdRepository::AdListSortField::CreatedAt;
     filters.sortOrder = AdRepository::SortOrder::Desc;
 
+    QString statusFilter = QStringLiteral("all");
+    if (ui->comboBoxStatusFilter->currentText().compare(tr("Pending Only"), Qt::CaseInsensitive) == 0) {
+        statusFilter = QStringLiteral("pending");
+    }
+
     const auto ads = adRepository_.listAdsForModeration(
         filters,
-        QStringLiteral("pending"),
+        statusFilter,
         ui->checkBoxOnlyWithImage->isChecked(),
         {},
         ui->lineEditSearch->text().trimmed());
 
     populateTable(ads);
-    ui->labelQueueStats->setText(tr("Pending queue: %1 ads").arg(ads.size()));
+    ui->labelQueueStats->setText(tr("Ads: %1").arg(ads.size()));
 
     if (ads.isEmpty()) {
         resetDetailPane();
