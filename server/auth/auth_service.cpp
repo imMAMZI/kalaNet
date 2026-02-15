@@ -248,6 +248,13 @@ common::Message AuthService::profileHistory(const QJsonObject& payload)
     }
 
     try {
+        const auto user = repo_.findByUsername(username);
+        if (!user.has_value()) {
+            return common::Message::makeFailure(common::Command::ProfileHistoryResult,
+                                                common::ErrorCode::NotFound,
+                                                QStringLiteral("User not found"));
+        }
+
         const auto postedAds = adRepository_->listAdsBySeller(username, QString());
         const auto soldAds = adRepository_->listAdsBySeller(username, QStringLiteral("sold"));
         const auto purchasedAds = adRepository_->listPurchasedAdsByBuyer(username, limit);
@@ -286,6 +293,9 @@ common::Message AuthService::profileHistory(const QJsonObject& payload)
         }
 
         QJsonObject response{{QStringLiteral("username"), username},
+                             {QStringLiteral("fullName"), user->fullName},
+                             {QStringLiteral("email"), user->email},
+                             {QStringLiteral("phone"), user->phone},
                              {QStringLiteral("walletBalanceTokens"), balance},
                              {QStringLiteral("postedAds"), postedArray},
                              {QStringLiteral("soldAds"), soldArray},

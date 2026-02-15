@@ -44,6 +44,10 @@ signals:
                         const QString& message,
                         const QJsonArray& ads);
 
+    void adDetailResultReceived(bool success,
+                                const QString& message,
+                                const QJsonObject& ad);
+
     void cartListReceived(bool success,
                           const QString& message,
                           const QJsonArray& items);
