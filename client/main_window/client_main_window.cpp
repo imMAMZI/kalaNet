@@ -172,6 +172,9 @@ void client_main_window::on_btnProfile_clicked()
 {
     emit profileRequested();
     showPage(ProfilePage);
+    if (profilePageWidget) {
+        profilePageWidget->refreshFromServer();
+    }
 }
 
 void client_main_window::on_btnHowItWorks_clicked()

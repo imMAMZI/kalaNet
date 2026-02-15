@@ -52,7 +52,6 @@ login_window::login_window(QMainWindow *parent)
                     return;
                 }
 
-                clearError();
                 currentCaptchaNonce_ = nonce;
                 ui->lblCaptchaText->setText(challengeText);
                 ui->leCaptcha->clear();
