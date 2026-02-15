@@ -191,7 +191,7 @@
                         <item>
                             <widget class="QPushButton" name="pushButtonShowAdQueue">
                                 <property name="text">
-                                    <string>Pending Ads (Admin)</string>
+                                    <string>Ads Section (Admin)</string>
                                 </property>
                             </widget>
                         </item>
