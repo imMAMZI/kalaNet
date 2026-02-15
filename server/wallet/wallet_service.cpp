@@ -105,22 +105,22 @@ common::Message WalletService::walletTopUp(const QJsonObject& payload)
     }
 
     const QString captchaNonce = payload.value(QStringLiteral("captchaNonce")).toString().trimmed();
-    const QString captchaResponse = payload.value(QStringLiteral("captchaResponse")).toString().trimmed();
+    const int captchaAnswer = payload.value(QStringLiteral("captchaAnswer")).toInt(std::numeric_limits<int>::min());
 
     if (amount > 500) {
-        if (captchaNonce.isEmpty() || captchaResponse.isEmpty()) {
+        if (captchaNonce.isEmpty() || captchaAnswer == std::numeric_limits<int>::min()) {
             return common::Message::makeFailure(common::Command::WalletTopUpResult,
-                                                common::ErrorCode::CaptchaRequired,
+                                                common::ErrorCode::ValidationFailed,
                                                 QStringLiteral("CAPTCHA is required for top-up amounts greater than 500 tokens"));
         }
 
-        const auto verifyResult = captchaService_.verify(QStringLiteral("wallet_topup"), captchaNonce, captchaResponse);
-        if (!verifyResult.ok) {
+        QString captchaFailure;
+        if (!captchaService_.verifyAndConsume(captchaNonce, captchaAnswer, QStringLiteral("wallet_topup"), &captchaFailure)) {
             return common::Message::makeFailure(common::Command::WalletTopUpResult,
-                                                common::ErrorCode::CaptchaInvalid,
-                                                verifyResult.reason.isEmpty()
+                                                common::ErrorCode::ValidationFailed,
+                                                captchaFailure.isEmpty()
                                                     ? QStringLiteral("CAPTCHA verification failed")
-                                                    : verifyResult.reason);
+                                                    : captchaFailure);
         }
     }
 
