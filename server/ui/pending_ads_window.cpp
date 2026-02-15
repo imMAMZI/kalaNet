@@ -52,6 +52,49 @@ PendingAdsWindow::PendingAdsWindow(AdRepository& adRepository, QWidget* parent)
     , ui(new Ui::PendingAdsWindow)
 {
     ui->setupUi(this);
+    ui->splitterMain->setStretchFactor(0, 2);
+    ui->splitterMain->setStretchFactor(1, 3);
+    ui->splitterMain->setSizes({560, 760});
+
+    setStyleSheet(QStringLiteral(
+        "QMainWindow { background-color: #f3f5f8; }"
+        "QGroupBox {"
+        "  border: 1px solid #d8dee8;"
+        "  border-radius: 8px;"
+        "  margin-top: 12px;"
+        "  background-color: #ffffff;"
+        "  font-weight: 600;"
+        "}"
+        "QGroupBox::title {"
+        "  subcontrol-origin: margin;"
+        "  left: 12px;"
+        "  padding: 0 6px;"
+        "  color: #1f2d3d;"
+        "}"
+        "QTableView, QTableWidget, QTextBrowser, QPlainTextEdit {"
+        "  background-color: #fbfcfe;"
+        "  border: 1px solid #d4dbe7;"
+        "  border-radius: 6px;"
+        "}"
+        "QHeaderView::section {"
+        "  background-color: #eef2f7;"
+        "  padding: 5px;"
+        "  border: none;"
+        "  border-right: 1px solid #d7deea;"
+        "}"
+        "QPushButton {"
+        "  border: 1px solid #bcc7d9;"
+        "  border-radius: 6px;"
+        "  padding: 6px 10px;"
+        "  background-color: #ffffff;"
+        "}"
+        "QPushButton:hover { background-color: #f1f5fb; }"
+        "QLineEdit, QComboBox, QSpinBox {"
+        "  border: 1px solid #c8d1e0;"
+        "  border-radius: 6px;"
+        "  padding: 4px 6px;"
+        "  background-color: #ffffff;"
+        "}"));
 
     auto* model = new QStandardItemModel(this);
     model->setColumnCount(AdTableColumns::Count);
@@ -65,6 +108,7 @@ PendingAdsWindow::PendingAdsWindow(AdRepository& adRepository, QWidget* parent)
     ui->tableViewPendingAds->horizontalHeader()->setStretchLastSection(true);
     ui->tableViewPendingAds->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     ui->tableViewPendingAds->setSortingEnabled(true);
+    ui->tableViewPendingAds->verticalHeader()->setVisible(false);
 
     ui->tableWidgetHistory->setColumnCount(3);
     ui->tableWidgetHistory->setHorizontalHeaderLabels({tr("Time"), tr("Status"), tr("Note")});
