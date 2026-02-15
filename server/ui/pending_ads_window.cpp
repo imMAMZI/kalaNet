@@ -69,7 +69,7 @@ PendingAdsWindow::PendingAdsWindow(AdRepository& adRepository, QWidget* parent)
         "  subcontrol-origin: margin;"
         "  left: 12px;"
         "  padding: 0 6px;"
-        "  color: #f1f4fb;"
+        "  color: #f1f4fb;"f
         "}"
         "QTableView, QTableWidget, QTextBrowser, QPlainTextEdit {"
         "  background-color: #252b36;"
