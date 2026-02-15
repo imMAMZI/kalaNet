@@ -4,14 +4,11 @@
 
 #include <QApplication>
 
-#include "../main_window/client_main_window.h"
 #include "../login/login_window.h"
-#include "../main_window/client_main_window.h"
 
 int main(int argc, char *argv[]) {
     QApplication a(argc, argv);
     login_window login_page;
-    client_main_window w;
     login_page.show();
     return QApplication::exec();
 }
