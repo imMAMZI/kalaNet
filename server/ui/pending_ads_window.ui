@@ -183,7 +183,7 @@
            <string>Select a pending ad to review full details and approve/reject it.</string>
           </property>
           <property name="styleSheet">
-           <string notr="true">color: rgb(90, 90, 90);</string>
+           <string notr="true">color: rgb(180, 188, 204);</string>
           </property>
          </widget>
         </item>

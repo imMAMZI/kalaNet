@@ -25,14 +25,14 @@ ServerConsoleWindow::ServerConsoleWindow(AdRepository& adRepository, QWidget* pa
     ui->setupUi(this);
 
     setStyleSheet(QStringLiteral(
-        "QMainWindow { background-color: #f3f5f8; }"
-        "QGroupBox { border: 1px solid #d8dee8; border-radius: 8px; margin-top: 12px; background-color: #ffffff; font-weight: 600; }"
-        "QGroupBox::title { subcontrol-origin: margin; left: 12px; padding: 0 6px; color: #1f2d3d; }"
-        "QTableView { background-color: #fbfcfe; border: 1px solid #d4dbe7; border-radius: 6px; }"
-        "QHeaderView::section { background-color: #eef2f7; padding: 5px; border: none; border-right: 1px solid #d7deea; }"
-        "QPushButton { border: 1px solid #bcc7d9; border-radius: 6px; padding: 6px 10px; background-color: #ffffff; }"
-        "QPushButton:hover { background-color: #f1f5fb; }"
-        "QLineEdit, QComboBox { border: 1px solid #c8d1e0; border-radius: 6px; padding: 4px 6px; background-color: #ffffff; }"));
+        "QMainWindow, QWidget { background-color: #1f232b; color: #e7ebf3; }"
+        "QGroupBox { border: 1px solid #424a5a; border-radius: 8px; margin-top: 12px; background-color: #2a303b; font-weight: 600; }"
+        "QGroupBox::title { subcontrol-origin: margin; left: 12px; padding: 0 6px; color: #f1f4fb; }"
+        "QTableView { background-color: #252b36; color: #e7ebf3; border: 1px solid #465064; border-radius: 6px; selection-background-color: #3f6eb8; selection-color: #ffffff; }"
+        "QHeaderView::section { background-color: #333b49; color: #eaf0fa; padding: 5px; border: none; border-right: 1px solid #4b5568; }"
+        "QPushButton { border: 1px solid #5b6680; border-radius: 6px; padding: 6px 10px; background-color: #353d4c; color: #f1f4fb; }"
+        "QPushButton:hover { background-color: #414c61; }"
+        "QLineEdit, QComboBox { border: 1px solid #5b6680; border-radius: 6px; padding: 4px 6px; background-color: #202632; color: #eef3ff; }"));
 
     proxyModel->setSourceModel(logModel);
     proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
