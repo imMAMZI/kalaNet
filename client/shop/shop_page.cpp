@@ -3,13 +3,17 @@
 
 #include "../network/auth_client.h"
 
+#include <QDialog>
 #include <QHeaderView>
-#include <QPushButton>
-#include <QTableWidgetItem>
-#include <QMessageBox>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QListWidgetItem>
+#include <QMessageBox>
+#include <QPlainTextEdit>
+#include <QPixmap>
+#include <QPushButton>
+#include <QTableWidgetItem>
+#include <QVBoxLayout>
 #include <utility>
 
 shop_page::shop_page(QWidget *parent)
@@ -28,6 +32,7 @@ shop_page::shop_page(QWidget *parent)
                 }
 
                 allAds.clear();
+                adDetails.clear();
                 for (const QJsonValue& value : ads) {
                     const QJsonObject ad = value.toObject();
                     allAds.push_back({ad.value(QStringLiteral("id")).toInt(-1),
@@ -45,6 +50,37 @@ shop_page::shop_page(QWidget *parent)
                     }
                 }
                 refreshAdsTable();
+            });
+
+    connect(AuthClient::instance(), &AuthClient::adDetailResultReceived, this,
+            [this](bool success, const QString& message, const QJsonObject& ad) {
+                const int adId = ad.value(QStringLiteral("id")).toInt(-1);
+                if (adId <= 0) {
+                    return;
+                }
+
+                AdDetailData& detail = adDetails[adId];
+                detail.requested = false;
+
+                if (!success) {
+                    if (pendingPreviewAdId == adId) {
+                        pendingPreviewAdId = -1;
+                        QMessageBox::warning(this, QStringLiteral("Preview"),
+                                             message.isEmpty() ? QStringLiteral("Could not load ad preview") : message);
+                    }
+                    return;
+                }
+
+                detail.loaded = true;
+                detail.description = ad.value(QStringLiteral("description")).toString();
+                detail.imageBytes = QByteArray::fromBase64(ad.value(QStringLiteral("imageBase64")).toString().toLatin1());
+
+                refreshAdsTable();
+
+                if (pendingPreviewAdId == adId) {
+                    pendingPreviewAdId = -1;
+                    showAdPreviewDialog(adId);
+                }
             });
 
     connect(AuthClient::instance(), &AuthClient::cartListReceived, this,
@@ -76,6 +112,15 @@ shop_page::shop_page(QWidget *parent)
             [this](const QJsonArray&, const QString&) {
                 fetchAdsFromServer();
                 fetchCartFromServer();
+            });
+
+    connect(ui->twAds, &QTableWidget::cellDoubleClicked, this,
+            [this](int row, int) {
+                if (row < 0 || row >= filteredIndices.size()) {
+                    return;
+                }
+                const ShopItem& ad = allAds[filteredIndices[row]];
+                showAdPreviewDialog(ad.adId);
             });
 
     fetchAdsFromServer();
@@ -113,10 +158,23 @@ void shop_page::refreshAdsTable()
 
     for (int row = 0; row < filteredIndices.size(); ++row) {
         const ShopItem& ad = allAds[filteredIndices[row]];
+        auto *imageLabel = new QLabel();
+        imageLabel->setAlignment(Qt::AlignCenter);
+        imageLabel->setMinimumSize(72, 54);
 
-        auto *imgItem = new QTableWidgetItem(ad.adId > 0 ? QString::number(ad.adId) : QStringLiteral("-"));
-        imgItem->setTextAlignment(Qt::AlignCenter);
-        ui->twAds->setItem(row, 0, imgItem);
+        const AdDetailData detail = adDetails.value(ad.adId);
+        if (detail.loaded && !detail.imageBytes.isEmpty()) {
+            QPixmap pixmap;
+            if (pixmap.loadFromData(detail.imageBytes)) {
+                imageLabel->setPixmap(pixmap.scaled(72, 54, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+            } else {
+                imageLabel->setText(QStringLiteral("No image"));
+            }
+        } else {
+            imageLabel->setText(QStringLiteral("Preview"));
+            requestAdDetail(ad.adId);
+        }
+        ui->twAds->setCellWidget(row, 0, imageLabel);
 
         ui->twAds->setItem(row, 1, new QTableWidgetItem(ad.title));
         ui->twAds->setItem(row, 2, new QTableWidgetItem(ad.category));
@@ -166,6 +224,95 @@ void shop_page::refreshCartPreview()
     }
 
     ui->lblBucketTotal->setText(QString::number(total) + QStringLiteral(" token"));
+}
+
+void shop_page::requestAdDetail(int adId)
+{
+    if (adId <= 0) {
+        return;
+    }
+
+    AdDetailData& detail = adDetails[adId];
+    if (detail.loaded || detail.requested) {
+        return;
+    }
+
+    detail.requested = true;
+    AuthClient::instance()->sendMessage(
+        AuthClient::instance()->withSession(common::Command::AdDetail,
+                                            QJsonObject{{QStringLiteral("adId"), adId}}));
+}
+
+void shop_page::showAdPreviewDialog(int adId)
+{
+    const int index = [&]() {
+        for (int i = 0; i < allAds.size(); ++i) {
+            if (allAds[i].adId == adId) {
+                return i;
+            }
+        }
+        return -1;
+    }();
+
+    if (index < 0) {
+        return;
+    }
+
+    const AdDetailData detail = adDetails.value(adId);
+    if (!detail.loaded) {
+        pendingPreviewAdId = adId;
+        requestAdDetail(adId);
+        return;
+    }
+
+    const ShopItem& ad = allAds[index];
+    QDialog dialog(this);
+    dialog.setWindowTitle(QStringLiteral("Ad preview"));
+    dialog.resize(520, 620);
+
+    auto *layout = new QVBoxLayout(&dialog);
+
+    auto *title = new QLabel(ad.title, &dialog);
+    title->setStyleSheet(QStringLiteral("font-size: 20px; font-weight: 700;"));
+    layout->addWidget(title);
+
+    auto *meta = new QLabel(QStringLiteral("%1 • %2 token • Seller: %3")
+                            .arg(ad.category)
+                            .arg(ad.priceTokens)
+                            .arg(ad.seller),
+                            &dialog);
+    meta->setWordWrap(true);
+    layout->addWidget(meta);
+
+    auto *image = new QLabel(&dialog);
+    image->setMinimumHeight(260);
+    image->setAlignment(Qt::AlignCenter);
+    image->setStyleSheet(QStringLiteral("border:1px solid #2A2A39; border-radius: 8px;"));
+    if (!detail.imageBytes.isEmpty()) {
+        QPixmap pix;
+        if (pix.loadFromData(detail.imageBytes)) {
+            image->setPixmap(pix.scaled(460, 260, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+        } else {
+            image->setText(QStringLiteral("Image unavailable"));
+        }
+    } else {
+        image->setText(QStringLiteral("No image provided"));
+    }
+    layout->addWidget(image);
+
+    auto *desc = new QPlainTextEdit(&dialog);
+    desc->setReadOnly(true);
+    desc->setPlainText(detail.description.trimmed().isEmpty()
+                           ? QStringLiteral("No description provided")
+                           : detail.description);
+    layout->addWidget(desc, 1);
+
+    auto *closeBtn = new QPushButton(QStringLiteral("Close"), &dialog);
+    closeBtn->setCursor(Qt::PointingHandCursor);
+    layout->addWidget(closeBtn, 0, Qt::AlignRight);
+    connect(closeBtn, &QPushButton::clicked, &dialog, &QDialog::accept);
+
+    dialog.exec();
 }
 
 QJsonObject shop_page::buildAdListPayload() const

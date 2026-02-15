@@ -105,20 +105,20 @@ void login_window::on_btnRefresh_clicked()
 
 void login_window::on_btnSignup_clicked()
 {
-    auto *dlg = new signup_window(this);
+    signup_window dlg(this);
 
-    connect(dlg, &signup_window::backToLoginRequested, dlg, &QDialog::reject);
+    connect(&dlg, &signup_window::backToLoginRequested, &dlg, &QDialog::reject);
 
-    connect(dlg, &signup_window::signupSubmitted, this,
-    [this, dlg](const QString&, const QString& username,
-                const QString&, const QString&, const QString& passPlain)
+    connect(&dlg, &signup_window::signupSubmitted, this,
+            [this, &dlg](const QString&, const QString& username,
+                         const QString&, const QString&, const QString& passPlain)
             {
                 ui->leUsername->setText(username);
                 ui->lePassword->setText(passPlain);
-                dlg->accept();
+                dlg.accept();
             });
 
-    dlg->exec();
+    dlg.exec();
 }
 
 void login_window::requestCaptchaChallenge()

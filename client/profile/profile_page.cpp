@@ -23,6 +23,10 @@ profile_page::profile_page(QWidget *parent)
 
                 walletBalanceTokens = payload.value(QStringLiteral("walletBalanceTokens")).toInt(0);
                 ui->lblBalanceValue->setText(QString::number(walletBalanceTokens) + " token");
+                ui->leUsername->setText(payload.value(QStringLiteral("username")).toString());
+                ui->leName->setText(payload.value(QStringLiteral("fullName")).toString());
+                ui->lePhone->setText(payload.value(QStringLiteral("phone")).toString());
+                ui->leEmail->setText(payload.value(QStringLiteral("email")).toString());
 
                 purchases.clear();
                 const QJsonArray purchasedAds = payload.value(QStringLiteral("purchasedAds")).toArray();
@@ -148,7 +152,8 @@ void profile_page::setupTables()
 void profile_page::refreshFromServer()
 {
     AuthClient* client = AuthClient::instance();
-    client->sendMessage(client->withSession(common::Command::ProfileHistory));
+    client->sendMessage(client->withSession(common::Command::ProfileHistory,
+                                                QJsonObject{{QStringLiteral("username"), client->username()}}));
     client->sendMessage(client->withSession(common::Command::WalletBalance));
 }
 
