@@ -21,6 +21,8 @@ public:
         QString seller;
         QString date;
     };
+    void refreshFromServer();
+
 
     explicit profile_page(QWidget *parent = nullptr);
     ~profile_page() override;
@@ -46,7 +48,6 @@ private:
     };
 
     void setupTables();
-    void refreshFromServer();
     void refreshPurchasesTable();
     void refreshMyAdsTable();
     void showStatus(QLabel* label, const QString& text);
