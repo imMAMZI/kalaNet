@@ -23,10 +23,10 @@ int main(int argc, char *argv[])
 
     SqliteUserRepository userRepo("kalanet.db");
     SqliteAdRepository adRepo("kalanet.db");
-    ServerConsoleWindow console(adRepo);
-    console.show();
     SqliteCartRepository cartRepo("kalanet.db");
     SqliteWalletRepository walletRepo("kalanet.db");
+    ServerConsoleWindow console(adRepo, walletRepo);
+    console.show();
 
     CaptchaService captchaService;
     AuthService authService(userRepo, captchaService, &adRepo, &walletRepo);

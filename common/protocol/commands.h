@@ -65,6 +65,15 @@ namespace common {
         WalletTopUpResult,
         WalletAdjustNotify,
 
+        DiscountCodeValidate,
+        DiscountCodeValidateResult,
+        DiscountCodeList,
+        DiscountCodeListResult,
+        DiscountCodeUpsert,
+        DiscountCodeUpsertResult,
+        DiscountCodeDelete,
+        DiscountCodeDeleteResult,
+
         SystemNotification
     };
 

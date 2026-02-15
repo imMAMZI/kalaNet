@@ -27,7 +27,28 @@ public:
 
     struct CheckoutResult {
         int buyerBalance = 0;
+        int subtotalTokens = 0;
+        int discountTokens = 0;
+        int totalTokens = 0;
+        QString appliedDiscountCode;
         QVector<CheckoutItem> purchasedItems;
+    };
+
+    struct DiscountValidationResult {
+        bool valid = false;
+        QString message;
+        QString code;
+        QString type;
+        int valueTokens = 0;
+        int maxDiscountTokens = 0;
+        int minSubtotalTokens = 0;
+        int subtotalTokens = 0;
+        int discountTokens = 0;
+        int totalTokens = 0;
+        int usageLimit = -1;
+        int usedCount = 0;
+        bool active = true;
+        QDateTime expiresAt;
     };
 
     virtual ~WalletRepository() = default;
@@ -36,8 +57,17 @@ public:
     virtual int topUp(const QString& username, int amountTokens) = 0;
     virtual bool checkout(const QString& buyerUsername,
                           const QVector<int>& adIds,
+                          const QString& discountCode,
                           CheckoutResult& result,
                           QString* errorMessage) = 0;
+    virtual DiscountValidationResult validateDiscountCode(const QString& code,
+                                                          int subtotalTokens,
+                                                          const QString& username = {}) = 0;
+    virtual QVector<DiscountValidationResult> listDiscountCodes() = 0;
+    virtual bool upsertDiscountCode(const DiscountValidationResult& record,
+                                    QString* errorMessage) = 0;
+    virtual bool deleteDiscountCode(const QString& code,
+                                    QString* errorMessage) = 0;
     virtual QVector<LedgerEntry> transactionHistory(const QString& username, int limit) = 0;
 };
 

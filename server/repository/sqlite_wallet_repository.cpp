@@ -87,6 +87,39 @@ void SqliteWalletRepository::initializeSchema()
             "ON transaction_ledger(username, created_at DESC);"))) {
         throwDatabaseError(QStringLiteral("create transaction ledger index"), createIndex.lastError());
     }
+
+    QSqlQuery createDiscountCodes(db_);
+    if (!createDiscountCodes.exec(QStringLiteral(
+            "CREATE TABLE IF NOT EXISTS discount_codes ("
+            " code TEXT PRIMARY KEY,"
+            " type TEXT NOT NULL CHECK(type IN ('percent','fixed')) ,"
+            " value_tokens INTEGER NOT NULL CHECK(value_tokens > 0),"
+            " max_discount_tokens INTEGER NOT NULL DEFAULT 0,"
+            " min_subtotal_tokens INTEGER NOT NULL DEFAULT 0,"
+            " usage_limit INTEGER,"
+            " used_count INTEGER NOT NULL DEFAULT 0,"
+            " is_active INTEGER NOT NULL DEFAULT 1,"
+            " expires_at TEXT,"
+            " created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,"
+            " updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP"
+            ");"))) {
+        throwDatabaseError(QStringLiteral("create discount_codes table"), createDiscountCodes.lastError());
+    }
+
+    QSqlQuery createDiscountIndex(db_);
+    if (!createDiscountIndex.exec(QStringLiteral(
+            "CREATE INDEX IF NOT EXISTS idx_discount_codes_active ON discount_codes(is_active, code);"))) {
+        throwDatabaseError(QStringLiteral("create discount_codes index"), createDiscountIndex.lastError());
+    }
+
+    QSqlQuery seedDiscount(db_);
+    if (!seedDiscount.exec(QStringLiteral(
+            "INSERT OR IGNORE INTO discount_codes(code, type, value_tokens, max_discount_tokens, min_subtotal_tokens, usage_limit, is_active) "
+            "VALUES "
+            "('OFF10', 'percent', 10, 50, 0, NULL, 1),"
+            "('OFF20', 'percent', 20, 100, 0, NULL, 1);"))) {
+        throwDatabaseError(QStringLiteral("seed discount_codes"), seedDiscount.lastError());
+    }
 }
 
 void SqliteWalletRepository::ensureWalletRow(const QString& username)
@@ -174,8 +207,213 @@ int SqliteWalletRepository::topUp(const QString& username, int amountTokens)
     return newBalance;
 }
 
+WalletRepository::DiscountValidationResult SqliteWalletRepository::validateDiscountCode(const QString& code,
+                                                                                         int subtotalTokens,
+                                                                                         const QString&)
+{
+    QMutexLocker locker(&mutex_);
+    ensureConnection();
+
+    DiscountValidationResult result;
+    result.subtotalTokens = qMax(0, subtotalTokens);
+    result.totalTokens = result.subtotalTokens;
+    result.code = code.trimmed().toUpper();
+
+    if (result.code.isEmpty()) {
+        result.message = QStringLiteral("No discount code provided");
+        return result;
+    }
+
+    QSqlQuery query(db_);
+    query.prepare(QStringLiteral(
+        "SELECT code, type, value_tokens, max_discount_tokens, min_subtotal_tokens, usage_limit, used_count, is_active, expires_at "
+        "FROM discount_codes WHERE code = :code LIMIT 1;"));
+    query.bindValue(QStringLiteral(":code"), result.code);
+
+    if (!query.exec()) {
+        throwDatabaseError(QStringLiteral("validate discount code"), query.lastError());
+    }
+
+    if (!query.next()) {
+        result.message = QStringLiteral("Discount code not found");
+        return result;
+    }
+
+    result.type = query.value(1).toString().trimmed().toLower();
+    result.valueTokens = query.value(2).toInt();
+    result.maxDiscountTokens = qMax(0, query.value(3).toInt());
+    result.minSubtotalTokens = qMax(0, query.value(4).toInt());
+    result.usageLimit = query.value(5).isNull() ? -1 : query.value(5).toInt();
+    result.usedCount = query.value(6).toInt();
+    result.active = query.value(7).toInt() != 0;
+    result.expiresAt = QDateTime::fromString(query.value(8).toString(), Qt::ISODate);
+
+    if (!result.active) {
+        result.message = QStringLiteral("Discount code is inactive");
+        return result;
+    }
+
+    if (result.expiresAt.isValid() && result.expiresAt < QDateTime::currentDateTimeUtc()) {
+        result.message = QStringLiteral("Discount code has expired");
+        return result;
+    }
+
+    if (result.usageLimit >= 0 && result.usedCount >= result.usageLimit) {
+        result.message = QStringLiteral("Discount code usage limit reached");
+        return result;
+    }
+
+    if (result.subtotalTokens < result.minSubtotalTokens) {
+        result.message = QStringLiteral("Subtotal must be at least %1 tokens").arg(result.minSubtotalTokens);
+        return result;
+    }
+
+    int discount = 0;
+    if (result.type == QStringLiteral("percent")) {
+        discount = (result.subtotalTokens * result.valueTokens) / 100;
+    } else if (result.type == QStringLiteral("fixed")) {
+        discount = result.valueTokens;
+    } else {
+        result.message = QStringLiteral("Discount code has invalid type");
+        return result;
+    }
+
+    if (result.maxDiscountTokens > 0) {
+        discount = qMin(discount, result.maxDiscountTokens);
+    }
+    discount = qMax(0, qMin(discount, result.subtotalTokens));
+
+    result.discountTokens = discount;
+    result.totalTokens = result.subtotalTokens - discount;
+    result.valid = discount > 0;
+    result.message = result.valid
+                         ? QStringLiteral("Discount code applied")
+                         : QStringLiteral("Discount code does not reduce this cart");
+    return result;
+}
+
+QVector<WalletRepository::DiscountValidationResult> SqliteWalletRepository::listDiscountCodes()
+{
+    QMutexLocker locker(&mutex_);
+    ensureConnection();
+
+    QSqlQuery query(db_);
+    if (!query.exec(QStringLiteral(
+            "SELECT code, type, value_tokens, max_discount_tokens, min_subtotal_tokens, usage_limit, used_count, is_active, expires_at "
+            "FROM discount_codes ORDER BY code ASC;"))) {
+        throwDatabaseError(QStringLiteral("list discount codes"), query.lastError());
+    }
+
+    QVector<DiscountValidationResult> rows;
+    while (query.next()) {
+        DiscountValidationResult item;
+        item.code = query.value(0).toString();
+        item.type = query.value(1).toString();
+        item.valueTokens = query.value(2).toInt();
+        item.maxDiscountTokens = query.value(3).toInt();
+        item.minSubtotalTokens = query.value(4).toInt();
+        item.usageLimit = query.value(5).isNull() ? -1 : query.value(5).toInt();
+        item.usedCount = query.value(6).toInt();
+        item.active = query.value(7).toInt() != 0;
+        item.expiresAt = QDateTime::fromString(query.value(8).toString(), Qt::ISODate);
+        rows.push_back(item);
+    }
+    return rows;
+}
+
+bool SqliteWalletRepository::upsertDiscountCode(const DiscountValidationResult& record,
+                                                QString* errorMessage)
+{
+    QMutexLocker locker(&mutex_);
+    ensureConnection();
+
+    const QString code = record.code.trimmed().toUpper();
+    const QString type = record.type.trimmed().toLower();
+    if (code.isEmpty() || (type != QStringLiteral("percent") && type != QStringLiteral("fixed")) || record.valueTokens <= 0) {
+        if (errorMessage) {
+            *errorMessage = QStringLiteral("Invalid discount code payload");
+        }
+        return false;
+    }
+
+    if (type == QStringLiteral("percent") && record.valueTokens > 100) {
+        if (errorMessage) {
+            *errorMessage = QStringLiteral("Percent discount cannot exceed 100");
+        }
+        return false;
+    }
+
+    QSqlQuery query(db_);
+    query.prepare(QStringLiteral(
+        "INSERT INTO discount_codes(code, type, value_tokens, max_discount_tokens, min_subtotal_tokens, usage_limit, used_count, is_active, expires_at, updated_at) "
+        "VALUES(:code, :type, :value, :max_discount, :min_subtotal, :usage_limit, :used_count, :is_active, :expires_at, CURRENT_TIMESTAMP) "
+        "ON CONFLICT(code) DO UPDATE SET "
+        " type = excluded.type,"
+        " value_tokens = excluded.value_tokens,"
+        " max_discount_tokens = excluded.max_discount_tokens,"
+        " min_subtotal_tokens = excluded.min_subtotal_tokens,"
+        " usage_limit = excluded.usage_limit,"
+        " is_active = excluded.is_active,"
+        " expires_at = excluded.expires_at,"
+        " updated_at = CURRENT_TIMESTAMP;"));
+
+    query.bindValue(QStringLiteral(":code"), code);
+    query.bindValue(QStringLiteral(":type"), type);
+    query.bindValue(QStringLiteral(":value"), record.valueTokens);
+    query.bindValue(QStringLiteral(":max_discount"), qMax(0, record.maxDiscountTokens));
+    query.bindValue(QStringLiteral(":min_subtotal"), qMax(0, record.minSubtotalTokens));
+    if (record.usageLimit < 0) {
+        query.bindValue(QStringLiteral(":usage_limit"), QVariant(QVariant::Int));
+    } else {
+        query.bindValue(QStringLiteral(":usage_limit"), record.usageLimit);
+    }
+    query.bindValue(QStringLiteral(":used_count"), qMax(0, record.usedCount));
+    query.bindValue(QStringLiteral(":is_active"), record.active ? 1 : 0);
+    if (record.expiresAt.isValid()) {
+        query.bindValue(QStringLiteral(":expires_at"), record.expiresAt.toUTC().toString(Qt::ISODate));
+    } else {
+        query.bindValue(QStringLiteral(":expires_at"), QVariant(QVariant::String));
+    }
+
+    if (!query.exec()) {
+        if (errorMessage) {
+            *errorMessage = query.lastError().text();
+        }
+        return false;
+    }
+    return true;
+}
+
+bool SqliteWalletRepository::deleteDiscountCode(const QString& code,
+                                                QString* errorMessage)
+{
+    QMutexLocker locker(&mutex_);
+    ensureConnection();
+
+    QSqlQuery query(db_);
+    query.prepare(QStringLiteral("DELETE FROM discount_codes WHERE code = :code;"));
+    query.bindValue(QStringLiteral(":code"), code.trimmed().toUpper());
+
+    if (!query.exec()) {
+        if (errorMessage) {
+            *errorMessage = query.lastError().text();
+        }
+        return false;
+    }
+
+    if (query.numRowsAffected() != 1) {
+        if (errorMessage) {
+            *errorMessage = QStringLiteral("Discount code not found");
+        }
+        return false;
+    }
+
+    return true;
+}
+
 bool SqliteWalletRepository::checkout(const QString& buyerUsername,
                                       const QVector<int>& adIds,
+                                      const QString& discountCode,
                                       CheckoutResult& result,
                                       QString* errorMessage)
 {
@@ -191,7 +429,7 @@ bool SqliteWalletRepository::checkout(const QString& buyerUsername,
     }
 
     QMap<QString, int> sellerCredits;
-    int totalCost = 0;
+    int subtotal = 0;
 
     for (const int adId : adIds) {
         QSqlQuery adQuery(db_);
@@ -232,7 +470,7 @@ bool SqliteWalletRepository::checkout(const QString& buyerUsername,
             return false;
         }
 
-        totalCost += price;
+        subtotal += price;
         sellerCredits[seller] += price;
 
         CheckoutItem item;
@@ -241,6 +479,107 @@ bool SqliteWalletRepository::checkout(const QString& buyerUsername,
         item.sellerUsername = seller;
         result.purchasedItems.push_back(item);
     }
+
+    const QString normalizedCode = discountCode.trimmed().toUpper();
+    DiscountValidationResult discountResult;
+    if (!normalizedCode.isEmpty()) {
+        discountResult.code = normalizedCode;
+        discountResult.subtotalTokens = subtotal;
+
+        QSqlQuery discountQuery(db_);
+        discountQuery.prepare(QStringLiteral(
+            "SELECT type, value_tokens, max_discount_tokens, min_subtotal_tokens, usage_limit, used_count, is_active, expires_at "
+            "FROM discount_codes WHERE code = :code LIMIT 1;"));
+        discountQuery.bindValue(QStringLiteral(":code"), normalizedCode);
+        if (!discountQuery.exec()) {
+            db_.rollback();
+            throwDatabaseError(QStringLiteral("load discount for checkout"), discountQuery.lastError());
+        }
+
+        if (!discountQuery.next()) {
+            db_.rollback();
+            if (errorMessage) {
+                *errorMessage = QStringLiteral("Discount code not found");
+            }
+            return false;
+        }
+
+        discountResult.type = discountQuery.value(0).toString().trimmed().toLower();
+        discountResult.valueTokens = discountQuery.value(1).toInt();
+        discountResult.maxDiscountTokens = qMax(0, discountQuery.value(2).toInt());
+        discountResult.minSubtotalTokens = qMax(0, discountQuery.value(3).toInt());
+        discountResult.usageLimit = discountQuery.value(4).isNull() ? -1 : discountQuery.value(4).toInt();
+        discountResult.usedCount = discountQuery.value(5).toInt();
+        discountResult.active = discountQuery.value(6).toInt() != 0;
+        discountResult.expiresAt = QDateTime::fromString(discountQuery.value(7).toString(), Qt::ISODate);
+
+        if (!discountResult.active) {
+            db_.rollback();
+            if (errorMessage) {
+                *errorMessage = QStringLiteral("Discount code is inactive");
+            }
+            return false;
+        }
+
+        if (discountResult.expiresAt.isValid() && discountResult.expiresAt < QDateTime::currentDateTimeUtc()) {
+            db_.rollback();
+            if (errorMessage) {
+                *errorMessage = QStringLiteral("Discount code has expired");
+            }
+            return false;
+        }
+
+        if (discountResult.usageLimit >= 0 && discountResult.usedCount >= discountResult.usageLimit) {
+            db_.rollback();
+            if (errorMessage) {
+                *errorMessage = QStringLiteral("Discount code usage limit reached");
+            }
+            return false;
+        }
+
+        if (subtotal < discountResult.minSubtotalTokens) {
+            db_.rollback();
+            if (errorMessage) {
+                *errorMessage = QStringLiteral("Subtotal must be at least %1 tokens").arg(discountResult.minSubtotalTokens);
+            }
+            return false;
+        }
+
+        if (discountResult.type == QStringLiteral("percent")) {
+            discountResult.discountTokens = (subtotal * discountResult.valueTokens) / 100;
+        } else if (discountResult.type == QStringLiteral("fixed")) {
+            discountResult.discountTokens = discountResult.valueTokens;
+        }
+        if (discountResult.maxDiscountTokens > 0) {
+            discountResult.discountTokens = qMin(discountResult.discountTokens, discountResult.maxDiscountTokens);
+        }
+        discountResult.discountTokens = qMax(0, qMin(discountResult.discountTokens, subtotal));
+        discountResult.valid = discountResult.discountTokens > 0;
+
+        if (!discountResult.valid) {
+            db_.rollback();
+            if (errorMessage) {
+                *errorMessage = QStringLiteral("Discount code does not reduce this cart");
+            }
+            return false;
+        }
+
+        QSqlQuery consumeCode(db_);
+        consumeCode.prepare(QStringLiteral(
+            "UPDATE discount_codes "
+            "SET used_count = used_count + 1, updated_at = CURRENT_TIMESTAMP "
+            "WHERE code = :code AND is_active = 1 AND (usage_limit IS NULL OR used_count < usage_limit);"));
+        consumeCode.bindValue(QStringLiteral(":code"), normalizedCode);
+        if (!consumeCode.exec() || consumeCode.numRowsAffected() != 1) {
+            db_.rollback();
+            if (errorMessage) {
+                *errorMessage = QStringLiteral("Discount code could not be consumed");
+            }
+            return false;
+        }
+    }
+
+    const int totalCost = qMax(0, subtotal - discountResult.discountTokens);
 
     QSqlQuery buyerBalanceQuery(db_);
     buyerBalanceQuery.prepare(QStringLiteral(
@@ -271,6 +610,10 @@ bool SqliteWalletRepository::checkout(const QString& buyerUsername,
         throwDatabaseError(QStringLiteral("debit buyer"), debit.lastError());
     }
 
+    result.subtotalTokens = subtotal;
+    result.discountTokens = discountResult.discountTokens;
+    result.totalTokens = totalCost;
+    result.appliedDiscountCode = normalizedCode;
     result.buyerBalance = buyerBalance - totalCost;
 
     for (auto it = sellerCredits.cbegin(); it != sellerCredits.cend(); ++it) {
@@ -349,6 +692,21 @@ bool SqliteWalletRepository::checkout(const QString& buyerUsername,
         if (!cartCleanup.exec()) {
             db_.rollback();
             throwDatabaseError(QStringLiteral("cleanup cart item"), cartCleanup.lastError());
+        }
+    }
+
+    if (result.discountTokens > 0) {
+        QSqlQuery discountLedger(db_);
+        discountLedger.prepare(QStringLiteral(
+            "INSERT INTO transaction_ledger(username, type, amount_tokens, balance_after, ad_id, counterparty) "
+            "VALUES(:username, 'discount_credit', :amount, "
+            "(SELECT balance_tokens FROM wallets WHERE username = :username), NULL, :counterparty);"));
+        discountLedger.bindValue(QStringLiteral(":username"), buyer);
+        discountLedger.bindValue(QStringLiteral(":amount"), result.discountTokens);
+        discountLedger.bindValue(QStringLiteral(":counterparty"), result.appliedDiscountCode);
+        if (!discountLedger.exec()) {
+            db_.rollback();
+            throwDatabaseError(QStringLiteral("insert discount ledger"), discountLedger.lastError());
         }
     }
 

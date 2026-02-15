@@ -61,6 +61,8 @@ add_executable(serverProject
         ui/pending_ads_window.h
         ui/pending_ads_window.cpp
         ui/pending_ads_window.ui
+        ui/discount_code_manager_window.h
+        ui/discount_code_manager_window.cpp
 
 )
 

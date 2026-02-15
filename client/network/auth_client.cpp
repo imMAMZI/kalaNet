@@ -212,6 +212,15 @@ void AuthClient::onReadyRead()
                                   payload.value(QStringLiteral("soldAdIds")).toArray());
             break;
 
+        case common::Command::DiscountCodeValidateResult:
+            emit discountCodeValidationReceived(success,
+                                               statusMessage,
+                                               payload.value(QStringLiteral("valid")).toBool(false),
+                                               payload.value(QStringLiteral("discountTokens")).toInt(0),
+                                               payload.value(QStringLiteral("totalTokens")).toInt(0),
+                                               payload.value(QStringLiteral("code")).toString());
+            break;
+
         case common::Command::ProfileHistoryResult:
             emit profileHistoryReceived(success, statusMessage, payload);
             break;
