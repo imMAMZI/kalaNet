@@ -2,6 +2,7 @@
 #define USER_REPOSITORY_H
 
 #include <QString>
+#include <optional>
 
 struct User
 {
@@ -28,6 +29,8 @@ public:
         const QString& username,
         User& outUser
     ) = 0;
+
+    virtual std::optional<User> findByUsername(const QString& username) = 0;
 
     virtual void createUser(
         const User& user

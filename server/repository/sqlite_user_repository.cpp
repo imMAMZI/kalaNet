@@ -143,6 +143,15 @@ bool SqliteUserRepository::getUser(const QString& username, User& outUser)
     return true;
 }
 
+std::optional<User> SqliteUserRepository::findByUsername(const QString& username)
+{
+    User user;
+    if (!getUser(username, user)) {
+        return std::nullopt;
+    }
+    return user;
+}
+
 void SqliteUserRepository::createUser(const User& user)
 {
     QMutexLocker locker(&mutex_);
