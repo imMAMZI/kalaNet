@@ -13,6 +13,8 @@
 
 class PendingAdsWindow;
 class AdRepository;
+class WalletRepository;
+class DiscountCodeManagerWindow;
 #include "request_log_filter_proxy.h"
 
 #include "request_log_model.h"
@@ -27,7 +29,7 @@ class ServerConsoleWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit ServerConsoleWindow(AdRepository& adRepository, QWidget* parent = nullptr);
+    explicit ServerConsoleWindow(AdRepository& adRepository, WalletRepository& walletRepository, QWidget* parent = nullptr);
     ~ServerConsoleWindow() override;
 
 public slots:
@@ -46,6 +48,7 @@ private slots:
     void togglePause(bool paused);
     void updateUptime();
     void showPendingAdsWindow();
+    void showDiscountCodeManager();
 
 private:
     void setupConnections();
@@ -63,7 +66,9 @@ private:
     QTimer uptimeTimer;
     QDateTime serverStartTime;
     PendingAdsWindow* pendingAdsWindow = nullptr;
+    DiscountCodeManagerWindow* discountCodeManagerWindow_ = nullptr;
     AdRepository& adRepository_;
+    WalletRepository& walletRepository_;
 };
 
 #endif //KALANET_SERVERCONSOLEWINDOW_H

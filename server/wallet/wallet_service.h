@@ -20,6 +20,10 @@ public:
     common::Message buy(const QJsonObject& payload,
                         QSet<QString>* affectedUsernames,
                         QVector<int>* soldAdIds);
+    common::Message validateDiscountCode(const QJsonObject& payload);
+    common::Message listDiscountCodes();
+    common::Message upsertDiscountCode(const QJsonObject& payload);
+    common::Message deleteDiscountCode(const QJsonObject& payload);
     common::Message transactionHistory(const QJsonObject& payload);
 
 private:

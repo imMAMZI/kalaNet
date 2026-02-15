@@ -67,6 +67,10 @@ private:
     void handleWalletBalance(const common::Message& message, ClientConnection& client);
     void handleWalletTopUp(const common::Message& message, ClientConnection& client);
     void handleBuy(const common::Message& message, ClientConnection& client);
+    void handleDiscountCodeValidate(const common::Message& message, ClientConnection& client);
+    void handleDiscountCodeList(const common::Message& message, ClientConnection& client);
+    void handleDiscountCodeUpsert(const common::Message& message, ClientConnection& client);
+    void handleDiscountCodeDelete(const common::Message& message, ClientConnection& client);
     void handleTransactionHistory(const common::Message& message, ClientConnection& client);
 };
 

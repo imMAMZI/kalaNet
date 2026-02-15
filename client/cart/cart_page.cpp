@@ -57,6 +57,8 @@ cart_page::cart_page(QWidget *parent)
                         break;
                     }
                 }
+                discountValid = false;
+                appliedDiscountCode.clear();
                 refreshCartTable();
                 recomputeTotals();
             });
@@ -68,8 +70,30 @@ cart_page::cart_page(QWidget *parent)
                     return;
                 }
                 items.clear();
+                discountValid = false;
+                appliedDiscountCode.clear();
                 refreshCartTable();
                 recomputeTotals();
+            });
+
+    connect(AuthClient::instance(), &AuthClient::discountCodeValidationReceived, this,
+            [this](bool success, const QString& message, bool valid, int serverDiscountTokens, int serverTotalTokens, const QString& code) {
+                if (!success || !valid) {
+                    discountValid = false;
+                    appliedDiscountCode.clear();
+                    discountTokens = 0;
+                    totalTokens = subtotalTokens;
+                    setTotalsLabels(subtotalTokens, discountTokens, totalTokens);
+                    ui->lblDiscountStatus->setText(message.isEmpty() ? QStringLiteral("Invalid discount code.") : message);
+                    return;
+                }
+
+                discountValid = true;
+                appliedDiscountCode = code.trimmed().toUpper();
+                discountTokens = serverDiscountTokens;
+                totalTokens = serverTotalTokens;
+                setTotalsLabels(subtotalTokens, discountTokens, totalTokens);
+                ui->lblDiscountStatus->setText(message);
             });
 
     connect(AuthClient::instance(), &AuthClient::buyResultReceived, this,
@@ -83,6 +107,9 @@ cart_page::cart_page(QWidget *parent)
                 setWalletBalanceLabel(balanceTokens);
                 ui->leDiscountCode->clear();
                 ui->lblDiscountStatus->clear();
+                discountValid = false;
+                appliedDiscountCode.clear();
+                discountTokens = 0;
                 refreshFromServer();
                 QMessageBox::information(this, "Purchase", message);
                 emit purchaseRequested(QString());
@@ -106,6 +133,8 @@ void cart_page::refreshFromServer()
 void cart_page::setItems(const QVector<CartItemData> &newItems)
 {
     items = newItems;
+    discountValid = false;
+    appliedDiscountCode.clear();
     refreshCartTable();
     recomputeTotals();
 }
@@ -164,29 +193,15 @@ void cart_page::removeItemAt(int row)
                                             QJsonObject{{QStringLiteral("adId"), items[row].adId}}));
 }
 
-int cart_page::computeDiscountTokens(const QString& code, int subtotal) const
-{
-    if (code.compare("OFF10", Qt::CaseInsensitive) == 0) {
-        int d = (subtotal * 10) / 100;
-        return (d > 50) ? 50 : d;
-    }
-    if (code.compare("OFF20", Qt::CaseInsensitive) == 0) {
-        int d = (subtotal * 20) / 100;
-        return (d > 100) ? 100 : d;
-    }
-    return 0;
-}
-
 void cart_page::recomputeTotals()
 {
     subtotalTokens = 0;
     for (const auto& it : items) subtotalTokens += it.priceTokens;
 
-    const QString code = ui->leDiscountCode->text().trimmed();
-    discountTokens = computeDiscountTokens(code, subtotalTokens);
-
-    totalTokens = subtotalTokens - discountTokens;
-    if (totalTokens < 0) totalTokens = 0;
+    if (!discountValid) {
+        discountTokens = 0;
+        totalTokens = subtotalTokens;
+    }
 
     setTotalsLabels(subtotalTokens, discountTokens, totalTokens);
 }
@@ -215,15 +230,19 @@ void cart_page::on_btnClearAll_clicked()
 
 void cart_page::on_btnApplyDiscount_clicked()
 {
-    recomputeTotals();
-    const QString code = ui->leDiscountCode->text().trimmed();
+    const QString code = ui->leDiscountCode->text().trimmed().toUpper();
     if (code.isEmpty()) {
+        discountValid = false;
+        appliedDiscountCode.clear();
+        recomputeTotals();
         ui->lblDiscountStatus->setText("Enter a discount code to apply.");
-    } else if (discountTokens > 0) {
-        ui->lblDiscountStatus->setText("Discount applied locally.");
-    } else {
-        ui->lblDiscountStatus->setText("Invalid or unsupported code.");
+        return;
     }
+
+    AuthClient::instance()->sendMessage(
+        AuthClient::instance()->withSession(common::Command::DiscountCodeValidate,
+                                            QJsonObject{{QStringLiteral("code"), code},
+                                                        {QStringLiteral("subtotalTokens"), subtotalTokens}}));
 }
 
 void cart_page::on_btnPurchase_clicked()
@@ -238,7 +257,11 @@ void cart_page::on_btnPurchase_clicked()
         adIds.append(item.adId);
     }
 
+    QJsonObject payload{{QStringLiteral("adIds"), adIds}};
+    if (discountValid && !appliedDiscountCode.isEmpty()) {
+        payload.insert(QStringLiteral("discountCode"), appliedDiscountCode);
+    }
+
     AuthClient::instance()->sendMessage(
-        AuthClient::instance()->withSession(common::Command::Buy,
-                                            QJsonObject{{QStringLiteral("adIds"), adIds}}));
+        AuthClient::instance()->withSession(common::Command::Buy, payload));
 }
