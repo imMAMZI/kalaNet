@@ -4,6 +4,7 @@
 #include "user_repository.h"
 #include <QMutex>
 #include <QSqlDatabase>
+#include <optional>
 
 class SqliteUserRepository : public UserRepository
 {
@@ -16,6 +17,7 @@ public:
                        const QString& passwordHash) override;
     bool emailExists(const QString& email) override;
     bool getUser(const QString& username, User& outUser) override;
+    std::optional<User> findByUsername(const QString& username) override;
     void createUser(const User& user) override;
     bool updateUser(const QString& currentUsername, const User& updatedUser) override;
     int countAllUsers() override;

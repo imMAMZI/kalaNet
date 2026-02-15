@@ -6,6 +6,8 @@
 #include <QVector>
 
 #include <QJsonObject>
+#include <QHash>
+#include <QByteArray>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -24,6 +26,13 @@ public:
         int priceTokens = 0;
         QString seller;
         QString status;
+    };
+
+    struct AdDetailData {
+        QString description;
+        QByteArray imageBytes;
+        bool requested = false;
+        bool loaded = false;
     };
 
     explicit shop_page(QWidget *parent = nullptr);
@@ -50,6 +59,8 @@ private:
     void setupAdsTable();
     void refreshAdsTable();
     void refreshCartPreview();
+    void requestAdDetail(int adId);
+    void showAdPreviewDialog(int adId);
     void fetchAdsFromServer();
     void fetchCartFromServer();
     QJsonObject buildAdListPayload() const;
@@ -61,6 +72,8 @@ private:
     QVector<ShopItem> allAds;
     QVector<int> filteredIndices;
     QVector<CartPreviewItem> cartPreviewItems;
+    QHash<int, AdDetailData> adDetails;
+    int pendingPreviewAdId = -1;
 };
 
 #endif // KALANET_SHOP_PAGE_H

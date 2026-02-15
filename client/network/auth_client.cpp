@@ -174,6 +174,10 @@ void AuthClient::onReadyRead()
             emit adListReceived(success, statusMessage, payload.value(QStringLiteral("ads")).toArray());
             break;
 
+        case common::Command::AdDetailResult:
+            emit adDetailResultReceived(success, statusMessage, payload);
+            break;
+
         case common::Command::CartListResult:
             emit cartListReceived(success, statusMessage, payload.value(QStringLiteral("items")).toArray());
             break;
