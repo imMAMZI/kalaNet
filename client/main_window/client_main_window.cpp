@@ -80,7 +80,18 @@ void client_main_window::wireNavigation()
     connect(howItWorksPageWidget, &how_it_works_page::backToMenuRequested, this, [this]() { showPage(MenuPage); });
 
     connect(shopPageWidget, &shop_page::goToCartRequested, this, [this]() { showPage(CartPage); cartPageWidget->refreshFromServer(); });
-    connect(cartPageWidget, &cart_page::purchaseRequested, this, [this](const QString &) { showPage(ProfilePage); });
+    connect(cartPageWidget, &cart_page::purchaseRequested, this, [this](const QString &) {
+        if (cartPageWidget) {
+            cartPageWidget->refreshFromServer();
+        }
+        if (shopPageWidget) {
+            shopPageWidget->refreshFromServer();
+        }
+        if (profilePageWidget) {
+            profilePageWidget->refreshFromServer();
+        }
+        showPage(ProfilePage);
+    });
 
     connect(newAdPageWidget,
             &new_ad_page::submitAdRequested,

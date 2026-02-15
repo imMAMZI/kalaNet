@@ -108,6 +108,14 @@ shop_page::shop_page(QWidget *parent)
                 fetchCartFromServer();
             });
 
+    connect(AuthClient::instance(), &AuthClient::buyResultReceived, this,
+            [this](bool success, const QString&, int, const QJsonArray&) {
+                if (!success) {
+                    return;
+                }
+                refreshFromServer();
+            });
+
     connect(AuthClient::instance(), &AuthClient::adStatusNotifyReceived, this,
             [this](const QJsonArray&, const QString&) {
                 fetchAdsFromServer();
@@ -123,8 +131,7 @@ shop_page::shop_page(QWidget *parent)
                 showAdPreviewDialog(ad.adId);
             });
 
-    fetchAdsFromServer();
-    fetchCartFromServer();
+    refreshFromServer();
 }
 
 shop_page::~shop_page()
@@ -134,7 +141,14 @@ shop_page::~shop_page()
 
 void shop_page::setupAdsTable()
 {
-    ui->twAds->setColumnCount(6);
+    ui->twAds->setColumnCount(7);
+    ui->twAds->setHorizontalHeaderLabels({QStringLiteral("Preview"),
+                                          QStringLiteral("Title"),
+                                          QStringLiteral("Category"),
+                                          QStringLiteral("Price"),
+                                          QStringLiteral("Seller"),
+                                          QStringLiteral("Review"),
+                                          QStringLiteral("Add to cart")});
 
     ui->twAds->horizontalHeader()->setStretchLastSection(true);
     ui->twAds->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
@@ -145,11 +159,13 @@ void shop_page::setupAdsTable()
     ui->twAds->setColumnWidth(2, 140);
     ui->twAds->setColumnWidth(3, 90);
     ui->twAds->setColumnWidth(4, 140);
-    ui->twAds->setColumnWidth(5, 140);
+    ui->twAds->setColumnWidth(5, 120);
+    ui->twAds->setColumnWidth(6, 140);
 
     ui->twAds->setSelectionBehavior(QAbstractItemView::SelectRows);
     ui->twAds->setSelectionMode(QAbstractItemView::SingleSelection);
     ui->twAds->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    ui->twAds->setAlternatingRowColors(true);
 }
 
 void shop_page::refreshAdsTable()
@@ -181,11 +197,21 @@ void shop_page::refreshAdsTable()
         ui->twAds->setItem(row, 3, new QTableWidgetItem(QString::number(ad.priceTokens) + QStringLiteral(" token")));
         ui->twAds->setItem(row, 4, new QTableWidgetItem(ad.seller));
 
-        auto *btn = new QPushButton(QStringLiteral("Add"));
-        btn->setCursor(Qt::PointingHandCursor);
-        btn->setMinimumHeight(34);
+        auto *reviewBtn = new QPushButton(QStringLiteral("Review"));
+        reviewBtn->setObjectName(QStringLiteral("btnReviewAd"));
+        reviewBtn->setCursor(Qt::PointingHandCursor);
+        reviewBtn->setMinimumHeight(34);
+        connect(reviewBtn, &QPushButton::clicked, this, [this, ad]() {
+            showAdPreviewDialog(ad.adId);
+        });
+        ui->twAds->setCellWidget(row, 5, reviewBtn);
 
-        connect(btn, &QPushButton::clicked, this, [this, ad]() {
+        auto *addBtn = new QPushButton(QStringLiteral("Add"));
+        addBtn->setObjectName(QStringLiteral("btnAddAd"));
+        addBtn->setCursor(Qt::PointingHandCursor);
+        addBtn->setMinimumHeight(34);
+
+        connect(addBtn, &QPushButton::clicked, this, [this, ad]() {
             if (ad.adId <= 0) {
                 QMessageBox::warning(this, QStringLiteral("Cart"), QStringLiteral("Invalid ad id."));
                 return;
@@ -195,8 +221,7 @@ void shop_page::refreshAdsTable()
                 AuthClient::instance()->withSession(common::Command::CartAddItem,
                                                     QJsonObject{{QStringLiteral("adId"), ad.adId}}));
         });
-
-        ui->twAds->setCellWidget(row, 5, btn);
+        ui->twAds->setCellWidget(row, 6, addBtn);
     }
 }
 
@@ -365,6 +390,12 @@ void shop_page::fetchAdsFromServer()
 void shop_page::fetchCartFromServer()
 {
     AuthClient::instance()->sendMessage(AuthClient::instance()->withSession(common::Command::CartList));
+}
+
+void shop_page::refreshFromServer()
+{
+    fetchAdsFromServer();
+    fetchCartFromServer();
 }
 
 void shop_page::on_btnRefreshAds_clicked()
