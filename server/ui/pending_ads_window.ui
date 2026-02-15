@@ -15,10 +15,31 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayoutRoot">
+    <property name="spacing">
+     <number>10</number>
+    </property>
+    <property name="leftMargin">
+     <number>12</number>
+    </property>
+    <property name="topMargin">
+     <number>12</number>
+    </property>
+    <property name="rightMargin">
+     <number>12</number>
+    </property>
+    <property name="bottomMargin">
+     <number>12</number>
+    </property>
     <item>
      <widget class="QGroupBox" name="groupBoxHeader">
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>72</height>
+       </size>
+      </property>
       <property name="title">
-       <string>Admin Moderation Panel</string>
+       <string>Moderation Overview</string>
       </property>
       <layout class="QHBoxLayout" name="horizontalLayoutHeader">
        <item>
@@ -67,6 +88,12 @@
        <enum>Qt::Horizontal</enum>
       </property>
       <widget class="QWidget" name="leftPane">
+       <property name="minimumSize">
+        <size>
+         <width>520</width>
+         <height>0</height>
+        </size>
+       </property>
        <layout class="QVBoxLayout" name="verticalLayoutLeft">
         <item>
          <widget class="QGroupBox" name="groupBoxFilters">
@@ -156,13 +183,19 @@
            <string>Select a pending ad to review full details and approve/reject it.</string>
           </property>
           <property name="styleSheet">
-           <string notr="true">color: rgb(90, 90, 90);</string>
+           <string notr="true">color: rgb(180, 188, 204);</string>
           </property>
          </widget>
         </item>
        </layout>
       </widget>
       <widget class="QScrollArea" name="scrollAreaDetails">
+       <property name="minimumSize">
+        <size>
+         <width>620</width>
+         <height>0</height>
+        </size>
+       </property>
        <property name="widgetResizable">
         <bool>true</bool>
        </property>
@@ -177,7 +210,7 @@
         </property>
         <layout class="QVBoxLayout" name="verticalLayoutDetails">
          <item>
-          <widget class="QGroupBox" name="groupBoxAdMeta">
+         <widget class="QGroupBox" name="groupBoxAdMeta">
            <property name="title">
             <string>Ad Information</string>
            </property>
@@ -318,90 +351,9 @@
              </widget>
             </item>
            </layout>
-          </widget>
-         </item>
-         <item>
-          <widget class="QGroupBox" name="groupBoxDescription">
-           <property name="title">
-            <string>Description</string>
-           </property>
-           <layout class="QVBoxLayout" name="verticalLayoutDescription">
-            <item>
-             <widget class="QTextBrowser" name="textBrowserDescription"/>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
-          <widget class="QGroupBox" name="groupBoxImage">
-           <property name="title">
-            <string>Image Preview</string>
-           </property>
-           <layout class="QVBoxLayout" name="verticalLayoutImage">
-            <item>
-             <widget class="QLabel" name="labelImagePreview">
-              <property name="minimumSize">
-               <size>
-                <width>0</width>
-                <height>220</height>
-               </size>
-              </property>
-              <property name="frameShape">
-               <enum>QFrame::StyledPanel</enum>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignCenter</set>
-              </property>
-              <property name="text">
-               <string>No image selected</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLabel" name="labelImagePath">
-              <property name="text">
-               <string>Path: -</string>
-              </property>
-              <property name="wordWrap">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
-          <widget class="QGroupBox" name="groupBoxHistory">
-           <property name="title">
-            <string>Status History</string>
-           </property>
-           <layout class="QVBoxLayout" name="verticalLayoutHistory">
-            <item>
-             <widget class="QTableWidget" name="tableWidgetHistory">
-              <property name="columnCount">
-               <number>3</number>
-              </property>
-              <column>
-               <property name="text">
-                <string>Time</string>
-               </property>
-              </column>
-              <column>
-               <property name="text">
-                <string>Status</string>
-               </property>
-              </column>
-              <column>
-               <property name="text">
-                <string>Note</string>
-               </property>
-              </column>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
+         </widget>
+        </item>
+        <item>
           <widget class="QGroupBox" name="groupBoxModerationDecision">
            <property name="title">
             <string>Moderation Decision</string>
@@ -426,6 +378,12 @@
             </item>
             <item>
              <widget class="QPlainTextEdit" name="plainTextEditRejectionReason">
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>110</height>
+               </size>
+              </property>
               <property name="placeholderText">
                <string>Explain why this ad cannot be approved...</string>
               </property>
@@ -474,6 +432,93 @@
                </widget>
               </item>
              </layout>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="groupBoxDescription">
+           <property name="title">
+            <string>Description</string>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayoutDescription">
+            <item>
+             <widget class="QTextBrowser" name="textBrowserDescription"/>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+         <widget class="QGroupBox" name="groupBoxImage">
+           <property name="title">
+            <string>Image Preview</string>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayoutImage">
+            <item>
+             <widget class="QLabel" name="labelImagePreview">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>170</height>
+               </size>
+              </property>
+              <property name="frameShape">
+               <enum>QFrame::StyledPanel</enum>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+              <property name="text">
+               <string>No image selected</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="labelImagePath">
+              <property name="text">
+               <string>Path: -</string>
+              </property>
+              <property name="wordWrap">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+         <widget class="QGroupBox" name="groupBoxHistory">
+           <property name="title">
+            <string>Status History</string>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayoutHistory">
+            <item>
+             <widget class="QTableWidget" name="tableWidgetHistory">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>130</height>
+               </size>
+              </property>
+              <property name="columnCount">
+               <number>3</number>
+              </property>
+              <column>
+               <property name="text">
+                <string>Time</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>Status</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>Note</string>
+               </property>
+              </column>
+             </widget>
             </item>
            </layout>
           </widget>

@@ -52,6 +52,55 @@ PendingAdsWindow::PendingAdsWindow(AdRepository& adRepository, QWidget* parent)
     , ui(new Ui::PendingAdsWindow)
 {
     ui->setupUi(this);
+    ui->splitterMain->setStretchFactor(0, 2);
+    ui->splitterMain->setStretchFactor(1, 3);
+    ui->splitterMain->setSizes({560, 760});
+
+    setStyleSheet(QStringLiteral(
+        "QMainWindow, QWidget { background-color: #1f232b; color: #e7ebf3; }"
+        "QGroupBox {"
+        "  border: 1px solid #424a5a;"
+        "  border-radius: 8px;"
+        "  margin-top: 12px;"
+        "  background-color: #2a303b;"
+        "  font-weight: 600;"
+        "}"
+        "QGroupBox::title {"
+        "  subcontrol-origin: margin;"
+        "  left: 12px;"
+        "  padding: 0 6px;"
+        "  color: #f1f4fb;"
+        "}"
+        "QTableView, QTableWidget, QTextBrowser, QPlainTextEdit {"
+        "  background-color: #252b36;"
+        "  color: #e7ebf3;"
+        "  border: 1px solid #465064;"
+        "  border-radius: 6px;"
+        "  selection-background-color: #3f6eb8;"
+        "  selection-color: #ffffff;"
+        "}"
+        "QHeaderView::section {"
+        "  background-color: #333b49;"
+        "  color: #eaf0fa;"
+        "  padding: 5px;"
+        "  border: none;"
+        "  border-right: 1px solid #4b5568;"
+        "}"
+        "QPushButton {"
+        "  border: 1px solid #5b6680;"
+        "  border-radius: 6px;"
+        "  padding: 6px 10px;"
+        "  background-color: #353d4c;"
+        "  color: #f1f4fb;"
+        "}"
+        "QPushButton:hover { background-color: #414c61; }"
+        "QLineEdit, QComboBox, QSpinBox {"
+        "  border: 1px solid #5b6680;"
+        "  border-radius: 6px;"
+        "  padding: 4px 6px;"
+        "  background-color: #202632;"
+        "  color: #eef3ff;"
+        "}"));
 
     auto* model = new QStandardItemModel(this);
     model->setColumnCount(AdTableColumns::Count);
@@ -65,6 +114,7 @@ PendingAdsWindow::PendingAdsWindow(AdRepository& adRepository, QWidget* parent)
     ui->tableViewPendingAds->horizontalHeader()->setStretchLastSection(true);
     ui->tableViewPendingAds->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     ui->tableViewPendingAds->setSortingEnabled(true);
+    ui->tableViewPendingAds->verticalHeader()->setVisible(false);
 
     ui->tableWidgetHistory->setColumnCount(3);
     ui->tableWidgetHistory->setHorizontalHeaderLabels({tr("Time"), tr("Status"), tr("Note")});
