@@ -37,6 +37,7 @@ public:
 
     explicit shop_page(QWidget *parent = nullptr);
     ~shop_page() override;
+    void refreshFromServer();
 
 signals:
     void goToCartRequested();
