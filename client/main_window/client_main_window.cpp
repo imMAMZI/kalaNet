@@ -157,6 +157,9 @@ void client_main_window::on_btnShop_clicked()
 {
     emit shopRequested();
     showPage(ShopPage);
+    if (shopPageWidget) {
+        shopPageWidget->refreshFromServer();
+    }
 }
 
 void client_main_window::on_btnCart_clicked()
