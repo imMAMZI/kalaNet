@@ -60,6 +60,7 @@ private:
 
     QVector<PurchaseRow> purchases;
     QVector<MyAdRow> myAds;
+    bool passwordChangePending = false;
 };
 
 #endif // KALANET_PROFILE_PAGE_H

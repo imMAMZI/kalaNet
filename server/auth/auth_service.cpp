@@ -169,6 +169,7 @@ common::Message AuthService::updateProfile(const QJsonObject& payload)
     const QString fullName = payload.value(QStringLiteral("fullName")).toString().trimmed();
     const QString phone = payload.value(QStringLiteral("phone")).toString().trimmed();
     const QString email = payload.value(QStringLiteral("email")).toString().trimmed();
+    const QString oldPassword = payload.value(QStringLiteral("oldPassword")).toString();
     const QString password = payload.value(QStringLiteral("password")).toString();
 
     if (currentUsername.isEmpty() || newUsername.isEmpty() || fullName.isEmpty() || phone.isEmpty() || email.isEmpty()) {
@@ -201,6 +202,18 @@ common::Message AuthService::updateProfile(const QJsonObject& payload)
     existing.phone = phone;
     existing.email = email;
     if (!password.trimmed().isEmpty()) {
+        if (oldPassword.trimmed().isEmpty()) {
+            return common::Message::makeFailure(common::Command::ProfileUpdateResult,
+                                                common::ErrorCode::ValidationFailed,
+                                                QStringLiteral("Old password is required"));
+        }
+
+        if (!PasswordHasher::verify(oldPassword, existing.passwordHash)) {
+            return common::Message::makeFailure(common::Command::ProfileUpdateResult,
+                                                common::ErrorCode::ValidationFailed,
+                                                QStringLiteral("Old password is incorrect"));
+        }
+
         if (password.size() < 8) {
             return common::Message::makeFailure(common::Command::ProfileUpdateResult,
                                                 common::ErrorCode::ValidationFailed,
