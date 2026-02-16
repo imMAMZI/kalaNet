@@ -66,6 +66,15 @@ public:
         QString changedAt;
     };
 
+    struct AdTransactionHistoryRecord {
+        QString createdAt;
+        QString entryType;
+        QString username;
+        QString counterparty;
+        int amountTokens = 0;
+        int balanceAfter = 0;
+    };
+
     struct AdStatusCounts {
         int pending = 0;
         int approved = 0;
@@ -106,6 +115,7 @@ public:
                                                            const QString& sellerContains,
                                                            const QString& fullTextContains) = 0;
     virtual QVector<AdStatusHistoryRecord> getStatusHistory(int adId) = 0;
+    virtual QVector<AdTransactionHistoryRecord> getTransactionHistoryForAd(int adId, int limit = 100) = 0;
     virtual QVector<AdSummaryRecord> listAdsBySeller(const QString& sellerUsername, const QString& statusFilter) = 0;
     virtual QVector<AdSummaryRecord> listPurchasedAdsByBuyer(const QString& buyerUsername, int limit) = 0;
     virtual AdStatusCounts getAdStatusCounts() = 0;

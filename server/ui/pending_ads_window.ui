@@ -508,7 +508,7 @@
           </widget>
          </item>
          <item>
-         <widget class="QGroupBox" name="groupBoxHistory">
+          <widget class="QGroupBox" name="groupBoxHistory">
            <property name="title">
             <string>Status History</string>
            </property>
@@ -537,6 +537,58 @@
               <column>
                <property name="text">
                 <string>Note</string>
+               </property>
+              </column>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="groupBoxTransactionHistory">
+           <property name="title">
+            <string>Transaction History</string>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayoutTransactionHistory">
+            <item>
+             <widget class="QTableWidget" name="tableWidgetTransactionHistory">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>140</height>
+               </size>
+              </property>
+              <property name="columnCount">
+               <number>6</number>
+              </property>
+              <column>
+               <property name="text">
+                <string>Time</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>Type</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>User</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>Counterparty</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>Amount</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>Balance After</string>
                </property>
               </column>
              </widget>

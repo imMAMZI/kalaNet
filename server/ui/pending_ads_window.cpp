@@ -44,6 +44,24 @@ AdRepository::AdModerationStatus parseAction(const QString& action)
     }
     return AdRepository::AdModerationStatus::Unknown;
 }
+
+QString prettifyTransactionType(const QString& type)
+{
+    const QString normalized = type.trimmed().toLower();
+    if (normalized == QStringLiteral("purchase_debit")) {
+        return QObject::tr("Purchase debit");
+    }
+    if (normalized == QStringLiteral("sale_credit")) {
+        return QObject::tr("Sale credit");
+    }
+    if (normalized == QStringLiteral("discount_credit")) {
+        return QObject::tr("Discount credit");
+    }
+    if (normalized == QStringLiteral("topup")) {
+        return QObject::tr("Top up");
+    }
+    return type;
+}
 } // namespace
 
 PendingAdsWindow::PendingAdsWindow(AdRepository& adRepository, QWidget* parent)
@@ -120,6 +138,13 @@ PendingAdsWindow::PendingAdsWindow(AdRepository& adRepository, QWidget* parent)
     ui->tableWidgetHistory->setHorizontalHeaderLabels({tr("Time"), tr("Status"), tr("Note")});
     ui->tableWidgetHistory->horizontalHeader()->setStretchLastSection(true);
     ui->tableWidgetHistory->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+
+    ui->tableWidgetTransactionHistory->setColumnCount(6);
+    ui->tableWidgetTransactionHistory->setHorizontalHeaderLabels({
+        tr("Time"), tr("Type"), tr("User"), tr("Counterparty"), tr("Amount"), tr("Balance After")
+    });
+    ui->tableWidgetTransactionHistory->horizontalHeader()->setStretchLastSection(false);
+    ui->tableWidgetTransactionHistory->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
     ui->spinBoxMaxPrice->setMinimum(0);
 
@@ -339,6 +364,18 @@ void PendingAdsWindow::loadAdDetail(int adId)
         ui->tableWidgetHistory->setItem(i, 1, new QTableWidgetItem(prettifyStatus(item.newStatus)));
         ui->tableWidgetHistory->setItem(i, 2, new QTableWidgetItem(item.reason));
     }
+
+    const auto transactionHistory = adRepository_.getTransactionHistoryForAd(adId);
+    ui->tableWidgetTransactionHistory->setRowCount(transactionHistory.size());
+    for (int i = 0; i < transactionHistory.size(); ++i) {
+        const auto& item = transactionHistory.at(i);
+        ui->tableWidgetTransactionHistory->setItem(i, 0, new QTableWidgetItem(item.createdAt));
+        ui->tableWidgetTransactionHistory->setItem(i, 1, new QTableWidgetItem(prettifyTransactionType(item.entryType)));
+        ui->tableWidgetTransactionHistory->setItem(i, 2, new QTableWidgetItem(item.username));
+        ui->tableWidgetTransactionHistory->setItem(i, 3, new QTableWidgetItem(item.counterparty));
+        ui->tableWidgetTransactionHistory->setItem(i, 4, new QTableWidgetItem(QString::number(item.amountTokens)));
+        ui->tableWidgetTransactionHistory->setItem(i, 5, new QTableWidgetItem(QString::number(item.balanceAfter)));
+    }
 }
 
 void PendingAdsWindow::resetDetailPane()
@@ -357,6 +394,7 @@ void PendingAdsWindow::resetDetailPane()
     ui->labelImagePreview->setText(tr("No image selected"));
     ui->labelImagePath->setText(tr("Path: -"));
     ui->tableWidgetHistory->setRowCount(0);
+    ui->tableWidgetTransactionHistory->setRowCount(0);
 }
 
 QString PendingAdsWindow::sanitizeReason() const
