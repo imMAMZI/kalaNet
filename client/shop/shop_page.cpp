@@ -108,6 +108,22 @@ shop_page::shop_page(QWidget *parent)
                 fetchCartFromServer();
             });
 
+    connect(AuthClient::instance(), &AuthClient::cartRemoveItemResultReceived, this,
+            [this](bool success, const QString&, int) {
+                if (!success) {
+                    return;
+                }
+                fetchCartFromServer();
+            });
+
+    connect(AuthClient::instance(), &AuthClient::cartClearResultReceived, this,
+            [this](bool success, const QString&) {
+                if (!success) {
+                    return;
+                }
+                fetchCartFromServer();
+            });
+
     connect(AuthClient::instance(), &AuthClient::buyResultReceived, this,
             [this](bool success, const QString&, int, const QJsonArray&) {
                 if (!success) {
@@ -242,6 +258,19 @@ void shop_page::refreshCartPreview()
         auto *lbl = new QLabel(item.title + QStringLiteral(" — ") + QString::number(item.priceTokens) + QStringLiteral(" token"), rowWidget);
         lbl->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
         rowLayout->addWidget(lbl);
+
+        auto *removeBtn = new QPushButton(QStringLiteral("Remove"), rowWidget);
+        removeBtn->setCursor(Qt::PointingHandCursor);
+        removeBtn->setMinimumHeight(28);
+        connect(removeBtn, &QPushButton::clicked, this, [this, adId = item.adId]() {
+            if (adId <= 0) {
+                return;
+            }
+            AuthClient::instance()->sendMessage(
+                AuthClient::instance()->withSession(common::Command::CartRemoveItem,
+                                                    QJsonObject{{QStringLiteral("adId"), adId}}));
+        });
+        rowLayout->addWidget(removeBtn);
 
         listItem->setSizeHint(QSize(0, 40));
         ui->lwBucket->addItem(listItem);
@@ -400,7 +429,7 @@ void shop_page::refreshFromServer()
 
 void shop_page::on_btnRefreshAds_clicked()
 {
-    fetchAdsFromServer();
+    refreshFromServer();
 }
 
 void shop_page::on_btnApplyFilter_clicked()
