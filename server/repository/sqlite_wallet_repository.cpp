@@ -363,7 +363,7 @@ bool SqliteWalletRepository::upsertDiscountCode(const DiscountValidationResult& 
     query.bindValue(QStringLiteral(":max_discount"), qMax(0, record.maxDiscountTokens));
     query.bindValue(QStringLiteral(":min_subtotal"), qMax(0, record.minSubtotalTokens));
     if (record.usageLimit < 0) {
-        query.bindValue(QStringLiteral(":usage_limit"), QVariant(QVariant::Int));
+        query.bindValue(QStringLiteral(":usage_limit"), QVariant(QMetaType::fromType<int>()));
     } else {
         query.bindValue(QStringLiteral(":usage_limit"), record.usageLimit);
     }
@@ -372,7 +372,7 @@ bool SqliteWalletRepository::upsertDiscountCode(const DiscountValidationResult& 
     if (record.expiresAt.isValid()) {
         query.bindValue(QStringLiteral(":expires_at"), record.expiresAt.toUTC().toString(Qt::ISODate));
     } else {
-        query.bindValue(QStringLiteral(":expires_at"), QVariant(QVariant::String));
+        query.bindValue(QStringLiteral(":expires_at"), QVariant(QMetaType::fromType<QString>()));
     }
 
     if (!query.exec()) {
