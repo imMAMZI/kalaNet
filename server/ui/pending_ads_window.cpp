@@ -146,8 +146,8 @@ void PendingAdsWindow::bindConnections()
             this, &PendingAdsWindow::loadPendingAds);
     connect(ui->comboBoxStatusFilter, &QComboBox::currentTextChanged,
             this, &PendingAdsWindow::loadPendingAds);
-    connect(ui->checkBoxOnlyWithImage, qOverload<int>(&QCheckBox::stateChanged),
-            this, [this](int) { loadPendingAds(); });
+    connect(ui->checkBoxOnlyWithImage, &QCheckBox::checkStateChanged,
+            this, [this](Qt::CheckState) { loadPendingAds(); });
     connect(ui->spinBoxMaxPrice, qOverload<int>(&QSpinBox::valueChanged),
             this, [this](int) { loadPendingAds(); });
 
