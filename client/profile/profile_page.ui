@@ -567,7 +567,7 @@
                                                                 <string>lblStatus</string>
                                                             </property>
                                                             <property name="text">
-                                                                <string>Tip: Password change will be validated by server later.</string>
+                                                                <string>Tip: Enter your old password to change it securely.</string>
                                                             </property>
                                                             <property name="wordWrap">
                                                                 <bool>true</bool>

@@ -113,6 +113,15 @@ profile_page::profile_page(QWidget *parent)
     connect(AuthClient::instance(), &AuthClient::profileUpdateResultReceived, this,
             [this](bool success, const QString& message, const QJsonObject&) {
                 showStatus(ui->lblProfileStatus, message);
+                if (passwordChangePending) {
+                    showStatus(ui->lblPasswordStatus, message);
+                    if (success) {
+                        ui->leOldPassword->clear();
+                        ui->leNewPassword->clear();
+                        ui->leConfirmPassword->clear();
+                    }
+                    passwordChangePending = false;
+                }
                 if (success) {
                     refreshFromServer();
                 }
@@ -213,8 +222,20 @@ void profile_page::on_btnSaveProfile_clicked()
 
 void profile_page::on_btnChangePassword_clicked()
 {
+    const QString oldPassword = ui->leOldPassword->text();
     const QString newPassword = ui->leNewPassword->text();
     const QString confirmPassword = ui->leConfirmPassword->text();
+
+    if (oldPassword.trimmed().isEmpty()) {
+        showStatus(ui->lblPasswordStatus, QStringLiteral("Old password is required."));
+        return;
+    }
+
+    if (newPassword.trimmed().isEmpty()) {
+        showStatus(ui->lblPasswordStatus, QStringLiteral("New password is required."));
+        return;
+    }
+
     if (newPassword != confirmPassword) {
         showStatus(ui->lblPasswordStatus, QStringLiteral("New password and confirm password do not match."));
         return;
@@ -224,11 +245,12 @@ void profile_page::on_btnChangePassword_clicked()
                         {QStringLiteral("fullName"), ui->leName->text().trimmed()},
                         {QStringLiteral("phone"), ui->lePhone->text().trimmed()},
                         {QStringLiteral("email"), ui->leEmail->text().trimmed()},
+                        {QStringLiteral("oldPassword"), oldPassword},
                         {QStringLiteral("password"), newPassword}};
+
+    passwordChangePending = true;
+    showStatus(ui->lblPasswordStatus, QStringLiteral("Updating password..."));
     AuthClient::instance()->sendMessage(AuthClient::instance()->withSession(common::Command::ProfileUpdate, payload));
-    ui->leOldPassword->clear();
-    ui->leNewPassword->clear();
-    ui->leConfirmPassword->clear();
 }
 
 void profile_page::on_btnRefreshCaptcha_clicked()
