@@ -29,6 +29,7 @@ public:
                                                   const QString& sellerContains,
                                                   const QString& fullTextContains) override;
     QVector<AdStatusHistoryRecord> getStatusHistory(int adId) override;
+    QVector<AdTransactionHistoryRecord> getTransactionHistoryForAd(int adId, int limit = 100) override;
     QVector<AdSummaryRecord> listAdsBySeller(const QString& sellerUsername, const QString& statusFilter) override;
     QVector<AdSummaryRecord> listPurchasedAdsByBuyer(const QString& buyerUsername, int limit) override;
     AdStatusCounts getAdStatusCounts() override;

@@ -575,6 +575,42 @@ QVector<AdRepository::AdStatusHistoryRecord> SqliteAdRepository::getStatusHistor
     return history;
 }
 
+QVector<AdRepository::AdTransactionHistoryRecord> SqliteAdRepository::getTransactionHistoryForAd(int adId,
+                                                                                                    int limit)
+{
+    QMutexLocker locker(&mutex_);
+    ensureConnection();
+
+    QSqlQuery query(db_);
+    query.prepare(QStringLiteral(
+        "SELECT created_at, type, username, counterparty, amount_tokens, balance_after "
+        "FROM transaction_ledger "
+        "WHERE ad_id = :ad_id "
+        "ORDER BY created_at DESC, id DESC "
+        "LIMIT :limit;"));
+    query.bindValue(QStringLiteral(":ad_id"), adId);
+    query.bindValue(QStringLiteral(":limit"), limit > 0 ? limit : 100);
+
+    if (!query.exec()) {
+        throwDatabaseError(QStringLiteral("get ad transaction history"), query.lastError());
+    }
+
+    QVector<AdTransactionHistoryRecord> records;
+    while (query.next()) {
+        AdTransactionHistoryRecord record;
+        record.createdAt = query.value(0).toString();
+        record.entryType = query.value(1).toString();
+        record.username = query.value(2).toString();
+        record.counterparty = query.value(3).toString();
+        record.amountTokens = query.value(4).toInt();
+        record.balanceAfter = query.value(5).toInt();
+        records.push_back(record);
+    }
+
+    return records;
+}
+
+
 bool SqliteAdRepository::updateStatus(int adId,
                                       AdModerationStatus newStatus,
                                       const QString& reason)
