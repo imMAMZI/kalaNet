@@ -4,6 +4,7 @@
 #include "../network/auth_client.h"
 
 #include <QDialog>
+#include <QFrame>
 #include <QHeaderView>
 #include <QHBoxLayout>
 #include <QLabel>
@@ -322,30 +323,68 @@ void shop_page::showAdPreviewDialog(int adId)
     const ShopItem& ad = allAds[index];
     QDialog dialog(this);
     dialog.setWindowTitle(QStringLiteral("Ad preview"));
-    dialog.resize(520, 620);
+    dialog.resize(560, 700);
+    dialog.setStyleSheet(QStringLiteral(
+        "QDialog {"
+        "  background: #090910;"
+        "  color: #F8F8FF;"
+        "}"
+        "QFrame#previewCard {"
+        "  background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #11111A, stop:1 #0D0D15);"
+        "  border: 1px solid #2F2F43;"
+        "  border-radius: 20px;"
+        "}"
+        "QLabel#previewTitle {"
+        "  color: #FF58B6;"
+        "  font-size: 24px;"
+        "  font-weight: 900;"
+        "}"
+        "QLabel#previewMeta {"
+        "  color: #D6D6E5;"
+        "  font-size: 12px;"
+        "  font-weight: 700;"
+        "}"
+        "QLabel#sectionTitle {"
+        "  color: #9B9BB0;"
+        "  font-size: 11px;"
+        "  letter-spacing: 1px;"
+        "  text-transform: uppercase;"
+        "}"
+        "QPlainTextEdit#previewDescription {"
+        "  background: #0E0E14;"
+        "  border: 1px solid #2A2A39;"
+        "  border-radius: 12px;"
+        "  color: #F8F8FF;"
+        "  padding: 8px;"
+        "}"
+        "QPushButton#closePreviewBtn {"
+        "  background: #FF3DA5;"
+        "  color: #0B0B0F;"
+        "  border: none;"
+        "  border-radius: 12px;"
+        "  padding: 10px 16px;"
+        "  font-weight: 800;"
+        "}"
+        "QPushButton#closePreviewBtn:hover { background: #FF63B7; }"
+        "QPushButton#closePreviewBtn:pressed { background: #E92A93; }"));
 
-    auto *layout = new QVBoxLayout(&dialog);
+    auto *dialogLayout = new QVBoxLayout(&dialog);
+    dialogLayout->setContentsMargins(18, 18, 18, 18);
 
-    auto *title = new QLabel(ad.title, &dialog);
-    title->setStyleSheet(QStringLiteral("font-size: 20px; font-weight: 700;"));
-    layout->addWidget(title);
+    auto *card = new QFrame(&dialog);
+    card->setObjectName(QStringLiteral("previewCard"));
+    auto *layout = new QVBoxLayout(card);
+    layout->setContentsMargins(18, 18, 18, 18);
+    layout->setSpacing(12);
 
-    auto *meta = new QLabel(QStringLiteral("%1 • %2 token • Seller: %3")
-                            .arg(ad.category)
-                            .arg(ad.priceTokens)
-                            .arg(ad.seller),
-                            &dialog);
-    meta->setWordWrap(true);
-    layout->addWidget(meta);
-
-    auto *image = new QLabel(&dialog);
-    image->setMinimumHeight(260);
+    auto *image = new QLabel(card);
+    image->setMinimumHeight(290);
     image->setAlignment(Qt::AlignCenter);
-    image->setStyleSheet(QStringLiteral("border:1px solid #2A2A39; border-radius: 8px;"));
+    image->setStyleSheet(QStringLiteral("background:#0A0A12; border:1px solid #323248; border-radius: 14px;"));
     if (!detail.imageBytes.isEmpty()) {
         QPixmap pix;
         if (pix.loadFromData(detail.imageBytes)) {
-            image->setPixmap(pix.scaled(460, 260, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+            image->setPixmap(pix.scaled(500, 290, Qt::KeepAspectRatio, Qt::SmoothTransformation));
         } else {
             image->setText(QStringLiteral("Image unavailable"));
         }
@@ -354,16 +393,40 @@ void shop_page::showAdPreviewDialog(int adId)
     }
     layout->addWidget(image);
 
-    auto *desc = new QPlainTextEdit(&dialog);
+    auto *title = new QLabel(ad.title, card);
+    title->setObjectName(QStringLiteral("previewTitle"));
+    title->setWordWrap(true);
+    layout->addWidget(title);
+
+    auto *meta = new QLabel(QStringLiteral("%1 token • %2")
+                            .arg(ad.priceTokens)
+                            .arg(ad.category),
+                            card);
+    meta->setObjectName(QStringLiteral("previewMeta"));
+    layout->addWidget(meta);
+
+    auto *seller = new QLabel(QStringLiteral("Seller: %1").arg(ad.seller), card);
+    seller->setStyleSheet(QStringLiteral("color:#AFAFC4; font-size:11px;"));
+    layout->addWidget(seller);
+
+    auto *descriptionTitle = new QLabel(QStringLiteral("Description"), card);
+    descriptionTitle->setObjectName(QStringLiteral("sectionTitle"));
+    layout->addWidget(descriptionTitle);
+
+    auto *desc = new QPlainTextEdit(card);
+    desc->setObjectName(QStringLiteral("previewDescription"));
     desc->setReadOnly(true);
     desc->setPlainText(detail.description.trimmed().isEmpty()
                            ? QStringLiteral("No description provided")
                            : detail.description);
     layout->addWidget(desc, 1);
 
+    dialogLayout->addWidget(card, 1);
+
     auto *closeBtn = new QPushButton(QStringLiteral("Close"), &dialog);
+    closeBtn->setObjectName(QStringLiteral("closePreviewBtn"));
     closeBtn->setCursor(Qt::PointingHandCursor);
-    layout->addWidget(closeBtn, 0, Qt::AlignRight);
+    dialogLayout->addWidget(closeBtn, 0, Qt::AlignRight);
     connect(closeBtn, &QPushButton::clicked, &dialog, &QDialog::accept);
 
     dialog.exec();
