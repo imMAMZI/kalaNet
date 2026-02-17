@@ -25,12 +25,12 @@ int main(int argc, char *argv[])
     SqliteAdRepository adRepo("kalanet.db");
     SqliteCartRepository cartRepo("kalanet.db");
     SqliteWalletRepository walletRepo("kalanet.db");
-    ServerConsoleWindow console(adRepo, walletRepo);
+    SessionService sessionService;
+    ServerConsoleWindow console(adRepo, walletRepo, userRepo, sessionService);
     console.show();
 
     CaptchaService captchaService;
     AuthService authService(userRepo, captchaService, &adRepo, &walletRepo);
-    SessionService sessionService;
     AdService adService(adRepo);
     CartService cartService(cartRepo, adRepo);
     WalletService walletService(walletRepo, captchaService);

@@ -4,6 +4,7 @@
 #include <QString>
 #include <QHash>
 #include <QMutex>
+#include <QSet>
 
 class SessionService
 {
@@ -18,6 +19,7 @@ public:
     bool invalidateSession(const QString& token);
     QString refreshSession(const QString& token);
     bool updateSessionUsername(const QString& token, const QString& newUsername);
+    QSet<QString> activeUsernames() const;
 
 private:
     mutable QMutex mutex_;

@@ -84,3 +84,13 @@ bool SessionService::updateSessionUsername(const QString& token, const QString& 
     it->username = normalizedUsername;
     return true;
 }
+
+QSet<QString> SessionService::activeUsernames() const
+{
+    QMutexLocker locker(&mutex_);
+    QSet<QString> usernames;
+    for (auto it = sessionsByToken_.cbegin(); it != sessionsByToken_.cend(); ++it) {
+        usernames.insert(it.value().username);
+    }
+    return usernames;
+}

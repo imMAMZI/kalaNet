@@ -2,6 +2,7 @@
 #define USER_REPOSITORY_H
 
 #include <QString>
+#include <QVector>
 #include <optional>
 
 struct User
@@ -11,6 +12,17 @@ struct User
     QString phone;
     QString email;
     QString passwordHash;
+    QString role;
+};
+
+struct AdminUserInfo
+{
+    QString fullName;
+    QString username;
+    QString phone;
+    QString passwordHash;
+    int soldItems = 0;
+    int boughtItems = 0;
     QString role;
 };
 
@@ -39,6 +51,7 @@ public:
     virtual bool updateUser(const QString& currentUsername, const User& updatedUser) = 0;
     virtual int countAllUsers() = 0;
     virtual int countUsersByRole(const QString& role) = 0;
+    virtual QVector<AdminUserInfo> listUsersForAdmin(const QString& searchTerm = {}) = 0;
 
     virtual ~UserRepository() = default;
 };
