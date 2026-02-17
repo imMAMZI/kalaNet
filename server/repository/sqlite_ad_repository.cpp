@@ -90,7 +90,7 @@ QString moderationStatusToDb(AdRepository::AdModerationStatus status)
     }
 }
 
-} // namespace
+}
 
 SqliteAdRepository::SqliteAdRepository(const QString& databasePath)
 {

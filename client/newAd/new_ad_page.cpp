@@ -35,7 +35,6 @@ void new_ad_page::wireLivePreview()
     connect(ui->cbCategory, &QComboBox::currentTextChanged, this, &new_ad_page::updatePreview);
     connect(ui->sbPrice, QOverload<int>::of(&QSpinBox::valueChanged), this, &new_ad_page::updatePreview);
 
-    // QPlainTextEdit uses textChanged without parameters
     connect(ui->pteDescription, &QPlainTextEdit::textChanged, this, &new_ad_page::updatePreview);
 }
 
@@ -116,7 +115,6 @@ bool new_ad_page::validateForm(QString &errorOut) const
     if (desc.isEmpty()) { errorOut = "Description is required."; return false; }
     if (desc.size() < 10) { errorOut = "Description is too short (min 10 characters)."; return false; }
 
-    // Image optional (as discussed); if you want mandatory later, enforce here.
     return true;
 }
 
@@ -131,8 +129,6 @@ void new_ad_page::clearForm()
     updatePreview();
     setStatus("Form cleared.");
 }
-
-// -------------------- Slots (Qt auto-connect) --------------------
 
 void new_ad_page::on_btnBackToMenu_clicked()
 {
@@ -188,7 +184,6 @@ void new_ad_page::on_btnSubmitAd_clicked()
     const QString cat   = ui->cbCategory->currentText().trimmed();
     const int price     = ui->sbPrice->value();
 
-    // Emit for main window / backend wiring later
     emit submitAdRequested(title, desc, cat, price, selectedImageBytes);
     setStatus("Submitting ad to server...");
 }

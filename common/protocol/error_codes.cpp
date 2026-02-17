@@ -44,7 +44,7 @@ const QHash<QString, ErrorCode>& backwardMap()
     return map;
 }
 
-} // namespace
+}
 
 QString errorCodeToString(ErrorCode code)
 {
@@ -89,4 +89,4 @@ int errorCodeToStatusCode(ErrorCode code)
     }
 }
 
-} // namespace common
+}

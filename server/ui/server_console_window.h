@@ -4,7 +4,6 @@
 
 #ifndef KALANET_SERVERCONSOLEWINDOW_H
 #define KALANET_SERVERCONSOLEWINDOW_H
-// server/ui/serverconsolewindow.h
 
 #include <QDateTime>
 #include <QMainWindow>

@@ -5,7 +5,7 @@ namespace common {
 
     bool Cart::addItem(int adId) {
         if (contains(adId))
-            return false; // already added
+            return false;
 
         items_.push_back(adId);
         return true;

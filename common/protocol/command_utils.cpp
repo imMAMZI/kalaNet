@@ -91,7 +91,6 @@ const QHash<QString, Command>& backwardMap()
             result.insert(it.value(), it.key());
         }
 
-        // Backward compatibility aliases (legacy command strings)
         result.insert(QStringLiteral("login"), Command::Login);
         result.insert(QStringLiteral("login_result"), Command::LoginResult);
         result.insert(QStringLiteral("signup"), Command::Signup);
@@ -107,7 +106,7 @@ const QHash<QString, Command>& backwardMap()
     return map;
 }
 
-} // namespace
+}
 
 QString commandToString(Command command)
 {
@@ -119,4 +118,4 @@ Command commandFromString(const QString& commandString)
     return backwardMap().value(commandString, Command::Unknown);
 }
 
-} // namespace common
+}

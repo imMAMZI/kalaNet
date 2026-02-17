@@ -77,7 +77,7 @@ namespace common {
         SystemNotification
     };
 
-} // namespace common
+}
 
 Q_DECLARE_METATYPE(common::Command)
 

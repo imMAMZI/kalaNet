@@ -9,6 +9,6 @@ namespace common {
     QString commandToString(Command command);
     Command commandFromString(const QString& commandString);
 
-} // namespace common
+}
 
 #endif // COMMON_PROTOCOL_COMMAND_UTILS_H

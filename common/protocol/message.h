@@ -18,7 +18,6 @@ enum class MessageStatus {
     Failure
 };
 
-// ... بخش‌های بالایی فایل بدون تغییر ...
 
 class Message {
 public:
@@ -83,8 +82,6 @@ private:
     QJsonObject payload_;
 };
 
-// ... بقیه فایل بدون تغییر ...
-
-} // namespace common
+}
 
 #endif // COMMON_PROTOCOL_MESSAGE_H

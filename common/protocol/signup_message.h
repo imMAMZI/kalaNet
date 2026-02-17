@@ -28,6 +28,6 @@ namespace common {
                                              const QJsonObject& payload = {});
     };
 
-} // namespace common
+}
 
 #endif // COMMON_PROTOCOL_SIGNUP_MESSAGE_H

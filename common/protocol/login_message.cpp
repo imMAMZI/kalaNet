@@ -47,4 +47,4 @@ namespace common {
         return Message::makeFailure(Command::LoginResult, errorCode, reason, responsePayload, requestId);
     }
 
-} // namespace common
+}

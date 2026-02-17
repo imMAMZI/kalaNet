@@ -31,6 +31,6 @@ namespace common {
                                              const QString& sessionToken = {});
     };
 
-} // namespace common
+}
 
 #endif // BUY_MESSAGE_H

@@ -52,7 +52,7 @@ AdRepository::AdModerationStatus parseModerationStatus(const QString& value)
     return AdRepository::AdModerationStatus::Unknown;
 }
 
-} // namespace
+}
 
 AdService::AdService(AdRepository& adRepository)
     : adRepository_(adRepository)

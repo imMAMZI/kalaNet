@@ -50,4 +50,4 @@ namespace common {
         return Message::makeFailure(Command::SignupResult, errorCode, reason, responsePayload, requestId);
     }
 
-} // namespace common
+}

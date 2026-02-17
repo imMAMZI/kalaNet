@@ -197,8 +197,6 @@ AdDetailDTO AdDetailDTO::fromModel(const Ad& ad) {
     return dto;
 }
 
-// ------------------------- Ad class implementation -------------------------
-
 Ad::Ad()
     : category_(),
       seller_(),

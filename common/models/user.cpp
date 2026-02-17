@@ -2,7 +2,6 @@
 
 namespace common {
 
-    // Constructor
     User::User(std::string username,
                std::string fullName,
                std::string email,
@@ -17,7 +16,6 @@ namespace common {
     {
     }
 
-    // Identity getters
     const std::string& User::getUsername() const {
         return username_;
     }
@@ -34,7 +32,6 @@ namespace common {
         return phone_;
     }
 
-    // Identity setters
     void User::setFullName(const std::string& name) {
         fullName_ = name;
     }
@@ -47,7 +44,6 @@ namespace common {
         phone_ = phone;
     }
 
-    // Authentication
     const std::string& User::getPasswordHash() const {
         return passwordHash_;
     }
@@ -56,7 +52,6 @@ namespace common {
         passwordHash_ = hash;
     }
 
-    // Wallet
     Wallet& User::wallet()
     {
         return wallet_;
@@ -66,7 +61,6 @@ namespace common {
         return wallet_;
     }
 
-    // Role
     UserRole User::getRole() const {
         return role_;
     }
@@ -75,7 +69,6 @@ namespace common {
         return role_ == UserRole::Admin;
     }
 
-    // History
     const std::vector<std::string>& User::getHistory() const {
         return history_;
     }
@@ -93,8 +86,8 @@ namespace common {
         return cart_;
     }
 
-    void User::setRole(UserRole role) // Intended for server-side only
+    void User::setRole(UserRole role)
     {
         role_ = role;
     }
-} // namespace common
+}

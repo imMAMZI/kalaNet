@@ -31,7 +31,7 @@ public:
                                          const QJsonObject& payload = {});
 };
 
-} // namespace common
+}
 
 #endif // COMMON_PROTOCOL_AD_CREATE_MESSAGE_H
 

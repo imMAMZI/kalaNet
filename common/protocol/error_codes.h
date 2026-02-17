@@ -28,6 +28,5 @@ namespace common {
     ErrorCode errorCodeFromString(const QString& code);
     int errorCodeToStatusCode(ErrorCode code);
 
-} // namespace common
-
+}
 #endif // COMMON_PROTOCOL_ERROR_CODES_H

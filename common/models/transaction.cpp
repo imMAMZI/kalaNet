@@ -4,7 +4,6 @@
 
 namespace common {
 
-    // Utility to generate ISO timestamp (YYYY-MM-DD HH:MM:SS)
     static std::string currentTimestamp() {
         using namespace std::chrono;
 

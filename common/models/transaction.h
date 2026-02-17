@@ -42,7 +42,7 @@ namespace common {
         int adId_;
         double amount_;
         TransactionStatus status_;
-        std::string timestamp_;  // stored as ISO 8601 string
+        std::string timestamp_;
     };
 
 }

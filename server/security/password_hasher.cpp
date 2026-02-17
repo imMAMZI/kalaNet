@@ -57,7 +57,6 @@ bool PasswordHasher::verify(const QString& rawPassword, const QString& storedHas
         return constantTimeEquals(actual, expected);
     }
 
-    // Backward compatibility for old records before server-side hashing.
     const QByteArray storedBytes = storedHash.toUtf8();
     const QByteArray rawBytes = rawPassword.toUtf8();
     const QByteArray rawSha256Hex = sha256(rawBytes).toHex();

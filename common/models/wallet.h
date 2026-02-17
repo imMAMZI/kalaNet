@@ -12,13 +12,10 @@ namespace common {
 
         double balance() const;
 
-        // Increase balance (e.g. charge wallet)
         void deposit(double amount);
 
-        // Decrease balance (purchase)
         bool withdraw(double amount);
 
-        // Wallet history (optional but nمره‌پسند)
         const std::vector<std::string>& history() const;
 
     private:

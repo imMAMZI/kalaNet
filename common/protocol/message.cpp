@@ -34,7 +34,7 @@ MessageStatus statusFromString(const QString& value)
     return MessageStatus::None;
 }
 
-} // namespace
+}
 
 Message::Message()
     : Message(Command::Unknown)
@@ -315,4 +315,4 @@ std::optional<Message> Message::fromJson(const QJsonObject& envelope, QString* e
     return message;
 }
 
-} // namespace common
+}

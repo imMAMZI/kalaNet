@@ -37,7 +37,7 @@ void how_it_works_page::setStatus(const QString &text)
 
 QString how_it_works_page::guidePlainText() const
 {
-    // Export/copy-friendly version of the guide
+
     return
         "PinkMart User Guide\n"
         "===================\n\n"
@@ -62,8 +62,6 @@ QString how_it_works_page::guidePlainText() const
         "- Closing pages should return to Main Menu (use Back).\n"
         "- Some actions will be validated by server later.\n";
 }
-
-// -------------------- Slots (Qt auto-connect) --------------------
 
 void how_it_works_page::on_btnBackToMenu_clicked()
 {

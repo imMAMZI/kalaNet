@@ -54,8 +54,8 @@ private:
     Ui::new_ad_page *ui;
 
     QString selectedImagePath;
-    QByteArray selectedImageBytes;   // stored so we can submit later
-    QPixmap selectedPixmap;          // for preview only
+    QByteArray selectedImageBytes;
+    QPixmap selectedPixmap;
 };
 
 #endif // KALANET_NEW_AD_PAGE_H

@@ -4,7 +4,6 @@
 
 #ifndef KALANET_REQUESTLOGMODEL_H
 #define KALANET_REQUESTLOGMODEL_H
-// server/ui/requestlogmodel.h
 
 #include <QAbstractTableModel>
 #include <QVector>
