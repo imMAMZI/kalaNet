@@ -68,9 +68,6 @@ kalaNet/
 ├─ common/                    # Shared models + protocol
 ├─ server/                    # TCP server, services, repositories, admin UI
 ├─ client/                    # End-user desktop application
-├─ scripts/
-│  ├─ bootstrap_db.sql        # Idempotent schema bootstrap
-│  └─ bootstrap_db.sh         # Helper to initialize DB with sqlite3
 └─ docs/
    └─ database_schema_versioning.md
 ```
