@@ -22,6 +22,7 @@ public:
     bool updateUser(const QString& currentUsername, const User& updatedUser) override;
     int countAllUsers() override;
     int countUsersByRole(const QString& role) override;
+    QVector<AdminUserInfo> listUsersForAdmin(const QString& searchTerm = {}) override;
 
 private:
     bool ensureConnection();

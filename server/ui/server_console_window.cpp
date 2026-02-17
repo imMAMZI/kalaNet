@@ -8,6 +8,7 @@
 
 #include "pending_ads_window.h"
 #include "discount_code_manager_window.h"
+#include "users_information_window.h"
 #include "protocol/error_codes.h"
 #include <QDateTime>
 #include <QFileDialog>
@@ -16,13 +17,19 @@
 #include <QStandardPaths>
 #include <QTextStream>
 
-ServerConsoleWindow::ServerConsoleWindow(AdRepository& adRepository, WalletRepository& walletRepository, QWidget* parent)
+ServerConsoleWindow::ServerConsoleWindow(AdRepository& adRepository,
+                                       WalletRepository& walletRepository,
+                                       UserRepository& userRepository,
+                                       SessionService& sessionService,
+                                       QWidget* parent)
     : QMainWindow(parent),
       ui(new Ui::ServerConsoleWindow),
       logModel(new RequestLogModel(this)),
       proxyModel(new RequestLogFilterProxy(this)),
       adRepository_(adRepository),
-      walletRepository_(walletRepository)
+      walletRepository_(walletRepository),
+      userRepository_(userRepository),
+      sessionService_(sessionService)
 {
     ui->setupUi(this);
 
@@ -79,6 +86,8 @@ void ServerConsoleWindow::setupConnections() {
             this, &ServerConsoleWindow::showPendingAdsWindow);
     connect(ui->pushButtonShowStats, &QPushButton::clicked,
             this, &ServerConsoleWindow::showDiscountCodeManager);
+    connect(ui->pushButtonShowUsersInformation, &QPushButton::clicked,
+            this, &ServerConsoleWindow::showUsersInformation);
 }
 
 void ServerConsoleWindow::populateCommandFilter() {
@@ -257,6 +266,18 @@ void ServerConsoleWindow::showDiscountCodeManager()
     discountCodeManagerWindow_->activateWindow();
 }
 
+
+
+void ServerConsoleWindow::showUsersInformation()
+{
+    if (usersInformationWindow_ == nullptr) {
+        usersInformationWindow_ = new UsersInformationWindow(userRepository_, sessionService_, this);
+    }
+
+    usersInformationWindow_->show();
+    usersInformationWindow_->raise();
+    usersInformationWindow_->activateWindow();
+}
 void ServerConsoleWindow::updateUptime() {
     if (!serverStartTime.isValid()) {
         ui->labelUptimeValue->setText("00:00:00");

@@ -243,6 +243,52 @@ int SqliteUserRepository::countAllUsers()
     return query.next() ? query.value(0).toInt() : 0;
 }
 
+
+QVector<AdminUserInfo> SqliteUserRepository::listUsersForAdmin(const QString& searchTerm)
+{
+    QMutexLocker locker(&mutex_);
+    ensureConnection();
+
+    const QString normalizedSearch = searchTerm.trimmed();
+
+    QSqlQuery query(db_);
+    QString sql = QStringLiteral(
+        "SELECT u.full_name, u.username, u.phone, u.passwordHash, u.role, "
+        "COALESCE((SELECT COUNT(1) FROM ads a WHERE a.seller_username = u.username AND LOWER(a.status) = 'sold'), 0) AS sold_count, "
+        "COALESCE((SELECT COUNT(1) FROM transaction_ledger t WHERE t.username = u.username AND t.type = 'purchase_debit'), 0) AS bought_count "
+        "FROM users u");
+
+    if (!normalizedSearch.isEmpty()) {
+        sql += QStringLiteral(" WHERE LOWER(u.full_name) LIKE :search OR LOWER(u.username) LIKE :search");
+    }
+
+    sql += QStringLiteral(" ORDER BY LOWER(u.full_name), LOWER(u.username);");
+
+    query.prepare(sql);
+    if (!normalizedSearch.isEmpty()) {
+        query.bindValue(QStringLiteral(":search"), QStringLiteral("%") + normalizedSearch.toLower() + QStringLiteral("%"));
+    }
+
+    if (!query.exec()) {
+        throwDatabaseError(QStringLiteral("listUsersForAdmin"), query.lastError());
+    }
+
+    QVector<AdminUserInfo> users;
+    while (query.next()) {
+        AdminUserInfo info;
+        info.fullName = query.value(0).toString();
+        info.username = query.value(1).toString();
+        info.phone = query.value(2).toString();
+        info.passwordHash = query.value(3).toString();
+        info.role = query.value(4).toString();
+        info.soldItems = query.value(5).toInt();
+        info.boughtItems = query.value(6).toInt();
+        users.push_back(info);
+    }
+
+    return users;
+}
+
 int SqliteUserRepository::countUsersByRole(const QString& role)
 {
     QMutexLocker locker(&mutex_);
